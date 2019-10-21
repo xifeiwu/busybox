@@ -39,8 +39,8 @@ module.exports = class KoaServer {
     port: null
   }, provideService = {
     static: true,
-    assets: false,
-    assist: false
+    assist: false,
+    assets: false
   }) {
     this.CURRENT_WORK_DIR = process.cwd();
     this.STATIC_DIR = options.staticDir ? (options.staticDir.startsWith('/') ? options.staticDir : path.resolve(this.CURRENT_WORK_DIR, options.staticDir)) : this.CURRENT_WORK_DIR;

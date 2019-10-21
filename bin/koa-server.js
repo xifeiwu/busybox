@@ -9,8 +9,8 @@ const program = new commander.Command();
 
 program
   .option('-s, --static <path>', 'set base dir for static server', process.cwd())
-  .option('-a, --assets [boolean]', 'as assets server', false)
-  .option('--assist [boolean]', 'as a server for test', false)
+  .option('-a, --assist [boolean]', 'as a server for test', false)
+  .option('--assets [boolean]', 'as assets server', false)
   .option('-p, --port [string]', 'as a server for test', null);
 
 program.parse(process.argv);
