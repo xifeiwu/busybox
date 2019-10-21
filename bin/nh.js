@@ -84,7 +84,7 @@ commander.command('rm <key>')
       return;
     }
     const reg = new RegExp(key);
-    const fileList = readDirRecursive(dir).filter(it => reg.test(it));
+    const fileList = readDirRecursive(dir, f => f).filter(it => reg.test(it));
     if (fileList.length === 0) {
       console.log('not file found');
       return;
@@ -104,7 +104,12 @@ commander.command('rm <key>')
     });
     if (['yes', 'y'].includes(answer)) {
       fileList.forEach(it => {
-        nodeUtils.deleteFile(path.resolve(dir, it));
+        try {
+          const theFile = path.resolve(dir, it);
+          fs.statSync(theFile);
+          nodeUtils.deleteFile(theFile);
+          console.log(`deleted: ${theFile}`);
+        } catch (err) {}
       });
       console.log(`deleted: ${fileList.length}`);
     } else {
