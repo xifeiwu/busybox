@@ -9,6 +9,8 @@ const commander = require('commander');
 const NodeUtils = require('../utils/node');
 const nodeUtils = new NodeUtils();
 
+commander.addImplicitHelpCommand();
+
 commander.command('ps').action(() => {
   const cmdPS = nodeUtils.spawnCmdPS();
   cmdPS.stdout.pipe(process.stdout);
