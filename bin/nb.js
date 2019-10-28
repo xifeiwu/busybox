@@ -184,6 +184,12 @@ commander.command('get <url>')
       headers
     })
   });
+
+  commander.command('ip <func> [args...]')
+    .action(async(func, args, command) => {
+      const ip = require('ip');
+      console.log(ip[func](...args));
+    })
 // commander
 //   .command('setup [env]')
 //   .description('run setup commands for all envs')
