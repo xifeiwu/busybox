@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const util = require('util');
 const crypto = require('crypto');
 const readline = require('readline');
 const childProcess = require('child_process');
@@ -40,6 +41,43 @@ commander.command('lines-count <dir>')
   .action(async dir => {
     require('../tools/commands/lines-count.js')(dir);
   });
+
+commander.command('size <dir>')
+  .description('show size of file(dir)')
+  .option('-m, --max-depth <maxDepth>', 'max dir depth', null)
+  .action(async (dir, command) => {
+    const format = (tree) => {
+      const traverse = it => {
+        var result = [];
+        if (it.hasOwnProperty('children')) {
+          result = it['children'].map(traverse).reduce((sum, it) => sum.concat(it), result);
+          result.push({
+            size: it.size,
+            depth: it.depth,
+            file: it.file
+          });
+        } else {
+          result.push({
+            size: it.size,
+            depth: it.depth,
+            file: it.file
+          });
+        }
+        return result;
+      }
+      return traverse(tree);
+    }
+    var {maxDepth} = command;
+    var results = format(require('fs-readdir-recursive/file-size')(dir));
+    // console.log(JSON.stringify(results))
+    // return;
+    if (maxDepth) {
+      results = results.filter(it => it.depth <= maxDepth);
+    }
+    results.forEach(it => {
+      console.log(`${it.size}\t\t${it.file}(${it.depth})`);
+    });
+  })
 
 commander.command('find <key>')
   .description('find file by key')
