@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const readline = require('readline');
 const childProcess = require('child_process');
 const commander = require('commander');
+const bytes = require('bytes');
 const NodeUtils = require('../utils/node');
 const nodeUtils = new NodeUtils();
 
@@ -75,7 +76,7 @@ commander.command('size <dir>')
       results = results.filter(it => it.depth <= maxDepth);
     }
     results.forEach(it => {
-      console.log(`${it.size}\t\t${it.file}(${it.depth})`);
+      console.log(`${bytes(it.size)}\t\t${it.file}(${it.depth})`);
     });
   })
 
