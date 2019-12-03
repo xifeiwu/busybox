@@ -10,9 +10,12 @@ const nodeUtils = new (require('../../../utils/node'))();
 // 注意require('koa-router')返回的是函数:
 const router = require('koa-router')();
 
-// handle data of body before sent
-async function handleBody(ctx, next) {
-  var body = ctx.body;
+/**
+ * custom body
+ * slow: true of false
+ * wait: time in seconds
+*/
+async function handleBody(ctx, next, body) {
   if (!body) {
     return next();
   }
@@ -25,31 +28,31 @@ async function handleBody(ctx, next) {
   if ('string' == typeof body) {
     body = nodeUtils.toStream(body);
   }
-  if (body instanceof Stream) {
-    if (ctx.acceptsEncodings('gzip') === 'gzip' && (ctx.get['content-encoding'] !== 'gzip')) {
-      ctx.set('content-encoding', 'gzip');
-      body = body.pipe(zlib.createGzip());
-    }
-  }
+  // if (body instanceof Stream) {
+  //   if (ctx.acceptsEncodings('gzip') === 'gzip' && (ctx.get['content-encoding'] !== 'gzip')) {
+  //     ctx.set('content-encoding', 'gzip');
+  //     body = body.pipe(zlib.createGzip());
+  //   }
+  // }
 
-  const withCookie = ctx.query['cookie'];
-  if (withCookie) {
-    var count = ~~ctx.cookies.get('count') + 1;
-    ctx.cookies.set('count', count);
-    ctx.cookies.set('rich', 'with all config', {
-      maxage: 1000 * 6,
-      httpOnly: false
-    });
-  }
+  // const withCookie = ctx.query['cookie'];
+  // if (withCookie) {
+  //   var count = ~~ctx.cookies.get('count') + 1;
+  //   ctx.cookies.set('count', count);
+  //   ctx.cookies.set('rich', 'with all config', {
+  //     maxage: 1000 * 6,
+  //     httpOnly: false
+  //   });
+  // }
 
   // const feature = ctx.query.feature;
   const slow = ctx.query['slow'];
-  var logWait = ctx.query['long-wait'];
-  if (logWait) {
+  var wait = ctx.query['wait'];
+  if (wait) {
     try {
-      logWait = parseInt(logWait);
+      wait = parseInt(wait);
     } catch(err) {
-      logWait = 5;
+      wait = 5;
     }
   }
   
@@ -57,11 +60,10 @@ async function handleBody(ctx, next) {
     const slowTransform = nodeUtils.slowStream(1024, 500);
     body = body.pipe(slowTransform);
   }
-  if (logWait) {
-    await nodeUtils.waitMilliSeconds(logWait * 1000);
+  if (wait) {
+    await nodeUtils.waitMilliSeconds(wait * 1000);
   }
-
-  ctx.body = body;
+  return body;
 }
 
 // common get
@@ -69,7 +71,6 @@ router.get('/api/test', async(ctx, next) => {
   let req = ctx.req; // 原request
   let res = ctx.res; // 原response
   const extension = ctx.query['extension'];
-  const feature = ctx.query.feature;
 
   const getStreamByType = (extension) => {
     var body = null;
@@ -99,8 +100,8 @@ router.get('/api/test', async(ctx, next) => {
     return body;
   }
   
-  ctx.body = getStreamByType(extension ? extension : 'js');
-  handleBody(ctx, next);
+  body = getStreamByType(extension ? extension : 'js');
+  ctx.body = await handleBody(ctx, next, body);
 });
 
 router.post('/api/test', async(ctx, next) => {

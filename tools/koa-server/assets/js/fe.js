@@ -403,6 +403,29 @@ class FEUtils extends CommonUtils {
       }
     })
   }
+
+  /**
+   * @param data, in form of blob
+   */
+  downloadByBlob(data, fileName) {
+    fileName = fileName ? fileName : this.formatDate(Date.now(), 'yyyy-MM-dd_hh:mm:ss');
+    const blob = new Blob([data]);
+    const a = document.createElement('a');
+    a.href = window.URL.createObjectURL(blob);
+    a.download = fileName;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+  }
+  downloadByTagA(url, fileName) {
+    fileName = fileName ? fileName : this.formatDate(Date.now(), 'yyyy-MM-dd_hh:mm:ss');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+  }
 }
 
 

@@ -60,10 +60,92 @@
       }
     },
     get_xml: {
-
+      path: '/api/test',
+      method: 'get',
+      query: {
+        extension: 'xml'
+      }
     },
     get_png: {
-
+      path: '/api/test',
+      method: 'get',
+      query: {
+        extension: 'png'
+      }
+    },
+    get_js_slow: {
+      path: '/api/test',
+      method: 'get',
+      query: {
+        extension: 'js',
+        slow: true
+      },
+      onDownloadProgress(evt) {
+        console.log(evt);
+      }
+    },
+    get_js_wait: {
+      path: '/api/test',
+      method: 'get',
+      query: {
+        extension: 'js',
+        wait: 10
+      },
+    },
+    get_js_timeout: {
+      path: '/api/test',
+      method: 'get',
+      timeout: 5 * 1000,
+      query: {
+        extension: 'js',
+        wait: 10
+      },
+    },
+    download_by_blob: {
+      path: '/api/test',
+      method: 'get',
+      responseType: 'blob',
+      query: {
+        extension: 'js'
+      }
+    },
+    download_by_tag_a: {
+      path: '/api/test',
+      method: 'get',
+      responseType: 'blob',
+      query: {
+        extension: 'js'
+      }
+    },
+    post_json: {
+      path: '/api/test/echo',
+      method: 'post',
+      headers: {
+        'content-type': 'application/json'
+      },
+      data: {
+        a: 1, b: 2
+      }
+    },
+    post_form_urlencoded: {
+      path: '/api/test/echo',
+      method: 'post',
+      headers: {
+        'content-type': 'application/json'
+      },
+      data: {
+        a: 1, b: 2
+      }
+    },
+    post_form: {
+      path: '/api/test/echo',
+      method: 'post',
+      headers: {
+        'content-type': 'multipart/form-data'
+      },
+      data: {
+        a: 1, b: 2
+      }
     }
   }
   
@@ -73,8 +155,31 @@
 
     async function handleAction(action, data) {
       if (URL_LIST.hasOwnProperty(action)) {
-        const response = await xhrAdapter(URL_LIST[action]);
-        console.log(response);
+        const config = URL_LIST[action];
+
+        if (config.query && config.query.wait) {
+          var count = config.query.wait;
+          const intervalTag = setInterval(() => {
+            console.log(count--);
+            if (count <= 0) {
+              clearInterval(intervalTag);
+            }
+          }, 1000);
+        }
+
+        if (action === 'download_by_tag_a') {
+          utils.downloadByTagA(config.path, 'test.js');
+          return;
+        }
+        try {
+          const response = await xhrAdapter(config);
+          if (action === 'download_by_blob') {
+            utils.downloadByBlob(response.data);
+          }
+          console.log(response);
+        } catch (err) {
+          console.log(err);
+        }
         return;
       }
       if (!action) {
@@ -99,25 +204,6 @@
             break;
           case 'readystatechange':
             xhrAction.readystatechange(url);
-            break;
-            break;
-          case 'get-slow':
-            xhrAction.getSlow();
-            break;
-          case 'get-long-wait':
-            xhrAction.getLongWait();
-            break;
-          case 'get-xml':
-            xhrAction.getBinary('xml');
-            break;
-          case 'get-picture':
-            xhrAction.getBinary('image');
-            break;
-          case 'download-by-blob':
-            xhrAction.downloadByBlob(actionToUrl[action]);
-            break;
-          case 'download-by-tag-a':
-            xhrAction.downloadByTagA(actionToUrl[action]);
             break;
           case 'post-by-form':
             // var form = document.querySelector(target.dataset.for);
@@ -211,24 +297,31 @@
         <div class="form-item-label">get:</div>
         <div class="form-item-content">
           <button data-action="get_js">get_js</button>
-          <button data-action="get_xml">XML</button>
-          <button data-action="get_png">PNG</button>
+          <button data-action="get_xml">get_xml</button>
+          <button data-action="get_png">get_png</button>
         </div>
       </div>
       <div class="form-item">
-        <div class="form-item-label">DOWNLOAD:</div>
+        <div class="form-item-label">feature:</div>
         <div class="form-item-content">
-          <button data-action="download-by-blob"
-                  title="DOWNLOAD-BY-BLOB">DOWNLOAD-BY-BLOB</button>
-          <button data-action="download-by-tag-a">DOWNLOAD-BY-TAG-A</button>
+          <button data-action="get_js_slow">get_js_slow</button>
+          <button data-action="get_js_wait">get_js_wait</button>
+          <button data-action="get_js_timeout">get_js_timeout</button>
         </div>
       </div>
       <div class="form-item">
-        <div class="form-item-label">SHOW POST REQUEST:</div>
+        <div class="form-item-label">download:</div>
         <div class="form-item-content">
-          <button data-action="/api/test/echo?content-type=application/json">POST-JSON</button>
-          <button data-action="/api/test/echo?content-type=application/x-www-form-urlencoded">POST-X-WWW-FORM-URLENCODED</button>
-          <button data-action="/api/test/echo?content-type=multipart/form-data">POST-FORM-DATA</button>
+          <button data-action="download_by_blob">download_by_blob</button>
+          <button data-action="download_by_tag_a">download_by_tag_a</button>
+        </div>
+      </div>
+      <div class="form-item">
+        <div class="form-item-label">post:</div>
+        <div class="form-item-content">
+          <button data-action="post_json">post_json</button>
+          <button data-action="post_form_urlencoded">post_form_urlencoded</button>
+          <button data-action="post_form">post_form</button>
           <button data-action="post-by-form"><span>POST-FORM</span></button>
         </div>
       </div>
