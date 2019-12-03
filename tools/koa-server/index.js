@@ -39,16 +39,16 @@ module.exports = class KoaServer {
     port: null
   }, provideService = {
     static: true,
-    assist: false,
+    assist: true,
     assets: false
   }) {
-    this.CURRENT_WORK_DIR = process.cwd();
-    this.STATIC_DIR = options.staticDir ? (options.staticDir.startsWith('/') ? options.staticDir : path.resolve(this.CURRENT_WORK_DIR, options.staticDir)) : this.CURRENT_WORK_DIR;
-    this.UPLOAD_DIR = options.uploadDir ? options.uploadDir : this.CURRENT_WORK_DIR;
+    const CURRENT_WORK_DIR = process.cwd();
+    this.STATIC_DIR = options.staticDir ? path.resolve(options.staticDir) : CURRENT_WORK_DIR;
+    this.UPLOAD_DIR = options.uploadDir ? path.resolve(options.uploadDir) : CURRENT_WORK_DIR;
     this.PORT = options.port;
     // dir check
     [this.STATIC_DIR, this.UPLOAD_DIR].forEach(dir => {
-      var stats = fs.statSync(this.STATIC_DIR);
+      var stats = fs.statSync(dir);
       if (!stats.isDirectory()) {
         throw new Error(`${dir} is not a directory`);
       }

@@ -11,11 +11,12 @@
   <script type="text/javascript" src="./xhr.js"></script>
   <!-- <script type="text/javascript" src="/assets/libs/axios/axios.20190729.min.js"></script> -->
   <script>
-  function handleFileChange(evt) {
-    // can not reach
-    console.log(evt);
-    console.log(evt.target.files);
-  }
+    function handleFileChange(evt) {
+      // can not reach
+      console.log(evt);
+      console.log(evt.target.files);
+    }
+
     function showUploadFile() {
       const container = document.querySelector('.container');
       const toPostFiles = container.querySelector('.for-post-files .to-post-files');
@@ -110,6 +111,14 @@
                   break;
               }
             }
+            if (form.style.display == 'block') {
+              form.querySelector('.the-form').onsubmit = (evt) => {
+                const target = evt.target;
+                // new FormData(target)
+                xhrAction.postCommon('/api/test/echo?content-type=multipart/form-data', new FormData(target));
+                evt.preventDefault();
+              }
+            }
             break;
           case 'post-blob':
             xhrAction.post(getBlob());
@@ -135,13 +144,6 @@
       handleAction(action);
     });
 
-    document.querySelector('.section.form .the-form').onsubmit = (evt) => {
-      const target = evt.target;
-      // new FormData(target)
-      xhrAction.postCommon('/api/test/echo?content-type=multipart/form-data', new FormData(target));
-      evt.preventDefault();
-    }
-    
     const sectionFile = container.querySelector('.form .form-item.upload input.upload-more-files');
     sectionFile.addEventListener('change', evt => {
       // 不论是否有multiple标签，evt.target.files都是类数组
