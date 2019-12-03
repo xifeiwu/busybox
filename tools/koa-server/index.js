@@ -7,6 +7,7 @@ const router = require('koa-router')();
 const formidable = require('formidable');
 const staticCache = require('koa-static-cache');
 const nodeUtils = new (require('../../utils/node'))();
+const config = require('./config.js');
 
 
 // const debug = require('debug');
@@ -36,16 +37,9 @@ module.exports = class KoaServer {
   constructor(options = {
     staticDir: null,
     uploadDir: null,
-    port: null
-  }, provideService = {
-    static: true,
-    assist: true,
-    assets: false
   }) {
-    const CURRENT_WORK_DIR = process.cwd();
-    this.STATIC_DIR = options.staticDir ? path.resolve(options.staticDir) : CURRENT_WORK_DIR;
-    this.UPLOAD_DIR = options.uploadDir ? path.resolve(options.uploadDir) : CURRENT_WORK_DIR;
-    this.PORT = options.port;
+    this.STATIC_DIR = options.staticDir ? path.resolve(options.staticDir) : config.BASE_DIR;
+    this.UPLOAD_DIR = options.uploadDir ? path.resolve(options.uploadDir) : config.BASE_DIR;
     // dir check
     [this.STATIC_DIR, this.UPLOAD_DIR].forEach(dir => {
       var stats = fs.statSync(dir);
@@ -57,29 +51,22 @@ module.exports = class KoaServer {
       staticDir: this.STATIC_DIR,
       uploadDir: this.UPLOAD_DIR
     }, {colors: true}));
-    console.log(util.inspect(provideService, {colors: true}));
-    
-    this.provideService = provideService;
-    
-    this._httpServer = null;
   }
 
-  async start() {
+  async start(port = null) {
     try {
-      const ip = nodeUtils.getLocalIP();
-      const port = this.PORT ? this.PORT : (await nodeUtils.getAFreePort());
-      const origin = `http://${ip}:${port}`;
+      port = port ? port : config.port;
+      const host = nodeUtils.getLocalIP();
+      const origin = `http://${host}:${port}`;
       const app = new Koa();
       app.on('error', err => {
         console.log(err);
       });
       app.UPLOAD_DIR = this.UPLOAD_DIR;
-      this.setCommonMiddleware(app);
-      this.setStaticMiddleware(app);
+      this.setLogger(app);
+      this.setStatic(app);
       this.parseByFormidable(app);
-      await this.setRouter(app);
-      this.setAssistMiddleware(app);
-      this.handlePost(app);
+      this.setApi(app);
       app.listen(port);
       console.log(`started: ${origin}`);
       return app;
@@ -88,10 +75,13 @@ module.exports = class KoaServer {
     }
   }
 
-  setCommonMiddleware(app) {
+  setLogger(app) {
     app.use(async(ctx, next) => {
       console.log(`${ctx.url}`);
       await next();
+      if (!ctx.body) {
+        ctx.body = 'default response';
+      }
     });
     app.on('error', err => {
       console.log('err catched started:');
@@ -100,72 +90,53 @@ module.exports = class KoaServer {
     })
   }
 
-  setStaticMiddleware(app) {
-    const fileStore = {
-      fileMap: {},
-      get(key) {
-        return this.fileMap[key];
-      },
-      set(key, value) {
-        this.fileMap[key] = value;
-      }
-    };
-    if (this.provideService.assets) {
-      const dirList = nodeUtils.findFileListByNameUpward(__dirname, 'assets');
-      dirList.forEach(it => {
-        app.use(staticCache(it, {
-          prefix: '/assets',
-          // maxAge: 365 * 24 * 60 * 60,
-          // buffer: true,
-          dynamic: true,
-          preload: false,
-          dirContent(stat) {
-            return Buffer.from(nodeUtils.getDirContentInFormOfHtml(stat.path))
-          }
-        }, fileStore));
-      });
-    }
-
-    if(this.provideService.static) {
-      app.use(staticCache(this.STATIC_DIR, {
-        // prefix: '',
-        // maxAge: 365 * 24 * 60 * 60,
-        // buffer: true,
-        dynamic: true,
-        preload: false,
-        dirContent(stat) {
-          return Buffer.from(nodeUtils.getDirContentInFormOfHtml(stat.path))
-        }
-      }));
-    }
-
-    // const fileListPath = path.resolve(process.cwd(), 'keys.txt');
-    // fs.writeFileSync(fileListPath, '');
-    // Object.keys(fileStore.fileMap).forEach(it => {
-    //   fs.appendFileSync(fileListPath, `${it}\n`);
-    // });
-  }
-
-  setRouter(app) {
-    app.use(require('./router').routes());
-  }
-
-  setAssistMiddleware(app) {
-    if (!this.provideService.assist) {
-      return;
-    }
-    app.use(staticCache(path.resolve(__dirname, 'assist'), {
-      prefix: '/assist',
+  setStatic(app) {
+    app.use(staticCache(this.STATIC_DIR, {
+      // prefix: '',
       // maxAge: 365 * 24 * 60 * 60,
       // buffer: true,
-      // gzip: true,
       dynamic: true,
       preload: false,
       dirContent(stat) {
         return Buffer.from(nodeUtils.getDirContentInFormOfHtml(stat.path))
       }
     }));
-    app.use(require('./assist/router').routes());
+    app.use(staticCache(path.resolve(config.BASE_DIR, 'assets'), {
+      prefix: '/assets',
+      // prefix: '',
+      // maxAge: 365 * 24 * 60 * 60,
+      // buffer: true,
+      dynamic: true,
+      preload: false,
+      dirContent(stat) {
+        return Buffer.from(nodeUtils.getDirContentInFormOfHtml(stat.path))
+      }
+    }));
+    // NOTICE: do not provided as assests server(as it consume too much resource)
+    // const fileStore = {
+    //   fileMap: {},
+    //   get(key) {
+    //     return this.fileMap[key];
+    //   },
+    //   set(key, value) {
+    //     this.fileMap[key] = value;
+    //   }
+    // };
+    // if (this.provideService.assets) {
+    //   const dirList = nodeUtils.findFileListByNameUpward(__dirname, 'assets');
+    //   dirList.forEach(it => {
+    //     app.use(staticCache(it, {
+    //       prefix: '/assets',
+    //       // maxAge: 365 * 24 * 60 * 60,
+    //       // buffer: true,
+    //       dynamic: true,
+    //       preload: false,
+    //       dirContent(stat) {
+    //         return Buffer.from(nodeUtils.getDirContentInFormOfHtml(stat.path))
+    //       }
+    //     }, fileStore));
+    //   });
+    // }
   }
 
   // parse body for all post, results is saved to ctx.request.body
@@ -249,7 +220,12 @@ module.exports = class KoaServer {
     });
   }
 
-  // default action for post, if request is not handle in previous middleware
+  setApi(app) {
+    // app.use(require('./router').routes());
+    app.use(require('./api/test.js').routes());
+  }
+
+  // TODO: not used. (default action for post, if request is not handle in previous middleware)
   handlePost(app) {
     app.use(async(ctx, next) => {
       if (ctx.request.body) {

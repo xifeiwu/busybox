@@ -6,9 +6,11 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="initial-scale=1, width=device-width, maximum-scale=1, user-scalable=no" />
   <title>HTML Model</title>
-  <link rel="stylesheet" href="./style.css"></head>
+  <link rel="stylesheet" href="./css/test.css"></head>
   <style type="text/css"></style>
-  <script type="text/javascript" src="./xhr.js"></script>
+  <script type="text/javascript" src="./js/common.js"></script>
+  <script type="text/javascript" src="./js/fe.js"></script>
+  <script type="text/javascript" src="./js/xhr-2.js"></script>
   <!-- <script type="text/javascript" src="/assets/libs/axios/axios.20190729.min.js"></script> -->
   <script>
     function handleFileChange(evt) {
@@ -48,11 +50,33 @@
     dataList.push(ab);
     return new Blob(dataList);
   }
+
+  const URL_LIST = {
+    get_js: {
+      path: '/api/test',
+      method: 'get',
+      query: {
+        extension: 'js'
+      }
+    },
+    get_xml: {
+
+    },
+    get_png: {
+
+    }
+  }
   
   window.addEventListener('load', function() {
-    const xhrAction = new XHRAction();
+    // xhrAdapter
+    // const xhrAction = new XHRAction();
 
-    function handleAction(action, data) {
+    async function handleAction(action, data) {
+      if (URL_LIST.hasOwnProperty(action)) {
+        const response = await xhrAdapter(URL_LIST[action]);
+        console.log(response);
+        return;
+      }
       if (!action) {
         return;
       }
@@ -178,20 +202,17 @@
       <div class="form-item">
         <div class="form-item-label">XHR Status:</div>
         <div class="form-item-content">
-          <button data-action="request/abort" data-url="/api/test/get/common?type=js&feature=slow">REQUEST/ABORT</button>
+          <button data-action="/api/test/get/common?type=js&feature=slow" data-url="{a: 1, b: 2, params: {c: 2}, method: 'get'}">REQUEST/ABORT</button>
           <!-- <button data-action="readystatechange" data-url="/api/test/get/common?type=xml&feature=slow">REQUEST/XML</button> -->
           <!-- <button data-action="readystatechange" data-url="/api/test/get/common?type=png&feature=slow">REQUEST/BIN</button> -->
         </div>
       </div>
       <div class="form-item">
-        <div class="form-item-label">SHOW-RESPONSE:</div>
+        <div class="form-item-label">get:</div>
         <div class="form-item-content">
-          <button data-action="/api/test/get/common?extension=js&slow=true" 
-                  title="/api/test/get/common?extension=js&feature=slow">JS</button>
-          <button data-action="/api/test/get/common?extension=xml&slow=true"
-                  title="/api/test/get/common?extension=xml&feature=slow">XML</button>
-          <button data-action="/api/test/get/common?extension=png&slow=true"
-                  title="/api/test/get/common?extension=png&feature=slow">PNG</button>
+          <button data-action="get_js">get_js</button>
+          <button data-action="get_xml">XML</button>
+          <button data-action="get_png">PNG</button>
         </div>
       </div>
       <div class="form-item">

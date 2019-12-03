@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const zlib = require('zlib')
 const Stream = require('stream');
+const config = require('../config');
 
 // NOTICE: 
 const nodeUtils = new (require('../../../utils/node'))();
@@ -64,7 +65,7 @@ async function handleBody(ctx, next) {
 }
 
 // common get
-router.get('/api/test/get/common', async(ctx, next) => {
+router.get('/api/test', async(ctx, next) => {
   let req = ctx.req; // 原request
   let res = ctx.res; // 原response
   const extension = ctx.query['extension'];
@@ -79,17 +80,17 @@ router.get('/api/test/get/common', async(ctx, next) => {
         break;
       case 'png':
         ctx.type = 'png';
-        body = fs.createReadStream(nodeUtils.findClosestFile(__dirname, 'assets/imgs/gnu-icon-small.png'));
+        body = fs.createReadStream(path.resolve(config.BASE_DIR, 'assets/imgs/gnu-icon-small.png'));
         break;
       case 'js':
         ctx.type = 'js';
-        body = fs.createReadStream(path.resolve(__dirname, 'router.js'));
+        body = fs.createReadStream(path.resolve(config.BASE_DIR, 'api/test.js'));
         break;
       case 'arraybuffer':
       case 'bin':
         // TODO: not used
         ctx.type = 'bin';
-        body = fs.createReadStream(path.resolve(__dirname, 'router.js'));
+        body = fs.createReadStream(path.resolve(config.BASE_DIR, 'api/test.js'));
         break;
       default:
         body = nodeUtils.toStream(ctx.url);
@@ -102,7 +103,7 @@ router.get('/api/test/get/common', async(ctx, next) => {
   handleBody(ctx, next);
 });
 
-router.post('/api/test/post/common', async(ctx, next) => {
+router.post('/api/test', async(ctx, next) => {
   ctx.assert(ctx.request.body, 200, nodeUtils.error({
     msg: 'body not found'
   }));
