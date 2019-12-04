@@ -241,6 +241,72 @@ class Utils extends FEUtils {
     };
     return error;
   }
+  normalizeHeaderName(headers, normalizedName) {
+    utils.forEach(headers, function processHeader(value, name) {
+      if (name !== normalizedName && name.toUpperCase() === normalizedName.toUpperCase()) {
+        headers[normalizedName] = value;
+        delete headers[name];
+      }
+    });
+  }
+  setContentTypeIfUnset(headers, value) {
+    if (!utils.isUndefined(headers) && utils.isUndefined(headers['Content-Type'])) {
+      headers['Content-Type'] = value;
+    }
+  }
+  transformRequest(data, headers) {
+    this.normalizeHeaderName(headers, 'Accept');
+    this.normalizeHeaderName(headers, 'Content-Type');
+    if (this.isFormData(data) ||
+      this.isArrayBuffer(data) ||
+      this.isBuffer(data) ||
+      this.isStream(data) ||
+      this.isFile(data) ||
+      this.isBlob(data)
+    ) {
+      return data;
+    }
+    if (this.isArrayBufferView(data)) {
+      return data.buffer;
+    }
+    if (this.isURLSearchParams(data)) {
+      this.setContentTypeIfUnset(headers, 'application/x-www-form-urlencoded;charset=utf-8');
+      return data.toString();
+    }
+    if (this.isObject(data)) {
+      this.setContentTypeIfUnset(headers, 'application/json;charset=utf-8');
+      return JSON.stringify(data);
+    }
+    return data;
+  }
+  transformResponse(data) {
+    /*eslint no-param-reassign:0*/
+    if (typeof data === 'string') {
+      try {
+        data = JSON.parse(data);
+      } catch (e) { /* Ignore */ }
+    }
+    return data;
+  }
+  convertJSONDataByContentType(obj, contentType) {
+    var data = obj;
+    switch (contentType) {
+      case 'application/x-www-form-urlencoded':
+        data = new URLSearchParams();
+        for (let key in obj) {
+          data.append(key, obj[key]);
+        }
+        data = data.toString();
+        break;
+      case 'multipart/form-data':
+        data = new FormData();
+        for (let key in obj) {
+          data.append(key, obj[key]);
+        }
+        break;
+    }
+    return data;
+  }
 }
 const utils = new Utils();
 
@@ -277,7 +343,7 @@ function xhrAdapter(config) {
   if (config.path && config.path.startsWith('/') && !config.url) {
     config.url = location.origin + config.path;
   }
-
+  config.data = utils.transformRequest(config.data, config.headers);
 
   return new Promise(function dispatchXhrRequest(resolve, reject) {
     var requestData = config.data;
@@ -318,6 +384,7 @@ function xhrAdapter(config) {
       // Prepare the response
       var responseHeaders = 'getAllResponseHeaders' in request ? utils.parseHeaders(request.getAllResponseHeaders()) : null;
       var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
+      responseData = utils.transformResponse(responseData);
       var response = {
         data: responseData,
         status: request.status,

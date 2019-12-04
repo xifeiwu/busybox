@@ -26,6 +26,7 @@ process.on('uncaughtException', (e) => {
 });
 process.on('beforeExit', (e) => {　　
   console.log(`beforeExit: ${e}`);
+  console.log(e);
   process.exit();
 });
 process.on('unhandledRejection', err => {
@@ -64,9 +65,11 @@ module.exports = class KoaServer {
       });
       app.UPLOAD_DIR = this.UPLOAD_DIR;
       this.setLogger(app);
-      this.setStatic(app);
+      // parseByFormidable should be used before all api-related middleware
       this.parseByFormidable(app);
       this.setApi(app);
+      // match static file at last
+      this.setStatic(app);
       app.listen(port);
       console.log(`started: ${origin}`);
       return app;

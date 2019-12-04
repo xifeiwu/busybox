@@ -137,7 +137,7 @@ router.post('/api/test', async(ctx, next) => {
 
 router.all('/api/test/echo', async(ctx, next) => {
   // ctx.request.data is get by parsedByFormidable
-  const buf = ctx.request.data ? ctx.request.data : await nodeUtils.getStreamData(ctx.req);
+  // const buf = ctx.request.data ? ctx.request.data : await nodeUtils.getStreamData(ctx.req);
   // console.log(ctx.req.headers)
   // console.log(buf.toString());
   ctx.type = 'json';
@@ -145,7 +145,9 @@ router.all('/api/test/echo', async(ctx, next) => {
     general: `${ctx.method} ${ctx.path} ${ctx.protocol}`,
     url: ctx.url,
     headers: ctx.headers,
-    body: buf.toString()
+    // body: buf.toString()
+    requestBody: ctx.request.body,
+    requestData: ctx.request.data.toString()
   };
   // console.log(ctx.body);
   handleBody(ctx, next);
