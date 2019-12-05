@@ -153,6 +153,7 @@ module.exports = class KoaServer {
         uploadDir,
         keepExtensions: true,
         multiples: true,
+        maxFileSize: 1024 * 1024 * 1024,
         hash: 'md5'
       });
       // console.log('start parse');
@@ -163,7 +164,7 @@ module.exports = class KoaServer {
           // });
           form.parse(ctx.req, (err, fields, files) => {
             if (err) {
-              resolve(err);
+              reject(err);
             } else {
               resolve({
                 fields,
@@ -186,7 +187,7 @@ module.exports = class KoaServer {
             resolve(Buffer.concat(bufferList));
           });
           ctx.req.on('error', function(err) {
-            resolve(err);
+            reject(err);
           })
         })
       ])
