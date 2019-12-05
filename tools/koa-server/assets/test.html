@@ -11,46 +11,7 @@
   <script type="text/javascript" src="./js/common.js"></script>
   <script type="text/javascript" src="./js/fe.js"></script>
   <script type="text/javascript" src="./js/xhr-2.js"></script>
-  <!-- <script type="text/javascript" src="/assets/libs/axios/axios.20190729.min.js"></script> -->
   <script>
-    function handleFileChange(evt) {
-      // can not reach
-      console.log(evt);
-      console.log(evt.target.files);
-    }
-
-    function showUploadFile() {
-      const container = document.querySelector('.container');
-      const toPostFiles = container.querySelector('.for-post-files .to-post-files');
-      const fileSelected = container.querySelector('.for-post-files input[name="fileList"]');
-      toPostFiles.addEventListener('click', evt => {
-        console.log(fileSelected.name);
-        console.log(fileSelected.files);
-        // console.log(fileSelected.files.length);
-        if (fileSelected.files.length > 0) {
-          new PostWays().postFile(fileSelected.files[0]);
-          
-          // var formData = new FormData();
-          // formData.append(fileSelected.name, fileSelected.files);
-          // new PostWays().postFormData(formData);
-        }
-      })
-    }
-  
-  // BlobBuilder is instead by Blob
-  function getBlob() {
-    const dataList = [];
-    dataList.push('This blob contains this text and 10 big-endian 32-bit signed ints.');
-    dataList.push('\O');
-    var ab = new ArrayBuffer(4 * 100);
-    var dv = new DataView(ab);
-    for (let i = 0; i < 100; i++) {
-      dv.setInt32(i * 4, i);
-    }
-    dataList.push(ab);
-    return new Blob(dataList);
-  }
-
   const URL_LIST = {
     get_js: {
       path: '/api/test',
@@ -146,126 +107,131 @@
       data: utils.convertJSONDataByContentType({
         a: 1, b: 2
       }, 'multipart/form-data')
+    },
+    post_blob: {
+      path: '/api/test/echo',
+      method: 'post',
+      headers: {
+        'content-type': 'multipart/form-data'
+      },
+      data: utils.convertJSONDataByContentType({
+        a: 1, b: 2,
+        blob: new Blob(['This blob contains this text and 10 big-endian 32-bit signed ints.\n', 'second line'])
+      }, 'multipart/form-data')
+    },
+    upload_blob: {
+      path: '/api/test/upload',
+      method: 'post',
+      headers: {
+        'content-type': 'multipart/form-data'
+      },
+      data: utils.convertJSONDataByContentType({
+        a: 1, b: 2,
+        blob: new Blob(['This blob contains this text and 10 big-endian 32-bit signed ints.\n', 'second line'])
+      }, 'multipart/form-data')
+    },
+    upload_by_form: {
+      path: '/api/test/upload',
+      method: 'post',
+      headers: {
+        'content-type': 'multipart/form-data'
+      },
+      onUploadProgress(evt) {
+        console.log(`upload: ${evt.loaded} / ${evt.total}`);
+      },
+      data: new FormData()
     }
   }
-  
-  window.addEventListener('load', function() {
 
-    async function handleAction(action, data) {
-      if (URL_LIST.hasOwnProperty(action)) {
-        const config = URL_LIST[action];
-
-        if (config.query && config.query.wait) {
-          var count = config.query.wait;
-          const intervalTag = setInterval(() => {
-            console.log(count--);
-            if (count <= 0) {
-              clearInterval(intervalTag);
-            }
-          }, 1000);
-        }
-
-        // download_by_tag_a
-        if (action === 'download_by_tag_a') {
-          utils.downloadByTagA(config.path, 'test.js');
-          return;
-        }
-        try {
-          const response = await xhrAdapter(config);
-
-          // download_by_blob
-          if (action === 'download_by_blob') {
-            utils.downloadByBlob(response.data);
-          }
-          console.log(response);
-        } catch (err) {
-          console.log(err);
-        }
-        return;
-      }
-      if (!action) {
-        return;
-      }
-      const actionToUrl = {
-        'download-by-blob': '/api/test/get/common?type=png&feature=slow&fileName=gnu-icon-small.png',
-        'download-by-tag-a': '/api/test/get/common?type=png&feature=slow&fileName=gnu-icon-small.png'
-      }
-      // console.log({action, url});
-      var resData = null;
-      if (action.startsWith('/api/test/get/common')) {
-        xhrAction.getCommon(action);
-      } else if (action.startsWith('/api/test/echo')) {
-        xhrAction.postCommon(action, data);
-      } else if (action.startsWith('/api/test/post/common')) {
-        xhrAction.postCommon(action, data);
-      } else {
-        switch (action) {
-          case 'request/abort':
-            xhrAction.requestMethods(url, 'abort');
-            break;
-          case 'readystatechange':
-            xhrAction.readystatechange(url);
-            break;
-          case 'post-by-form':
-            // var form = document.querySelector(target.dataset.for);
-            var form = document.querySelector('.form .form-item.form-sheet');
-            // form.style.display = 'block';
-            if (!form.style.display) {
+  async function onEvent(action, evt) {
+    const target = evt.target;
+    switch (action) {
+      case 'native_upload_files':
+        fileList = [].slice.call(target.files);
+        console.log(fileList);
+        const formData = new FormData();
+        fileList.forEach(file => {
+          formData.append(file.name, file);
+        })
+        URL_LIST['upload_by_form'].data = formData;
+        handleAction('upload_by_form');
+        // console.log(Array.isArray(fileList)); // false
+        // console.log(await utils.readBlobAsText(fileList[0])); // read content of file
+        // console.log(typeof fileList); // object
+        // console.log(fileList instanceof FileList); // true
+        break;
+      case 'toggle_native_submit_form':
+        const form = document.querySelector('.container .native_submit_form');
+        if (!form.style.display) {
+          form.style.display = 'block';
+        } else {
+          switch (form.style.display) {
+            case 'block':
+              form.style.display = 'none';
+              break;
+            case 'none':
               form.style.display = 'block';
-            } else {
-              switch (form.style.display) {
-                case 'block':
-                  form.style.display = 'none';
-                  break;
-                case 'none':
-                  form.style.display = 'block';
-                  break;
-              }
-            }
-            if (form.style.display == 'block') {
-              form.querySelector('.the-form').onsubmit = (evt) => {
-                const target = evt.target;
-                // new FormData(target)
-                xhrAction.postCommon('/api/test/echo?content-type=multipart/form-data', new FormData(target));
-                evt.preventDefault();
-              }
-            }
-            break;
-          case 'post-blob':
-            xhrAction.post(getBlob());
-            break;
-          case 'server-error':
-            // resData = await axiosHelper.requestData({
-            //   method: 'get',
-            //   path: url
-            // });
-            // console.log(resData);
-            break;
+              break;
+          }
         }
-      }
+        break;
+      case 'native_submit_form':
+        URL_LIST['upload_by_form'].data = new FormData(target);
+        handleAction('upload_by_form')
+        evt.preventDefault();
+        break;
     }
-    
+  }
+
+  async function handleAction(action) {
+    if (!URL_LIST.hasOwnProperty(action)) {
+      throw new Error(`${action} not exist`);
+    }
+    const config = URL_LIST[action];
+
+    if (config.query && config.query.wait) {
+      var count = config.query.wait;
+      const intervalTag = setInterval(() => {
+        console.log(count--);
+        if (count <= 0) {
+          clearInterval(intervalTag);
+        }
+      }, 1000);
+    }
+
+    // download_by_tag_a
+    if (action === 'download_by_tag_a') {
+      utils.downloadByTagA(config.path, 'test.js');
+      return;
+    }
+    try {
+      const response = await xhrAdapter(config);
+
+      // download_by_blob
+      if (action === 'download_by_blob') {
+        utils.downloadByBlob(response.data);
+      }
+      console.log(response);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  window.addEventListener('load', function() {
     const container = document.querySelector('.container');
+    // NOTICE: click event of Node with tagName 'button' will be listened here.
     container.addEventListener('click', async evt => {
       var target = evt.target;
       while (target && target !== container && target.tagName != 'BUTTON') {
         target = target.parentNode;
       }
+      if (!target || target == container) {
+        return;
+      }
       const action = target.dataset.action;
       handleAction(action);
     });
 
-    const sectionFile = container.querySelector('.form .form-item.upload input.upload-more-files');
-    sectionFile.addEventListener('change', evt => {
-      // 不论是否有multiple标签，evt.target.files都是类数组
-      // console.log(evt);
-      // console.log(evt.target.files);
-      // console.log(typeof evt.target.files); // object
-      // console.log(evt.target.files instanceof FileList); // true
-      handleAction('/api/test/post/common?content-type=multipart/form-data', {
-        files: evt.target.files
-      })
-    });
   });
   window.addEventListener('err', err => {
     console.log(err);
@@ -323,17 +289,47 @@
           <button data-action="post_json">post_json</button>
           <button data-action="post_form_urlencoded">post_form_urlencoded</button>
           <button data-action="post_form">post_form</button>
-          <button data-action="post-by-form"><span>POST-FORM</span></button>
+          <button data-action="post_blob">post_blob</button>
         </div>
       </div>
-      <div class="form-item form-sheet" style="display: none">
+      <div class="form-item upload">
+        <div class="form-item-label">upload:</div>
+        <div class="form-item-content">
+          <button data-action="upload_blob">upload_blob</button>
+        </div>
+      </div>
+<!--       <div class="form-item" style="display: none">
+        <div class="form-item-label"></div>
+        <div class="form-item-content">
+          <div class="section server">
+            <button data-action="server-error" data-url="/api/test/error">SERVER-ERROR</button>
+          </div>
+        </div>
+      </div> -->
+      <div class="form-item native">
+        <div class="form-item-label">native:</div>
+        <div class="form-item-content">
+          <label class="button">
+            native_upload_one_file
+            <input class="visually-hidden" type="file" name="fileList" onchange="onEvent('native_upload_files', ...arguments)">
+          </label>
+          <label class="button">
+            native_upload_multiple_files
+            <input multiple class="visually-hidden" type="file" name="fileList" onchange="onEvent('native_upload_files', ...arguments)">
+          </label>
+          <div class="button" data-action="native_submit_form" onclick="onEvent('toggle_native_submit_form', ...arguments)">native_submit_form</div>
+        </div>
+      </div>
+      <!-- native_submit_form -->
+      <div class="form-item native_submit_form" style="display: none">
         <div class="form-item-label"></div>
         <div class="form-item-content">
           <div class="title">Research From</div>
           <!-- default enctype is application/x-www-form-urlencoded -->
           <!-- enctype="multipart/form-data"  -->
           <!-- method="post" action="/api/post-data" -->
-          <form class="the-form" name="the-form" method="post" action="/api/test/post/normal">
+          <!-- method="post" action="/api/test/upload" -->
+          <form class="the-form" name="the-form" onsubmit="onEvent('native_submit_form', ...arguments)">
             <div class="form-item">
               <div class="label">name</div>
               <div class="content">
@@ -409,24 +405,6 @@
               </div>
             </div>
           </form>
-        </div>
-      </div>
-      <div class="form-item upload">
-        <div class="form-item-label">UPLOAD:</div>
-        <div class="form-item-content">
-          <label style="position: relative; display: inline-block;">
-            <span class="button">上传多个文件</span>
-            <input class="button upload-more-files" type="file" name="fileList" title="上传文件" style="width: 0px; height: 0px; position: absolute; left: -9999px" onchange="handleFileChange" multiple>
-          </label>
-          <button data-action="post-blob">POST-BLOB</button>
-        </div>
-      </div>
-      <div class="form-item">
-        <div class="form-item-label"></div>
-        <div class="form-item-content">
-          <div class="section server">
-            <button data-action="server-error" data-url="/api/test/error">SERVER-ERROR</button>
-          </div>
         </div>
       </div>
     </div>

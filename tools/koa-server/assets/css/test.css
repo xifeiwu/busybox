@@ -4,13 +4,29 @@ html, body {
 
 .container {
   padding: 10px; }
+  .container .visually-hidden {
+    position: absolute !important;
+    height: 1px;
+    width: 1px;
+    overflow: hidden;
+    clip: rect(1px, 1px, 1px, 1px); }
   .container button {
+    display: inline-block;
     font-size: 14px;
     line-height: 18px;
     padding: 3px 6px;
     background: white;
     border: 1px solid gray; }
   .container button:hover {
+    background: #ccc; }
+  .container .button {
+    display: inline-block;
+    font-size: 14px;
+    line-height: 18px;
+    padding: 3px 6px;
+    background: white;
+    border: 1px solid gray; }
+  .container .button:hover {
     background: #ccc; }
   .container .form .form-item {
     margin-bottom: 10px; }
@@ -26,27 +42,20 @@ html, body {
       color: #FF4560; }
     .container .form .form-item-content {
       margin-left: 240px; }
-    .container .form .form-item.upload .button {
-      font-size: 14px;
-      line-height: 18px;
-      padding: 3px 6px;
-      background: white;
-      border: 1px solid gray;
-      display: inline-block; }
-    .container .form .form-item.form-sheet .form-item-content {
+    .container .form .form-item.native_submit_form .form-item-content {
       width: 600px;
       margin: 0px auto;
       font-size: 12px;
       color: black; }
-      .container .form .form-item.form-sheet .form-item-content .title {
+      .container .form .form-item.native_submit_form .form-item-content .title {
         font-weight: bold;
         font-size: 18px;
         text-align: center;
         margin-bottom: 12px; }
-      .container .form .form-item.form-sheet .form-item-content .the-form .form-item {
+      .container .form .form-item.native_submit_form .form-item-content .the-form .form-item {
         display: flex;
         margin-bottom: 10px; }
-      .container .form .form-item.form-sheet .form-item-content .the-form .form-item .label {
+      .container .form .form-item.native_submit_form .form-item-content .the-form .form-item .label {
         width: 240px;
         font-size: 14px;
         line-height: 22px;
@@ -55,16 +64,16 @@ html, body {
         color: black;
         box-sizing: border-box;
         padding-right: 10px; }
-      .container .form .form-item.form-sheet .form-item-content .the-form .form-item .content {
+      .container .form .form-item.native_submit_form .form-item-content .the-form .form-item .content {
         flex: 1;
         box-sizing: border-box; }
-      .container .form .form-item.form-sheet .form-item-content .the-form .form-item.footer {
+      .container .form .form-item.native_submit_form .form-item-content .the-form .form-item.footer {
         display: flex; }
-      .container .form .form-item.form-sheet .form-item-content .the-form .form-item.footer .item {
+      .container .form .form-item.native_submit_form .form-item-content .the-form .form-item.footer .item {
         flex: 1;
         text-align: center; }
-      .container .form .form-item.form-sheet .form-item-content .the-form input[type="text"],
-      .container .form .form-item.form-sheet .form-item-content .the-form textarea {
+      .container .form .form-item.native_submit_form .form-item-content .the-form input[type="text"],
+      .container .form .form-item.native_submit_form .form-item-content .the-form textarea {
         font-size: 14px;
         line-height: 16px;
         background-color: rgba(255, 255, 255, 0.5);

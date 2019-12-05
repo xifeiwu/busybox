@@ -6,7 +6,16 @@ html, body {
 .container {
   padding: 10px;
 
+  .visually-hidden {
+    position: absolute !important;
+    height: 1px;
+    width: 1px;
+    overflow: hidden;
+    clip: rect(1px, 1px, 1px, 1px);
+  }
+
   button {
+    display: inline-block;
     font-size: 14px;
     line-height: 18px;
     padding: 3px 6px;
@@ -14,6 +23,17 @@ html, body {
     border: 1px solid gray;
   }
   button:hover {
+    background: #ccc;
+  }
+  .button {
+    display: inline-block;
+    font-size: 14px;
+    line-height: 18px;
+    padding: 3px 6px;
+    background: white;
+    border: 1px solid gray;
+  }
+  .button:hover {
     background: #ccc;
   }
 
@@ -35,17 +55,7 @@ html, body {
       &-content {
         margin-left: 240px;
       }
-      &.upload {
-       .button {
-          font-size: 14px;
-          line-height: 18px;
-          padding: 3px 6px;
-          background: white;
-          border: 1px solid gray;
-          display: inline-block;
-        }
-      }
-      &.form-sheet {
+      &.native_submit_form {
         .form-item-content {
           width: 600px;
           margin: 0px auto;
