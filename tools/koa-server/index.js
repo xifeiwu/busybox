@@ -228,19 +228,25 @@ module.exports = class KoaServer {
     // app.use(require('./router').routes());
     app.use(require('./api/test.js').routes());
   }
-
-  // TODO: not used. (default action for post, if request is not handle in previous middleware)
-  handlePost(app) {
-    app.use(async(ctx, next) => {
-      if (ctx.request.body) {
-        ctx.type = 'json';
-        ctx.body = ctx.request.body;
-      } else if (ctx.request.data) {
-        ctx.type = 'bin';
-        ctx.body = ctx.request.data;
-      } else {
-        await next();
-      }
-    });
-  }
 }
+// add router middleware:
+// app.use(router.routes());
+
+// app.listen(3001);
+
+// const keysPath = busybox.nodeUtils.node.findClosestFile(__dirname, 'assets/files/https-keys');
+// var options = {
+//   key: fs.readFileSync(path.resolve(keysPath, 'server-key.pem')),
+//   cert: fs.readFileSync(path.resolve(keysPath, 'server-cert.pem')),
+//   ca: [fs.readFileSync(path.resolve(keysPath, 'ca-cert.pem'))]
+// };
+
+// const startHttps = process.env.protocol === 'https';
+
+// if (startHttps) {
+//   https.createServer(options, app.callback()).listen(3001);
+//   console.log('server started: https://127.0.0.1:3001');
+// } else {
+//   http.createServer(app.callback()).listen(3001);
+//   console.log('server started: http://127.0.0.1:3001');
+// }

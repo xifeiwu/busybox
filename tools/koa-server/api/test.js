@@ -191,26 +191,3 @@ router.post('/api/test/upload', async(ctx, next) => {
 });
 
 module.exports = router;
-
-// add router middleware:
-// app.use(router.routes());
-
-// app.listen(3001);
-
-// const keysPath = busybox.nodeUtils.node.findClosestFile(__dirname, 'assets/files/https-keys');
-// var options = {
-//   key: fs.readFileSync(path.resolve(keysPath, 'server-key.pem')),
-//   cert: fs.readFileSync(path.resolve(keysPath, 'server-cert.pem')),
-//   ca: [fs.readFileSync(path.resolve(keysPath, 'ca-cert.pem'))]
-// };
-
-// const startHttps = process.env.protocol === 'https';
-
-// if (startHttps) {
-//   https.createServer(options, app.callback()).listen(3001);
-//   console.log('server started: https://127.0.0.1:3001');
-// } else {
-//   http.createServer(app.callback()).listen(3001);
-//   console.log('server started: http://127.0.0.1:3001');
-// }
-

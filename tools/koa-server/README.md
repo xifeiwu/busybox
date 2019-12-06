@@ -1,9 +1,34 @@
 ### intro
 
-展示ajax的基本功能
+http服务，提供常用功能：staticServer，post请求解析，自定义api
 
-```
-```
+自定义api：/api/test，能处理常用的get, post请求；支持文件上传。
+
+### files
+
+├── README.md
+├── api
+│   ├── assist.js
+│   └── test.js
+├── assets
+│   ├── css
+│   │   ├── test.css
+│   │   └── test.scss
+│   ├── files
+│   ├── imgs
+│   │   └── gnu-icon-small.png
+│   ├── js
+│   │   ├── common.js   // utils/commons.js
+│   │   ├── fe.js       // utils/fe.js
+│   │   ├── xhr-2.js    // 参考axios/adapter/xhr.js实现的，机构清晰，功能全面
+│   │   └── xhr.js      // 老xhr，将会被替换
+│   └── test.html       // 展示ajax的基本功能
+├── config.js
+├── index.js
+└── test
+    └── client.js
+
+
 
 ## XMLHttpRequest
 
