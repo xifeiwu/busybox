@@ -144,6 +144,43 @@
       return typeof URLSearchParams !== 'undefined' && val instanceof URLSearchParams;
     }
 
+    /**
+     * Determine if we're running in a standard browser environment
+     *
+     * This allows axios to run in a web worker, and react-native.
+     * Both environments support XMLHttpRequest, but not fully standard globals.
+     *
+     * web workers:
+     *  typeof window -> undefined
+     *  typeof document -> undefined
+     *
+     * react-native:
+     *  navigator.product -> 'ReactNative'
+     * nativescript
+     *  navigator.product -> 'NativeScript' or 'NS'
+     */
+    isStandardBrowserEnv() {
+      if (typeof navigator !== 'undefined' && (navigator.product === 'ReactNative' ||
+                                               navigator.product === 'NativeScript' ||
+                                               navigator.product === 'NS')) {
+        return false;
+      }
+      return (
+        typeof window !== 'undefined' &&
+        typeof document !== 'undefined'
+      );
+    }
+
+    /**
+     * Trim excess whitespace off the beginning and end of a string
+     *
+     * @param {String} str The String to trim
+     * @returns {String} The String freed of excess whitespace
+     */
+    trim(str) {
+      return str.replace(/^\s*/, '').replace(/\s*$/, '');
+    }
+
     escapeRegexp(str) {
       if (typeof str !== 'string') {
         throw new TypeError('Expected a string');
@@ -593,7 +630,7 @@
         result = [];
       }
       const assignValue = (val, key) => {
-        if (this.isDate(val) || this.isRegExp(val) || null == val) {
+        if (this.isDate(val) || this.isRegExp(val) || this.isFormData(val) || this.isFunction(val) || null == val) {
           result[key] = val;
         } else if (Array.isArray(val)) {
           // override if origin is Array
