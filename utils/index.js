@@ -1,9 +1,9 @@
-const FEUtils = require('./fe.js');
+// const FEUtils = require('./fe.js');
 const NodeUtils = require('./node.js');
 
 class Utils {
   constructor() {
-    this.fe = new FEUtils();
+    // this.fe = new FEUtils();
     this.node = new NodeUtils();
   }
 }
