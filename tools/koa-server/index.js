@@ -1,6 +1,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const http = require('http');
 const util = require('util');
 const Koa = require('koa');
 const router = require('koa-router')();
@@ -58,7 +59,6 @@ module.exports = class KoaServer {
     try {
       port = port ? port : config.port;
       const host = nodeUtils.getLocalIP();
-      const origin = `http://${host}:${port}`;
       const app = new Koa();
       app.on('error', err => {
         console.log(err);
@@ -70,10 +70,22 @@ module.exports = class KoaServer {
       this.setApi(app);
       // match static file at last
       this.setStatic(app);
-      app.listen(port);
-      console.log(`started: ${origin}`);
-      return app;
+
+      // app.listen(port);
+      const server = http.createServer(app.callback());
+      server.listen(port);
+      return new Promise((resolve, reject) => {
+        server.on('error', (err) => {
+          console.log(err);
+          reject(err);
+        });
+        server.on('listening', () => {
+          console.log(`start server: http://${host}:${port}`);
+          resolve({app, server, host, port});
+        });
+      });
     } catch (err) {
+      console.log(err);
       return err;
     }
   }

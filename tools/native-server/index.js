@@ -329,7 +329,7 @@ class NativeServer {
   }
 
   async start() {
-    const ip = nodeUtils.getLocalIP();
+    const host = nodeUtils.getLocalIP();
 
     var port = await nodeUtils.getAFreePort();
     if (process.env.PORT) {
@@ -343,8 +343,8 @@ class NativeServer {
         reject(err);
       });
       server.on('listening', () => {
-        console.log(`start server: http://${ip}:${port}`);
-        resolve(server);
+        console.log(`start server: http://${host}:${port}`);
+        resolve({server, host, port});
       });
       this._httpServer = server;
     });
