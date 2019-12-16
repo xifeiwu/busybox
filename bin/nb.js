@@ -229,6 +229,23 @@ commander.command('get <url>')
       const ip = require('ip');
       console.log(ip[func](...args));
     })
+
+  commander.command('port-check <host> <port>')
+    .action(async(host, port, args, command) => {
+      console.log(host, port);
+      const isOK = await nodeUtils.isPortOpen(host, port);
+      console.log(`isOK: ${isOK}`);
+      // const ip = require('ip');
+      // console.log(ip[func](...args));
+    })
+
+  commander.command('port-scan <host>')
+    .option('-e, --end-port <endPort>', 'end of scan scope', '10000')
+    .action(async(host, command) => {
+      const {endPort} = command;
+      await nodeUtils.portsScan(host, endPort);
+    })
+
 // commander
 //   .command('setup [env]')
 //   .description('run setup commands for all envs')
