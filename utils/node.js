@@ -295,42 +295,55 @@ module.exports = class NodeUtils extends Common {
     return localIP;
   }
 
-  // 获取一个未被使用的端口（默认从3000端口开始）
-  async getAFreePort(startPort = 3000) {
-    async function tryPort(port) {
-      var resolve = null;
-      var reject = null;
+  // check if the port of host is opened or not
+  async isPortOpen(host, port) {
+    return new Promise((resolve, reject) => {
       try {
-        const server = net.createServer().listen(port);
-        server.on('listening', () => {
-          server.close();
-          resolve(port);
+        const socket = net.createConnection({host, port})
+        socket.setTimeout(3000);
+        socket.on('connect', () => {
+          socket.destroy();
+          resolve(true);
         });
-        server.on('error', err => {
-          if (err.code === 'EADDRINUSE') {
-            resolve(null);
-          } else {
-            resolve(null);
-          }
+        socket.on('timeout', () => {
+          socket.destroy();
+          resolve(false);
+        });
+        socket.on('error', err => {
+          resolve(false);
         });
       } catch (err) {
-        resolve(null);
+        resolve(false);
       }
-      return new Promise((...args) => {
-        resolve = args[0];
-        reject = args[1];
-      });
-    }
+    });
+  }
+
+  // scan port list and show the port opened
+  async portsScan(host, endPort = 10000) {
+    const startPort = 20;
     var port = startPort;
-    var result = await tryPort(port);
-    while (result === null) {
-      port += 1;
-      result = await tryPort(port);
+    while (port < endPort) {
+      const isOpen = await this.isPortOpen(host, port);
+      if (isOpen) {
+        console.log(port);
+      }
+      port++;
     }
-    if (result instanceof Error) {
-      result = null;
+  }
+
+  // 获取一个未被使用的端口（默认从3000端口开始）
+  async getAFreePort(startPort = 3000) {
+    const host = '127.0.0.1';
+    const endPort = 10000;
+    var port = startPort;
+    while (port < endPort) {
+      const isOpen = await this.isPortOpen(host, port);
+      if (!isOpen) {
+        return port;
+      }
+      port++;
     }
-    return result;
+    throw new Error('not free port found');
   }
 
   // return file list in the form of <ul><li></li></ul>
@@ -569,6 +582,7 @@ module.exports = class NodeUtils extends Common {
         console.log(err);
       }
     }
+    console.log(' ###### start of showRequestProcess ######');
     if (axiosResponse) {
       console.log(' --- request --- ');
       const config = axiosResponse.config;
@@ -586,6 +600,7 @@ module.exports = class NodeUtils extends Common {
     } else {
       console.log(`axiosResponse is null`);
     }
+    console.log(' ###### end of showRequestProcess ######');
     return axiosResponse;
   }
 
