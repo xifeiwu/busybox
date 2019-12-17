@@ -245,6 +245,37 @@ class SocksClient {
   }
 }
 
+const config = {
+  get proxyMap() {
+    return {
+      elif: {
+        host: 'elif.site',
+        port: 2003,
+        matchs: [/google/]
+      },
+      local: {
+        host: '127.0.0.1',
+        port: 3008
+      }
+    }
+  },
+  proxy({address, port}) {
+    var target = 'local';
+    for (let key in this.proxyMap) {
+      if (key === 'local') {
+        continue;
+      }
+      if (this.proxyMap[key].matchs.find(it => it.test(address))) {
+        target = key;
+        break;
+      }
+    }
+    console.log(`${address}:${port} ${target}`);
+    return this.proxyMap[target];
+  }
+}
+
+
 module.exports = class SocksProxy {
   constructor() {
     this._connections = 0;
@@ -289,37 +320,11 @@ module.exports = class SocksProxy {
     }).listen(port, '127.0.0.1');
   }
 
-  proxyConfig(requestDetail) {
-    const {address, port} = requestDetail;
-    const proxyMap = {
-      elif: {
-        host: 'elif.site',
-        port: 2003
-      },
-      local: {
-        host: '127.0.0.1',
-        port: 3008
-      }
-    }
-    const filter = {
-      elif: [/google/]
-    }
-    var target = 'local'
-    for (let key in filter) {
-      if (filter[key].find(it => it.test(address))) {
-        target = 'elif';
-        break;
-      }
-    }
-    console.log(`${address}:${port} ${target}`);
-    return proxyMap[target];
-  }
-
   async _onConnection(socket, state) {
     try {
       const incoming = await (new SocksServer()).parse(socket);
       // console.log(incoming.state.requestDetail);
-      const outgoing = await (new SocksClient(incoming.state)).connect(this.proxyConfig(incoming.state.requestDetail));
+      const outgoing = await (new SocksClient(incoming.state)).connect(config.proxy(incoming.state.requestDetail));
       // console.log(outgoing);
       incoming.socket.pipe(outgoing.socket).pipe(incoming.socket);
       outgoing.socket.resume();
