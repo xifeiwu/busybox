@@ -18,6 +18,7 @@ const STATUS = {
   AUTH_END: 7,
   REQUEST_DETAIL_START: 8,
   REQUEST_DETAIL_END: 8,
+  END: 9
 };
 
 const SOCKS5_AUTH = {
@@ -34,6 +35,18 @@ const ATYP = {
   IPv4: 0x01,
   DOMAIN_NAME: 0x03,
   IPv6: 0x04
+};
+
+const REPLY = {
+  SUCCESS: 0x00,
+  GENFAIL: 0x01,
+  DISALLOW: 0x02,
+  NETUNREACH: 0x03,
+  HOSTUNREACH: 0x04,
+  CONNREFUSED: 0x05,
+  TTLEXPIRED: 0x06,
+  CMDUNSUPP: 0x07,
+  ATYPUNSUPP: 0x08
 };
 
 const ERRORS = {
@@ -67,6 +80,7 @@ const ERRORS = {
 
 module.exports = {
   STATUS,
+  REPLY,
   SOCKS5_AUTH,
   ATYP,
   CMD,

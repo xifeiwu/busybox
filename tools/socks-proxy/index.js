@@ -1,6 +1,44 @@
 const dns = require('dns');
 const net = require('net');
 const constants = require('./constants');
+const utils = require('./utils');
+const loggerFactory = require('../logger-factory');
+const proxyLogger = loggerFactory('#proxy');
+const clientLogger = loggerFactory('#client');
+const serverLogger = loggerFactory('#server');
+
+
+const config = {
+  get proxyMap() {
+    return {
+      elif: {
+        host: 'elif.site',
+        port: 2003,
+        matchs: [/google/]
+      },
+      // local: {
+      //   host: '127.0.0.1',
+      //   port: 2080,
+      //   username: 'wxf',
+      //   password: 'wxf'
+      // }
+    }
+  },
+  proxy({address, port}) {
+    var target = 'local';
+    for (let key in this.proxyMap) {
+      if (key === 'local') {
+        continue;
+      }
+      if (this.proxyMap[key].matchs.find(it => it.test(address))) {
+        target = key;
+        break;
+      }
+    }
+    proxyLogger(`${address}:${port} ${target}`);
+    return this.proxyMap[target];
+  }
+}
 
 class SocksServer {
   constructor(socket) {
@@ -20,8 +58,8 @@ class SocksServer {
   }
 
   _closeSocket(reason) {
-    console.log(constants.Errors.InvalidSocksVersion);
-    console.log(this.state);
+    serverLogger(constants.Errors.InvalidSocksVersion);
+    serverLogger(this.state);
     if (this._socket) {
       this._socket.destroy();
       this._socket = null;
@@ -36,12 +74,14 @@ class SocksServer {
     try {
       switch (this.status) {
         case STATUS.CONNECTED:
-          this.handleGreeting(data, socket);
+          this._handleGreeting(data, socket);
           break;
          case STATUS.GREETING_END:
-           await this.handleRequestDetail(data, socket, resolve);
+           await this._handleRequestDetail(data, socket, resolve, reject);
           break;
         case STATUS.REQUEST_DETAIL_END:
+          console.log(data.toString());
+          this.status = constants.STATUS.END;
           break;
       }
     } catch (err) {
@@ -51,7 +91,7 @@ class SocksServer {
     }
   }
 
-  handleGreeting(data, socket) {
+  _handleGreeting(data, socket) {
     this.status = constants.STATUS.GREETING_START;
     const version = data[0];
     if (version !== 0x05) {
@@ -65,7 +105,7 @@ class SocksServer {
     this.status = constants.STATUS.GREETING_END;
   }
 
-  async handleRequestDetail(data, socket, resolve) {
+  async _handleRequestDetail(data, socket, resolve, reject) {
     this.status = constants.STATUS.REQUEST_DETAIL_START;
 
     const version = data[0];
@@ -112,12 +152,54 @@ class SocksServer {
     }
     requestDetail.port = (portBytes[0] << 8) + portBytes[1];
 
-    this.status = constants.STATUS.REQUEST_DETAIL_END;
+    if (config.proxy(this.state.requestDetail)) {
+      this.status = constants.STATUS.REQUEST_DETAIL_END;
+      resolve({
+        socket,
+        state: this.state
+      });
+    } else {
+      // handle socks connect by local
+      await this._proxySocket(socket, resolve, reject);
+    }
+  }
 
-    resolve({
-      socket,
-      state: this.state
+  async _proxySocket(socket, resolve, reject) {
+    const requestDetail = this.state.requestDetail;
+    const targetIP = await new Promise((resolve, reject) => {
+      dns.lookup(requestDetail.address, function(err, ip) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(ip);
+        }
+      });
     });
+    var dstSock = new net.Socket();
+    dstSock.setKeepAlive(false);
+    dstSock.on('error', err => reject(err)).on('connect', () => {
+      if (socket.writable) {
+        var localbytes = utils.ipbytes(dstSock.localAddress || '127.0.0.1'),
+            len = localbytes.length,
+            bufrep = new Buffer(6 + len),
+            p = 4;
+        bufrep[0] = 0x05;
+        bufrep[1] = constants.REPLY.SUCCESS;
+        bufrep[2] = 0x00;
+        bufrep[3] = (len === 4 ? constants.ATYP.IPv4 : constants.ATYP.IPv6);
+        for (var i = 0; i < len; ++i, ++p)
+          bufrep[p] = localbytes[i];
+        bufrep.writeUInt16BE(dstSock.localPort, p, true);
+
+        socket.write(bufrep);
+        socket.pipe(dstSock).pipe(socket);
+        socket.resume();
+        resolve({});
+        this.status = constants.STATUS.REQUEST_DETAIL_END;
+      } else if (dstSock.writable) {
+        dstSock.end();
+      }
+    }).connect(requestDetail.port, targetIP);
   }
 
   parse(socket) {
@@ -128,7 +210,7 @@ class SocksServer {
         reject(err);
       });
       socket.once('close', err => {
-        console.log('closed');
+        serverLogger('closed');
       });
     });
   }
@@ -141,26 +223,26 @@ class SocksClient {
   }
 
   _sendGreeting(socket, options) {
-    const methods = (options.userName && options.passWord) ? [constants.SOCKS5_AUTH.NoAuth, constants.SOCKS5_AUTH.UserPass] : [constants.SOCKS5_AUTH.NoAuth]
-    // console.log(Buffer.from([0x05, methods.length].concat(methods)));
+    const methods = (options.username && options.password) ? [constants.SOCKS5_AUTH.NoAuth, constants.SOCKS5_AUTH.UserPass] : [constants.SOCKS5_AUTH.NoAuth]
+    // clientLogger(Buffer.from([0x05, methods.length].concat(methods)));
     socket.write(Buffer.from([0x05, methods.length].concat(methods)));
     this.status = constants.STATUS.GREETING_START;
   }
 
   _sendAuth(socket, options) {
-    const {userName, passWord} = options;
-    userNameLength = Buffer.byteLength(userName);
-    passWordLength = Buffer.byteLength(passWord);
-    if (userNameLength > 255 || passWordLength > 255) {
+    const {username, password} = options;
+    var usernameLength = Buffer.byteLength(username);
+    var passwordLength = Buffer.byteLength(password);
+    if (usernameLength > 255 || passwordLength > 255) {
       throw new Error(constants.ERRORS.MORE_THAN_255_BYTES);
     }
-    var buf = new Buffer(3 + userNameLength + passWordLength);
+    var buf = new Buffer(3 + usernameLength + passwordLength);
     buf[0] = 0x01;
-    buf[1] = userNameLength;
-    buf.write(user, 2, userNameLength);
-    buf[2 + userNameLength] = passWordLength;
-    buf.write(pass, 3 + userNameLength, passWordLength);
-    socket.write(socket);
+    buf[1] = usernameLength;
+    buf.write(username, 2, usernameLength);
+    buf[2 + usernameLength] = passwordLength;
+    buf.write(password, 3 + usernameLength, passwordLength);
+    socket.write(buf);
     this.status = constants.STATUS.AUTH_START;
   }
 
@@ -179,8 +261,8 @@ class SocksClient {
       reject(new Error('timeout'));
     }, 6000);
     try {
-      // console.log(this.STATUS);
-      // console.log(data);
+      // clientLogger(this.STATUS);
+      // clientLogger(data);
       switch (this.status) {
         case STATUS.GREETING_START:
           const version = data[0];
@@ -199,7 +281,7 @@ class SocksClient {
           }
           break;
         case STATUS.AUTH_START:
-          if (data[0] != 0x05 || data[1] != 0x00) {
+          if (data[0] != 0x01 || data[1] != 0x00) {
             reject(constants.ERRORS.CLIENT_AUTH_FAIL);
             return;
           }
@@ -219,8 +301,8 @@ class SocksClient {
     const proxy = Object.assign({
       host: '127.0.0.1',
       port: 1080,
-      userName: '',
-      passWord: ''
+      username: '',
+      password: ''
     }, options);
 
     return new Promise((resolve, reject) => {
@@ -231,10 +313,10 @@ class SocksClient {
       });
       socket.on('data', this._onData.bind(this, options, socket, resolve, reject))
       socket.once('error', function(err) {
-        console.log('client Error');
-        console.log(err);
+        clientLogger('client Error');
+        clientLogger(err);
       }).once('close', function(had_err) {
-        // console.log('client Closed');
+        // clientLogger('client Closed');
       });
       socket.connect({
         host: proxy.host,
@@ -242,36 +324,6 @@ class SocksClient {
       })
     });
 
-  }
-}
-
-const config = {
-  get proxyMap() {
-    return {
-      elif: {
-        host: 'elif.site',
-        port: 2003,
-        matchs: [/google/]
-      },
-      local: {
-        host: '127.0.0.1',
-        port: 3008
-      }
-    }
-  },
-  proxy({address, port}) {
-    var target = 'local';
-    for (let key in this.proxyMap) {
-      if (key === 'local') {
-        continue;
-      }
-      if (this.proxyMap[key].matchs.find(it => it.test(address))) {
-        target = key;
-        break;
-      }
-    }
-    console.log(`${address}:${port} ${target}`);
-    return this.proxyMap[target];
   }
 }
 
@@ -311,25 +363,26 @@ module.exports = class SocksProxy {
       });
       this._onConnection(socket);
     }).on('error', function(err) {
-      console.log('onError');
-      console.log(err);
+      proxyLogger('onError');
+      proxyLogger(err);
     }).on('listening', function() {
-      console.log(`started: 127.0.0.1:${port}`);
+      proxyLogger(`started: 127.0.0.1:${port}`);
     }).on('close', function() {
-
     }).listen(port, '127.0.0.1');
   }
 
   async _onConnection(socket, state) {
     try {
       const incoming = await (new SocksServer()).parse(socket);
-      // console.log(incoming.state.requestDetail);
-      const outgoing = await (new SocksClient(incoming.state)).connect(config.proxy(incoming.state.requestDetail));
-      // console.log(outgoing);
-      incoming.socket.pipe(outgoing.socket).pipe(incoming.socket);
-      outgoing.socket.resume();
+      if (incoming.socket) {
+        // proxyLogger(incoming.state.requestDetail);
+        const outgoing = await (new SocksClient(incoming.state)).connect(config.proxy(incoming.state.requestDetail));
+        // proxyLogger(outgoing);
+        incoming.socket.pipe(outgoing.socket).pipe(incoming.socket);
+        outgoing.socket.resume();
+      }
     } catch (err) {
-      console.log(err);
+      proxyLogger(err);
     }
   }
 
