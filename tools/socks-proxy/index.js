@@ -49,6 +49,7 @@ class SocksServer {
       auth: [],
       requestDetail: {
         origin: null,
+        size: 0,
         command: null,
         addressType: null,
         address: null,
@@ -80,7 +81,8 @@ class SocksServer {
            await this._handleRequestDetail(data, socket, resolve, reject);
           break;
         case STATUS.REQUEST_DETAIL_END:
-          console.log(data.toString());
+          // console.log(data.toString());
+          this.state.requestDetail.size += data.length;
           this.status = constants.STATUS.END;
           break;
       }
@@ -210,7 +212,8 @@ class SocksServer {
         reject(err);
       });
       socket.once('close', err => {
-        serverLogger('closed');
+        const requestDetail = this.state.requestDetail;
+        serverLogger(`incoming closed: ${requestDetail.address}:${requestDetail.port}(${requestDetail.size})`);
       });
     });
   }
