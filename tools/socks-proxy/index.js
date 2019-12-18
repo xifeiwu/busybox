@@ -3,42 +3,10 @@ const net = require('net');
 const constants = require('./constants');
 const utils = require('./utils');
 const loggerFactory = require('../logger-factory');
-const proxyLogger = loggerFactory('#proxy');
+const proxyLogger = loggerFactory('#socks_proxy');
 const clientLogger = loggerFactory('#client');
 const serverLogger = loggerFactory('#server');
 
-
-const config = {
-  get proxyMap() {
-    return {
-      elif: {
-        host: 'elif.site',
-        port: 2003,
-        matchs: [/google/]
-      },
-      // local: {
-      //   host: '127.0.0.1',
-      //   port: 2080,
-      //   username: 'wxf',
-      //   password: 'wxf'
-      // }
-    }
-  },
-  proxy({address, port}) {
-    var target = 'local';
-    for (let key in this.proxyMap) {
-      if (key === 'local') {
-        continue;
-      }
-      if (this.proxyMap[key].matchs.find(it => it.test(address))) {
-        target = key;
-        break;
-      }
-    }
-    proxyLogger(`${address}:${port} ${target}`);
-    return this.proxyMap[target];
-  }
-}
 
 class SocksServer {
   constructor(socket) {
@@ -154,7 +122,7 @@ class SocksServer {
     }
     requestDetail.port = (portBytes[0] << 8) + portBytes[1];
 
-    if (config.proxy(this.state.requestDetail)) {
+    if (utils.proxy(this.state.requestDetail)) {
       this.status = constants.STATUS.REQUEST_DETAIL_END;
       resolve({
         socket,
@@ -213,7 +181,7 @@ class SocksServer {
       });
       socket.once('close', err => {
         const requestDetail = this.state.requestDetail;
-        serverLogger(`incoming closed: ${requestDetail.address}:${requestDetail.port}(${requestDetail.size})`);
+        serverLogger(`${requestDetail.address}:${requestDetail.port}(${requestDetail.size}) (incoming)closed`);
       });
     });
   }
@@ -379,7 +347,7 @@ module.exports = class SocksProxy {
       const incoming = await (new SocksServer()).parse(socket);
       if (incoming.socket) {
         // proxyLogger(incoming.state.requestDetail);
-        const outgoing = await (new SocksClient(incoming.state)).connect(config.proxy(incoming.state.requestDetail));
+        const outgoing = await (new SocksClient(incoming.state)).connect(utils.proxy(incoming.state.requestDetail));
         // proxyLogger(outgoing);
         incoming.socket.pipe(outgoing.socket).pipe(incoming.socket);
         outgoing.socket.resume();

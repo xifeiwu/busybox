@@ -1,5 +1,8 @@
-var net = require('net'),
-    ipv6 = require('ipv6').v6;
+const net = require('net');
+const ipv6 = require('ipv6').v6;
+const proxyConfig = require('./config.js');
+const loggerFactory = require('../logger-factory');
+const proxyLogger = loggerFactory('#utils.proxy');
 
 exports.ipbytes = function(str) {
   var type = net.isIP(str),
@@ -31,3 +34,19 @@ exports.ipbytes = function(str) {
 
   return bytes;
 };
+
+
+exports.proxy = function({address, port}) {
+  var target = 'local';
+  for (let key in proxyConfig) {
+    if (key === 'local') {
+      continue;
+    }
+    if (proxyConfig[key].matchs.find(it => it.test(address))) {
+      target = key;
+      break;
+    }
+  }
+  proxyLogger(`${address}:${port} ${target}`);
+  return proxyConfig[target];
+}
