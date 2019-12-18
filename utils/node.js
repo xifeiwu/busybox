@@ -306,10 +306,12 @@ module.exports = class NodeUtils extends Common {
           resolve(true);
         });
         socket.on('timeout', () => {
+          // console.log('timeout');
           socket.destroy();
           resolve(false);
         });
         socket.on('error', err => {
+          // console.log(`${port} error`);
           resolve(false);
         });
       } catch (err) {
