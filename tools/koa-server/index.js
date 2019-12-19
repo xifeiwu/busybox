@@ -4,7 +4,6 @@ const path = require('path');
 const http = require('http');
 const util = require('util');
 const Koa = require('koa');
-const router = require('koa-router')();
 const formidable = require('formidable');
 const staticCache = require('koa-static-cache');
 const nodeUtils = new (require('../../utils/node'))();
@@ -237,12 +236,9 @@ module.exports = class KoaServer {
   }
 
   setApi(app) {
-    // app.use(require('./router').routes());
     app.use(require('./api/test.js').routes());
   }
 }
-// add router middleware:
-// app.use(router.routes());
 
 // app.listen(3001);
 
