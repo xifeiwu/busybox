@@ -489,6 +489,31 @@
         .replace(/[^ _0-9a-z]/gi, '')
     }
 
+    parseUrl(url) {
+      var parser = document.createElement('a');
+      parser.href = url;
+      return {
+        protocol: parser.protocol, // => "http:"
+        host: parser.host,     // => "example.com:3000"
+        hostname: parser.hostname, // => "example.com"
+        port: parser.port,     // => "3000"
+        pathname: parser.pathname, // => "/pathname/"
+        hash: parser.hash,     // => "#hash"
+        search: parser.search,   // => "?search=test"
+        origin: parser.origin,   // => "http://example.com:3000"
+      }
+    }
+
+    objectToQueryString(obj) {
+      return Object.keys(obj).reduce(function (str, key, i) {
+        var delimiter, val;
+        delimiter = (i === 0) ? '?' : '&';
+        key = encodeURIComponent(key);
+        val = encodeURIComponent(obj[key]);
+        return [str, delimiter, key, '=', val].join('');
+      }, '');
+    }
+
     parseQueryString(qs, sep, eq, options) {
       if (qs.indexOf('?') > -1) {
         qs = qs.split('?').pop();
@@ -630,8 +655,7 @@
         result = [];
       }
       const assignValue = (val, key) => {
-        if (this.isDate(val) || this.isRegExp(val) || this.isFormData(val) || this.isFunction(val)
-          || this.isStream(val) || null == val) {
+        if (this.isDate(val) || this.isRegExp(val) || this.isFormData(val) || this.isFunction(val) || null == val) {
           result[key] = val;
         } else if (Array.isArray(val)) {
           // override if origin is Array
