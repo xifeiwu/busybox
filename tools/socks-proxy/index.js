@@ -27,7 +27,7 @@ class SocksServer {
   }
 
   _closeSocket(reason) {
-    serverLogger(constants.Errors.InvalidSocksVersion);
+    serverLogger(constants.ERRORS.InvalidSocksVersion);
     serverLogger(this.state);
     if (this._socket) {
       this._socket.destroy();
@@ -64,8 +64,9 @@ class SocksServer {
   _handleGreeting(data, socket) {
     this.status = constants.STATUS.GREETING_START;
     const version = data[0];
+    // console.log(data);
     if (version !== 0x05) {
-      throw new Error(constants.Errors.InvalidSocksVersion);
+      throw new Error(constants.ERRORS.InvalidSocksVersion);
     }
 
     const responseBytes = [version, constants.SOCKS5_AUTH.NoAuth];
@@ -80,7 +81,7 @@ class SocksServer {
 
     const version = data[0];
     if (version !== 0x05) {
-      throw new Error(constants.Errors.InvalidSocksVersion);
+      throw new Error(constants.ERRORS.InvalidSocksVersion);
     }
 
     const addressType = data[3];
@@ -238,7 +239,7 @@ class SocksClient {
         case STATUS.GREETING_START:
           const version = data[0];
           if (version !== 0x05) {
-            reject(constants.Errors.InvalidSocksVersion);
+            reject(constants.ERRORS.InvalidSocksVersion);
             return;
           }
           this.status = STATUS.GREETING_END;
