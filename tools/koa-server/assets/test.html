@@ -10,7 +10,7 @@
   <style type="text/css"></style>
   <script type="text/javascript" src="./js/common.js"></script>
   <script type="text/javascript" src="./js/fe.js"></script>
-  <script type="text/javascript" src="./js/xhr-2.js"></script>
+  <script type="text/javascript" src="./js/xhr.js"></script>
   <script>
   const URL_LIST = {
     get_js: {
@@ -227,7 +227,7 @@
       return;
     }
     try {
-      const response = await xhrAdapter(config);
+      const response = await xhrRequest(config);
 
       // download_by_blob
       if (action === 'download_by_blob') {

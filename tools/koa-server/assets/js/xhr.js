@@ -1,580 +1,526 @@
-/**
-参考资料：
-《Java权威指南》
-https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
+// 'use strict';
 
-*/
-/**
-一个HTTP请求由四部分组成：
-1. HTTP请求方法或动作
-2. 正在请求的URL
-3. 一个可选的请求头集合，其中可能包含身份验证信息
-4. 一个可选的请求体
-
-服务器返回的HTTP响应包含三个部分：
-1. 一个数字和文字组成的状态码，用来显示请求成功或失败
-2. 一个响应头集合
-3. 响应主体
-*/
-
-/**
-顺序问题：
-HTTP请求的各部分有制定顺序：
-1. 请求方法和URL先到达
-2. 请求头
-3. 请求主体
-XMLHttpRequest实现通常直到调用send()方法才开始启动网络。
-XMLHttpRequest API的设计似乎使每个方法都写入网络流，这意味着调用XMLHttpRequest方法的顺序必须匹配HTTP请求的架构。
-如，
-setRequestHeader应该在open之后，send之前
-*/
-
-/**
-你不能自己指定，XMLHttpRequest自动添加这些头：
-Content-Length, Date, Referer, User-Agent
-类似的，XMLHttpRequest对象自己处理cookie，连接时间，字符集，编码判断，所有你无法向setRequestHeader传递这些头：
-Accept-Charset
-Accept-Encoding
-Connection
-Content-Length
-Cookie
-Cookie2
-Content-Transfer-Encoding
-Date
-Expect
-Host
-Keep-Alive
-Referer
-TE
-Trailer
-Transfer-Encoding
-Upgrade
-User-Agent
-Via
-*/
-
-/**
-responseType
-The XMLHttpRequest property responseType is an enumerated string value specifying the type of data contained in the response. It also lets the author change the response type. If an empty string is set as the value of responseType, the default value of "text" is used.
-values: '': text, arraybuffer, blob, document, json, text
-
-如果responseType为arraybuffer, 
-在读request.responseText会报错：
-Uncaught DOMException: Failed to read the 'responseText' property from 'XMLHttpRequest': 
-The value is only accessible if the object's 'responseType' is '' or 'text' (was 'arraybuffer').
-在读request.responseXML会报错：
-Failed to read the 'responseXML' property from 'XMLHttpRequest':
-The value is only accessible if the object's 'responseType' is '' or 'document' (was 'arraybuffer').
-*/
-
-/**
-XMLHttpRequest.status
-
-The read-only XMLHttpRequest.status property returns the numerical HTTP status code of the XMLHttpRequest's response.
-Before the request completes, the value of status is 0. Browsers also report a status of 0 in case of XMLHttpRequest errors.
-*/
-
-/**
-XMLHttpRequest.properties
-XMLHttpRequest.timeout:
-is an unsigned long(time in milliseconds) representing the number of milliseconds a request can take before automatically being terminated. The default value is 0, which means there is no timeout.
-*/
-/**
-XMLHttpRequest.event
-
-request.onprogress, 上传速度
-request.upload.onprogress, 下载进度
-*/
-class XHRAction {
-  constructor() {}
-
-  requestMethods(url, action) {
-    const request = this.readystatechange(url);
-    switch (action) {
-      case 'abort':
-      setTimeout(() => {
-        request.abort();
-      }, 3000);
-      break;
-    }
+// avoid global pollution
+(function(root, factory) {
+  const results = factory();
+  for (let key in results) {
+    root[key] = results[key];
+  }
+}(this, function() {
+  if (!FEUtils) {
+    throw new Error(`class CommonUtils is needed`);
   }
 
-  showResponse(request) {
-    if (request.responseType === '' || request.responseType === 'text') {
-      console.log('responseText');
-      console.log(request.responseText);
+class Utils extends FEUtils {
+  constructor() {
+    super();
+    const isString = this.isString;
+    const isNumber = this.isNumber;
+    /** cookie operation */
+    this.cookies = {
+      write(name, value, expires, path, domain, secure) {
+        var cookie = [];
+        cookie.push(name + '=' + encodeURIComponent(value));
+
+        if (isNumber(expires)) {
+          cookie.push('expires=' + new Date(expires).toGMTString());
+        }
+
+        if (isString(path)) {
+          cookie.push('path=' + path);
+        }
+
+        if (isString(domain)) {
+          cookie.push('domain=' + domain);
+        }
+
+        if (secure === true) {
+          cookie.push('secure');
+        }
+
+        document.cookie = cookie.join('; ');
+      },
+
+      read(name) {
+        var match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
+        return (match ? decodeURIComponent(match[3]) : null);
+      },
+
+      remove(name) {
+        this.write(name, '', Date.now() - 86400000);
+      }
     }
-    if (request.responseType === 'document') {
-      console.log('responseXML');
-      console.log(request.responseXML);
-    }
-    console.log('response');
-    console.log(request.response);
   }
+  /** -------- */
   /**
-    UNSENT            0     open()尚未使用
-    OPENED            1     open()已调用
-    HEADERS_RECEIVED  2     收到头部信息
-    LOADING           3     接收到响应主体
-    DONE              4     响应完成
-    */
-  readystatechange(url = '/api/test/get/common?type=js&feature=slow') {
-    const request = new XMLHttpRequest();
-    request.open('GET', url);
-
-    const query = this.parseQueryString(url.split('?').pop());
-    
-    // responseType赋值需要注意
-    request.responseType = {
-      xml: 'document',
-      js: 'text',
-      jpg: 'arraybuffer',
-      png: 'arraybuffer',
-    }[query.type];
-    console.log(`request.responseType: ${request.responseType}`);
-
-    request.onreadystatechange = () => {
-      console.log(request.readyState);
-      if (request.readyState === 2) {
-        console.log('getAllResponseHeaders');
-        console.log(request.statusText);
-        console.log(request.getAllResponseHeaders());
-      }
-      if (request.readyState === 3) {
-        this.showResponse(request);
-      }
-      if (request.readyState === 4 && request.status === 200) {
-        const type = request.getResponseHeader('Content-Type');
-        console.log(type);
-        console.log(request.statusText);
-        this.showResponse(request);
-      }
-    }
-    request.onerror = function(err) {
-      console.log('onerror');
-    }
-    request.onabort = function(err) {
-      console.log('onabort');
-    }
-    request.ontimeout = function(err) {
-      console.log('ontimeout');
-    }
-    request.onload = function(err) {
-      console.log('onload');
-    }
-    request.send(null);
-    return request;
-  }
-
-  /*
-  　* xhr.readyState：XMLHttpRequest对象的状态，等于4表示数据已经接收完毕。
-　　* xhr.status：服务器返回的状态码，等于200表示一切正常。
-　　* xhr.responseText：服务器返回的文本数据
-　　* xhr.responseXML：服务器返回的XML格式的数据
-　　* xhr.statusText：服务器返回的状态文本。
-  */
-  getCommon(url) {
-    const request = new XMLHttpRequest();
-    request.open('GET', url);
-    request.onreadystatechange = () => {
-      if (request.status === 0) {
-        return;
-      }
-      if (request.readyState === 4 && request.status === 200) {
-        const type = request.getResponseHeader('Content-Type');
-        this.showResponse(request);
-      }
-    }
-    request.onerror = function(err) {
-      console.log('onerror');
-    }
-    request.onabort = function(err) {
-      console.log('onabort');
-    }
-    request.ontimeout = function(err) {
-      console.log('ontimeout');
-    }
-    request.onload = function(err) {
-      console.log('onload');
-    }
-    request.send(null);
-    // request.send('fdsfd');
-  }
-
-  getSlow() {
-    const request = new XMLHttpRequest();
-    request.open('GET', '/api/test/get/common?feature=slow');
-    request.onreadystatechange = () => {
-      console.log(request.readyState);
-      if (request.readyState === 2) {
-        console.log('getAllResponseHeaders');
-        console.log(request.statusText);
-        console.log(request.getAllResponseHeaders());
-      }
-      if (request.readyState === 3) {
-        this.showResponse(request);
-      }
-      if (request.readyState === 4 && request.status === 200) {
-        const type = request.getResponseHeader('Content-Type');
-        console.log(type);
-        console.log(request.statusText);
-        this.showResponse(request);
-      }
-    }
-    request.onprogress = function(e) {
-      console.log(e);
-    }
-    request.onerror = function(err) {
-      console.log('onerror');
-    }
-    request.onabort = function(err) {
-      console.log('onabort');
-    }
-    request.ontimeout = function(err) {
-      console.log('ontimeout');
-    }
-    request.onload = function(err) {
-      console.log('onload');
-    }
-    request.send(null);
-  }
-
-  // 服务器没有response，XMLHttpRequest会如何处理
-  getLongWait() {
-    var count = 0;
-    const intervalTag = setInterval(() => {
-      console.log(`consume: ${++count}s`);
-    }, 1000);
-
-    const request = new XMLHttpRequest();
-    request.open('GET', '/api/test/get/common?feature=long-wait');
-    request.onreadystatechange = () => {
-      console.log(request.readyState);
-      if (request.readyState === 2) {
-        console.log('getAllResponseHeaders');
-        console.log(request.statusText);
-        console.log(request.getAllResponseHeaders());
-      }
-      if (request.readyState === 3) {
-        this.showResponse(request);
-      }
-      if (request.readyState === 4 && request.status === 200) {
-        const type = request.getResponseHeader('Content-Type');
-        console.log(type);
-        console.log(request.statusText);
-        this.showResponse(request);
-      }
-    }
-    request.onprogress = function(e) {
-      console.log(e);
-    }
-    request.onerror = function(err) {
-      console.log('onerror');
-      clearInterval(intervalTag);
-    }
-    request.onabort = function(err) {
-      console.log('onabort');
-      clearInterval(intervalTag);
-    }
-    request.ontimeout = function(err) {
-      console.log('ontimeout');
-      clearInterval(intervalTag);
-    }
-    request.onload = function(err) {
-      console.log('onload');
-      clearInterval(intervalTag);
-    }
-    request.send(null);
-  }
-
-  // 如何接受各种数据：application/json, application/xml, image/jpg
-  getBinary(type) {
-    const urlTypeMap = {
-      xml: '/api/test/get/common?type=xml',
-      image: '/api/test/get/common?type=image'
-    }
-    const url = urlTypeMap[type];
-    const request = new XMLHttpRequest();
-    request.open('GET', url);
-    request.onreadystatechange = function() {
-      if (request.readyState === 4 && request.status === 200) {
-        const type = request.getResponseHeader('Content-Type');
-        const responseText = request.responseText;
-        const responseXML = request.responseXML;
-        console.log(type);
-        console.log(responseText);
-        console.log(responseXML);
-      }
-    }
-    request.send(null);
-  }
-
-
-  /**
-   * 两种下载方式对比：
-   * downloadByBlob，下载数据完成后，将数据转换成blob，通过a标签下载
-   * downloadByTagA，直接打开下载弹框，使用浏览器自带的下载功能进行下载
+   * Parse headers into an object
+   *
+   * ```
+   * Date: Wed, 27 Aug 2014 08:58:49 GMT
+   * Content-Type: application/json
+   * Connection: keep-alive
+   * Transfer-Encoding: chunked
+   * ```
+   *
+   * @param {String} headers Headers needing to be parsed
+   * @returns {Object} Headers parsed into an object
    */
-  downloadByBlob(url) {
-    const query = this.parseQueryString(url.split('?').pop());
-    const request = new XMLHttpRequest();
-    request.responseType = 'blob';
-    request.open('GET', url);
-    request.onerror = function(err) {
-      console.log('err');
-      console.log(err);
-    }
-    request.onload = () => {
-      const blob = new Blob([request.response]);
-      const a = document.createElement('a');
-      a.href = window.URL.createObjectURL(blob);
-      a.download = query.fileName ? query.fileName : '未命名';
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-    }
-    request.send(null);
-  }
-  downloadByTagA(url) {
-    const query = this.parseQueryString(url.split('?').pop());
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = query.fileName ? query.fileName : '未命名';
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-  }
+  parseHeaders(headers) {
+    const ignoreDuplicateOf = [
+      'age', 'authorization', 'content-length', 'content-type', 'etag',
+      'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
+      'last-modified', 'location', 'max-forwards', 'proxy-authorization',
+      'referer', 'retry-after', 'user-agent'
+    ];
+    var parsed = {};
+    var key;
+    var val;
+    var i;
 
-  /**
-   * 通过post发送数据
-   */
-  // setRequestHeader在open和send之间
-  postCommon(url, data = {}) {
-    const defaultData = {
-      name: 'me',
-      password: 'abcdef中文测试'
-    }
-    var contentType = this.parseQueryString(url)['content-type'];
-    if (!contentType) {
-      if (utils.node.isObject(data)) {
-        contentType = 'application/json';
-      } else if (data instanceof FormData) {
-        contentType = 'multipart/form-data';
-      }
-    }
-    const contentTypeList = ['application/json', 'application/x-www-form-urlencoded', 'multipart/form-data'];
-    if (!contentTypeList.includes(contentType)) {
-      console.log(`contentType ${contentType} is not recognized!`);
-      return;
-    }
-    const request = new XMLHttpRequest();
-    request.onreadystatechange = () => {
-      if (request.readyState === 4 && request.status === 200) {
-        const type = request.getResponseHeader('Content-Type');
-        var body = request.responseText;
-        console.log(`Content-Type: ${type}`);
-        if (type.indexOf('application/json') > -1) {
-          try {
-            body = JSON.parse(body);
-            if (url.startsWith('/api/test/echo') && body.hasOwnProperty('url') && body.hasOwnProperty('general') 
-              && body.hasOwnProperty('headers') && body.hasOwnProperty('body')) {
-              console.log(body.url);
-              console.log(body.general);
-              console.log(body.headers ? this.jsonFormat(body.headers) : '');
-              console.log(body.body);
-            } else {
-              console.log(body);
-            }
-          } catch (err) {
-            console.log(body);
-          }
+    if (!headers) { return parsed; }
+
+    this.forEach(headers.split('\n'), (line) => {
+      i = line.indexOf(':');
+      key = this.trim(line.substr(0, i)).toLowerCase();
+      val = this.trim(line.substr(i + 1));
+
+      if (key) {
+        if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
+          return;
+        }
+        if (key === 'set-cookie') {
+          parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
         } else {
-          console.log(body);
+          parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
         }
       }
+    });
+
+    return parsed;
+  }
+
+  /**
+   * Build a URL by appending params to the end
+   *
+   * @param {string} url The base of the url (e.g., http://www.google.com)
+   * @param {object} [params] The params to be appended
+   * @returns {string} The formatted url
+   */
+  buildURL(url, params, paramsSerializer) {
+    const encode = function(val) {
+      return encodeURIComponent(val).
+        replace(/%40/gi, '@').
+        replace(/%3A/gi, ':').
+        replace(/%24/g, '$').
+        replace(/%2C/gi, ',').
+        replace(/%20/g, '+').
+        replace(/%5B/gi, '[').
+        replace(/%5D/gi, ']');
     }
-    request.open('POST', url);
-    var payload = null;
-    switch (contentType) {
-      case 'application/json':
-        data = Object.assign(defaultData, data);
-        payload = JSON.stringify(data);
-        request.setRequestHeader('Content-Type', contentType);
-        break;
-      case 'application/x-www-form-urlencoded':
-        data = Object.assign(defaultData, data);
-        const params = new URLSearchParams();
-        for (let key in data) {
-          params.append(key, data[key]);
+    /*eslint no-param-reassign:0*/
+    if (!params) {
+      return url;
+    }
+
+    var serializedParams;
+    if (paramsSerializer) {
+      serializedParams = paramsSerializer(params);
+    } else if (this.isURLSearchParams(params)) {
+      serializedParams = params.toString();
+    } else {
+      var parts = [];
+
+      this.forEach(params, (val, key) => {
+        if (val === null || typeof val === 'undefined') {
+          return;
         }
-        payload = params.toString();
-        request.setRequestHeader('Content-Type', contentType);
+
+        if (this.isArray(val)) {
+          key = key + '[]';
+        } else {
+          val = [val];
+        }
+
+        this.forEach(val, v => {
+          if (this.isDate(v)) {
+            v = v.toISOString();
+          } else if (this.isObject(v)) {
+            v = JSON.stringify(v);
+          }
+          parts.push(encode(key) + '=' + encode(v));
+        });
+      });
+
+      serializedParams = parts.join('&');
+    }
+
+    if (serializedParams) {
+      var hashmarkIndex = url.indexOf('#');
+      if (hashmarkIndex !== -1) {
+        url = url.slice(0, hashmarkIndex);
+      }
+
+      url += (url.indexOf('?') === -1 ? '?' : '&') + serializedParams;
+    }
+
+    return url;
+  }
+
+  /**
+  * Determine if a URL shares the same origin as the current location
+  *
+  * @param {String} requestURL The URL to test
+  * @returns {boolean} True if URL shares the same origin, otherwise false
+  */
+  isURLSameOrigin(requestURL) {
+    /**
+    * Parse a URL to discover it's components
+    *
+    * @param {String} url The URL to be parsed
+    * @returns {Object}
+    */
+    function resolveURL(url) {
+      var href = url;
+      var msie = /(msie|trident)/i.test(navigator.userAgent);
+      var urlParsingNode = document.createElement('a');
+
+      if (msie) {
+      // IE needs attribute set twice to normalize properties
+        urlParsingNode.setAttribute('href', href);
+        href = urlParsingNode.href;
+      }
+
+      urlParsingNode.setAttribute('href', href);
+
+      // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
+      return {
+        href: urlParsingNode.href,
+        protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
+        host: urlParsingNode.host,
+        search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
+        hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
+        hostname: urlParsingNode.hostname,
+        port: urlParsingNode.port,
+        pathname: (urlParsingNode.pathname.charAt(0) === '/') ?
+          urlParsingNode.pathname :
+          '/' + urlParsingNode.pathname
+      };
+    }
+    const originURL = resolveURL(window.location.href);
+    var parsed = (this.isString(requestURL)) ? resolveURL(requestURL) : requestURL;
+    return (parsed.protocol === originURL.protocol &&
+        parsed.host === originURL.host);
+  }
+
+  /**
+   * Update an Error with the specified config, error code, and response.
+   *
+   * @param {Error} error The error to update.
+   * @param {Object} config The config.
+   * @param {string} [code] The error code (for example, 'ECONNABORTED').
+   * @param {Object} [request] The request.
+   * @param {Object} [response] The response.
+   * @returns {Error} The error.
+   */
+  createError(message, config, code, request) {
+    var error = new Error(message);
+    error.config = config;
+    if (code) {
+      error.code = code;
+    }
+
+    error.request = request;
+    error.isAxiosError = true;
+
+    error.toJSON = function() {
+      return {
+        // Standard
+        message: this.message,
+        name: this.name,
+        // Microsoft
+        description: this.description,
+        number: this.number,
+        // Mozilla
+        fileName: this.fileName,
+        lineNumber: this.lineNumber,
+        columnNumber: this.columnNumber,
+        stack: this.stack,
+        // Axios
+        config: this.config,
+        code: this.code
+      };
+    };
+    return error;
+  }
+  normalizeHeaderName(headers, normalizedName) {
+    utils.forEach(headers, function processHeader(value, name) {
+      if (name !== normalizedName && name.toUpperCase() === normalizedName.toUpperCase()) {
+        headers[normalizedName] = value;
+        delete headers[name];
+      }
+    });
+  }
+  setContentTypeIfUnset(headers, value) {
+    if (!utils.isUndefined(headers) && utils.isUndefined(headers['Content-Type'])) {
+      headers['Content-Type'] = value;
+    }
+  }
+  transformRequest(data, headers) {
+    this.normalizeHeaderName(headers, 'Accept');
+    this.normalizeHeaderName(headers, 'Content-Type');
+    if (this.isFormData(data) ||
+      this.isArrayBuffer(data) ||
+      this.isBuffer(data) ||
+      this.isStream(data) ||
+      this.isFile(data) ||
+      this.isBlob(data)
+    ) {
+      return data;
+    }
+    if (this.isArrayBufferView(data)) {
+      return data.buffer;
+    }
+    if (this.isURLSearchParams(data)) {
+      this.setContentTypeIfUnset(headers, 'application/x-www-form-urlencoded;charset=utf-8');
+      return data.toString();
+    }
+    if (this.isObject(data)) {
+      this.setContentTypeIfUnset(headers, 'application/json;charset=utf-8');
+      return JSON.stringify(data);
+    }
+    return data;
+  }
+  transformResponse(data) {
+    /*eslint no-param-reassign:0*/
+    if (typeof data === 'string') {
+      try {
+        data = JSON.parse(data);
+      } catch (e) { /* Ignore */ }
+    }
+    return data;
+  }
+  convertJSONDataByContentType(obj, contentType) {
+    var data = obj;
+    switch (contentType) {
+      case 'application/x-www-form-urlencoded':
+        data = new URLSearchParams();
+        for (let key in obj) {
+          data.append(key, obj[key]);
+        }
+        data = data.toString();
         break;
       case 'multipart/form-data':
-        var formData = data;
-        if ((data instanceof FormData)) {
-        } else {
-          formData = new FormData();
-          data = Object.assign(defaultData, data);
-          for (let key in data) {
-            var value = data[key];
-            if (value instanceof FileList) {
-              [].slice.call(value).forEach(it => {
-                formData.append(key, it);
-              })
-            } else {
-              formData.append(key, value);
-            }
-          }
+        data = new FormData();
+        for (let key in obj) {
+          data.append(key, obj[key]);
         }
-        payload = formData;
-        // no need to set Content-Type for multipart/form-data
         break;
     }
-    request.send(payload);
-  }
-
-  // post(url, data) {
-  //   const request = new XMLHttpRequest();
-  //   request.onreadystatechange = function() {
-  //     if (request.status === 0) {
-  //       return;
-  //     }
-  //     const type = request.getResponseHeader('Content-Type');
-  //     const body = request.response;
-  //     console.log(body);
-  //   }
-  //   request.open('POST', url);
-  //   request.send(data);
-  // }
-
-  parseQueryString(qs, sep, eq, options) {
-    if (qs.indexOf('?') > -1) {
-      qs = qs.split('?').pop();
-    }
-    sep = sep || '&';
-    eq = eq || '=';
-    var obj = {};
-    if (typeof qs !== 'string' || qs.length === 0) {
-      return obj;
-    }
-    try {
-      var regexp = /\+/g;
-      qs = qs.split(sep);
-      var maxKeys = 1000;
-      if (options && typeof options.maxKeys === 'number') {
-        maxKeys = options.maxKeys;
-      }
-      var len = qs.length;
-      // maxKeys <= 0 means that we should not limit keys count
-      if (maxKeys > 0 && len > maxKeys) {
-        len = maxKeys;
-      }
-      for (var i = 0; i < len; ++i) {
-        var x = qs[i].replace(regexp, '%20'),
-          idx = x.indexOf(eq),
-          kstr, vstr, k, v;
-        if (idx >= 0) {
-          kstr = x.substr(0, idx);
-          vstr = x.substr(idx + 1);
-        } else {
-          kstr = x;
-          vstr = '';
-        }
-        k = decodeURIComponent(kstr);
-        v = decodeURIComponent(vstr);
-        if (!obj.hasOwnProperty(k)) {
-          obj[k] = v;
-        } else if (Array.isArray(obj[k])) {
-          obj[k].push(v);
-        } else {
-          obj[k] = [obj[k], v];
-        }
-      }
-    } catch (error) {
-      console.log('error in parseQueryString:');
-      console.log(error);
-      obj = {};
-    }
-    return obj;
-  }
-
-  jsonFormat(json, config) {
-    /*
-      change for npm modules.
-      by Luiz Estácio.
-
-      json-format v.1.1
-      http://github.com/phoboslab/json-format
-
-      Released under MIT license:
-      http://www.opensource.org/licenses/mit-license.php
-    */
-    var p = [],
-      indentConfig = {
-        tab: { char: '\t', size: 1 },
-        space: { char: ' ', size: 2 }
-      },
-      configDefault = {
-        type: 'tab'
-      },
-      push = function( m ) { return '\\' + p.push( m ) + '\\'; },
-      pop = function( m, i ) { return p[i-1] },
-      tabs = function( count, indentType) { return new Array( count + 1 ).join( indentType ); };
-
-    function JSONFormat ( json, indentType ) {
-      p = [];
-      var out = "",
-          indent = 0;
-
-      // Extract backslashes and strings
-      json = json
-        .replace( /\\./g, push )
-        .replace( /(".*?"|'.*?')/g, push )
-        .replace( /\s+/, '' );    
-
-      // Indent and insert newlines
-      for( var i = 0; i < json.length; i++ ) {
-        var c = json.charAt(i);
-
-        switch(c) {
-          case '{':
-          case '[':
-            out += c + "\n" + tabs(++indent, indentType);
-            break;
-          case '}':
-          case ']':
-            out += "\n" + tabs(--indent, indentType) + c;
-            break;
-          case ',':
-            out += ",\n" + tabs(indent, indentType);
-            break;
-          case ':':
-            out += ": ";
-            break;
-          default:
-            out += c;
-            break;
-        }
-      }
-
-      // Strip whitespace from numeric arrays and put backslashes
-      // and strings back in
-      out = out
-        .replace( /\[[\d,\s]+?\]/g, function(m){ return m.replace(/\s/g,''); } )
-        .replace( /\\(\d+)\\/g, pop ) // strings
-        .replace( /\\(\d+)\\/g, pop ); // backslashes in strings
-
-      return out;
-    };
-
-    config = config || configDefault;
-    var indent = indentConfig[config.type];
-
-    if ( indent == null ) {
-      throw new Error('Unrecognized indent type: "' + config.type + '"');
-    }
-    var indentType = new Array((config.size || indent.size) + 1).join(indent.char);
-    return JSONFormat(JSON.stringify(json), indentType);
+    return data;
   }
 }
+const utils = new Utils();
+
+function xhrRequest(config) {
+  const defaultConfig = {
+    timeout: 0,
+    method: 'get',
+    headers: {
+      'Accept': 'application/json, text/plain, */*'
+    },
+    xsrfCookieName: 'XSRF-TOKEN',
+    xsrfHeaderName: 'X-XSRF-TOKEN',
+    settle(resolve, reject, response) {
+      const validateStatus = function(status) {
+        return status >= 200 && status < 300;
+      }
+      if (validateStatus(response.status)) {
+        resolve(response);
+      } else {
+        reject(utils.createError(
+          'Request failed with status code ' + response.status,
+          response.config,
+          null,
+          response.request,
+          response
+        ));
+      }
+    }
+  }
+  config = utils.deepMerge(defaultConfig, config);
+  if (config.query) {
+    config.params = config.query
+  }
+  if (config.path && config.path.startsWith('/') && !config.url) {
+    config.url = location.origin + config.path;
+  }
+  config.data = utils.transformRequest(config.data, config.headers);
+
+  return new Promise(function dispatchXhrRequest(resolve, reject) {
+    var requestData = config.data;
+    var requestHeaders = config.headers;
+
+    if (utils.isFormData(requestData)) {
+      delete requestHeaders['Content-Type']; // Let the browser set it
+    }
+
+    var request = new XMLHttpRequest();
+
+    // HTTP basic authentication
+    if (config.auth) {
+      var username = config.auth.username || '';
+      var password = config.auth.password || '';
+      requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
+    }
+
+    request.open(config.method.toUpperCase(), utils.buildURL(config.url, config.params, config.paramsSerializer), true);
+
+    // Set the request timeout in MS
+    request.timeout = config.timeout;
+
+    // Listen for ready state
+    request.onreadystatechange = function handleLoad() {
+      if (!request || request.readyState !== 4) {
+        return;
+      }
+
+      // The request errored out and we didn't get a response, this will be
+      // handled by onerror instead
+      // With one exception: request that using file: protocol, most browsers
+      // will return status as 0 even though it's a successful request
+      if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
+        return;
+      }
+
+      // Prepare the response
+      var responseHeaders = 'getAllResponseHeaders' in request ? utils.parseHeaders(request.getAllResponseHeaders()) : null;
+      var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
+      responseData = utils.transformResponse(responseData);
+      var response = {
+        data: responseData,
+        status: request.status,
+        statusText: request.statusText,
+        headers: responseHeaders,
+        config: config,
+        request: request
+      };
+
+      config.settle(resolve, reject, response);
+
+      // Clean up request
+      request = null;
+    };
+
+    // Handle browser request cancellation (as opposed to a manual cancellation)
+    request.onabort = function handleAbort() {
+      if (!request) {
+        return;
+      }
+
+      reject(utils.createError('Request aborted', config, 'ECONNABORTED', request));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Handle low level network errors
+    request.onerror = function handleError() {
+      // Real errors are hidden from us by the browser
+      // onerror should only fire if it's a network error
+      reject(utils.createError('Network Error', config, null, request));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Handle timeout
+    request.ontimeout = function handleTimeout() {
+      reject(utils.createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED',
+        request));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Add xsrf header
+    // This is only done if running in a standard browser environment.
+    // Specifically not if we're in a web worker, or react-native.
+    if (utils.isStandardBrowserEnv()) {
+      // Add xsrf header
+      var xsrfValue = (config.withCredentials || utils.isURLSameOrigin(config.url)) && config.xsrfCookieName ?
+        utils.cookies.read(config.xsrfCookieName) :
+        undefined;
+
+      if (xsrfValue) {
+        requestHeaders[config.xsrfHeaderName] = xsrfValue;
+      }
+    }
+
+    // Add headers to the request
+    if ('setRequestHeader' in request) {
+      utils.forEach(requestHeaders, function setRequestHeader(val, key) {
+        if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
+          // Remove Content-Type if data is undefined
+          delete requestHeaders[key];
+        } else {
+          // Otherwise add header to the request
+          request.setRequestHeader(key, val);
+        }
+      });
+    }
+
+    // Add withCredentials to request if needed
+    if (config.withCredentials) {
+      request.withCredentials = true;
+    }
+
+    // Add responseType to request if needed
+    if (config.responseType) {
+      try {
+        request.responseType = config.responseType;
+      } catch (e) {
+        // Expected DOMException thrown by browsers not compatible XMLHttpRequest Level 2.
+        // But, this can be suppressed for 'json' type as it can be parsed by default 'transformResponse' function.
+        if (config.responseType !== 'json') {
+          throw e;
+        }
+      }
+    }
+
+    // Handle progress if needed
+    if (typeof config.onDownloadProgress === 'function') {
+      request.addEventListener('progress', config.onDownloadProgress);
+    }
+
+    // Not all browsers support upload events
+    if (typeof config.onUploadProgress === 'function' && request.upload) {
+      request.upload.addEventListener('progress', config.onUploadProgress);
+    }
+
+    if (config.cancelToken) {
+      // Handle cancellation
+      config.cancelToken.promise.then(function onCanceled(cancel) {
+        if (!request) {
+          return;
+        }
+
+        request.abort();
+        reject(cancel);
+        // Clean up request
+        request = null;
+      });
+    }
+
+    if (requestData === undefined) {
+      requestData = null;
+    }
+
+    // Send the request
+    request.send(requestData);
+  });
+}
+return {
+  utils, xhrRequest
+}
+
+}));
