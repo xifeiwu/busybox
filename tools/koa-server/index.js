@@ -56,7 +56,7 @@ module.exports = class KoaServer {
 
   async start(port = null) {
     try {
-      port = port ? port : config.port;
+      port = await nodeUtils.getAFreePort(port ? port : config.port);
       const host = nodeUtils.getLocalIP();
       const app = new Koa();
       app.on('error', err => {
