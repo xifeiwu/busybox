@@ -7,7 +7,7 @@ module.exports = {
   '10_10_80_242': {
     host: '10.10.80.242',
     port: 2080,
-    matchs: [/elif\.site/],
+    matchs: [/elif\.site/, /chrome\.com/],
     username: 'wxf',
     password: 'wxf'
   },
