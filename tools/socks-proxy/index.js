@@ -108,9 +108,9 @@ class SocksServer {
     requestDetail.command = data[1];
     requestDetail.addressType = data[3];
 
-    if (this._atyp === constants.ATYP.IPv4)
+    if (addressType === constants.ATYP.IPv4)
       requestDetail.address = Array.prototype.join.call(adddressBytes, '.');
-    else if (this._atyp === constants.ATYP.IPv6) {
+    else if (addressType === constants.ATYP.IPv6) {
       var ipv6str = '';
       for (var b = 0; b < 16; ++b) {
         if (b % 2 === 0 && b > 0)
@@ -137,15 +137,18 @@ class SocksServer {
 
   async _proxySocket(socket, resolve, reject) {
     const requestDetail = this.state.requestDetail;
-    const targetIP = await new Promise((resolve, reject) => {
-      dns.lookup(requestDetail.address, function(err, ip) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(ip);
-        }
+    var targetIP = requestDetail.address;
+    if (net.isIP(targetIP) === 0) {
+      targetIP = await new Promise((resolve, reject) => {
+        dns.lookup(requestDetail.address, function(err, ip) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(ip);
+          }
+        });
       });
-    });
+    }
     var dstSock = new net.Socket();
     dstSock.setKeepAlive(false);
     dstSock.on('error', err => reject(err)).on('connect', () => {
@@ -346,6 +349,7 @@ module.exports = class SocksProxy {
   async _onConnection(socket, state) {
     try {
       const incoming = await (new SocksServer()).parse(socket);
+      // if incoming.socket is passed, means that it has to be handle by SocketClient
       if (incoming.socket) {
         // proxyLogger(incoming.state.requestDetail);
         const outgoing = await (new SocksClient(incoming.state)).connect(utils.proxy(incoming.state.requestDetail));
