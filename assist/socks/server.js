@@ -1,4 +1,8 @@
 var socks = require('socksv5');
+const loggerFactory = require('../../tools/get-logger-factory')({
+  toFile: path.resolve(__dirname, 'logs/visit.log')
+});
+const logger = loggerFactory('#');
 
 const useAuth = true;
 const port = 2080;
@@ -20,7 +24,7 @@ socksServer.on('listening', () => {
 });
 
 socksServer.on('connection', (reqInfo, accept, deny) => {
-  console.log(`${reqInfo.dstAddr}:${reqInfo.dstPort}`);
+  logger(`${reqInfo.dstAddr}:${reqInfo.dstPort}`);
   accept();
 })
 
