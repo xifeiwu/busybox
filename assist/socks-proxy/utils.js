@@ -1,7 +1,7 @@
 const net = require('net');
 const ipv6 = require('ipv6').v6;
 const proxyConfig = require('./config.js');
-const loggerFactory = require('../logger-factory');
+const loggerFactory = require('../../tools/logger-factory');
 const proxyLogger = loggerFactory('#utils.proxy');
 
 exports.ipbytes = function(str) {
