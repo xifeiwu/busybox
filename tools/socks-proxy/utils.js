@@ -42,7 +42,7 @@ exports.proxy = function({address, port}) {
     if (key === 'local') {
       continue;
     }
-    if (proxyConfig[key].matchs.find(it => it.test(address))) {
+    if (Array.isArray(proxyConfig[key].matchs) && proxyConfig[key].matchs.find(it => it.test(address))) {
       target = key;
       break;
     }
