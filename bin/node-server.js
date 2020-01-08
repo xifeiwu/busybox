@@ -2,7 +2,7 @@
 'use strict'
 const path = require('path');
 
-const NativeServer = require('../tools/native-server');
+const NativeServer = require('../assist/native-server');
 
 var options = {
   staticDir: null,

@@ -2,7 +2,7 @@
 'use strict'
 const path = require('path');
 const commander = require('commander');
-const KoaServer = require('../tools/koa-server');
+const KoaServer = require('../assist/koa-server');
 
 
 const program = new commander.Command();
