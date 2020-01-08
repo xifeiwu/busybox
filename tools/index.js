@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+const net = require('net');
 const NodeUtils = require('../utils/node');
 
 module.exports = class Tools extends NodeUtils {
