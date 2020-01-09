@@ -57,7 +57,6 @@ html, body {
         font-size: 14px;
         line-height: 22px;
         text-align: right;
-        font-weight: bold;
         color: black;
         box-sizing: border-box;
         padding-right: 10px; }
@@ -68,7 +67,8 @@ html, body {
         display: block;
         font-size: 14px;
         text-align: center;
-        margin-bottom: 16px; }
+        margin-bottom: 16px;
+        font-weight: bold; }
       .container section.native_support form.form_submit .form-item.footer {
         display: flex; }
         .container section.native_support form.form_submit .form-item.footer .item {

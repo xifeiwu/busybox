@@ -6,6 +6,7 @@ const config = require('../config');
 
 // NOTICE: 
 const nodeUtils = new (require('../../../utils/node'))();
+const nodeTools = new (require('../../../tools'))();
 
 // 注意require('koa-router')返回的是函数:
 const router = require('koa-router')();
@@ -105,7 +106,7 @@ router.get('/api/test', async(ctx, next) => {
 });
 
 router.post('/api/test', async(ctx, next) => {
-  ctx.assert(ctx.request.body, 200, nodeUtils.error({
+  ctx.assert(ctx.request.body, 200, nodeTools.error({
     msg: 'body not found'
   }));
 
@@ -163,7 +164,7 @@ router.all('/api/test/error', async(ctx, next) => {
 });
 
 router.post('/api/test/upload', async(ctx, next) => {
-  ctx.assert(ctx.request.body, 200, nodeUtils.error({
+  ctx.assert(ctx.request.body, 200, nodeTools.error({
     msg: 'body not found'
   }));
 

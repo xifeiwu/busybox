@@ -145,19 +145,18 @@
 
   async function onEvent(action, evt) {
     const uploadFileList = (fileList) => {
-        fileList = [].slice.call(fileList);
-        console.log(fileList);
-        const formData = new FormData();
-        fileList.forEach(file => {
-          formData.append(file.name, file);
-        })
-        URL_LIST['upload_by_form'].data = formData;
-        handleAction('upload_by_form');
-        // console.log(Array.isArray(fileList)); // false
-        // console.log(await utils.readBlobAsText(fileList[0])); // read content of file
-        // console.log(typeof fileList); // object
-        // console.log(fileList instanceof FileList); // true
-
+      fileList = [].slice.call(fileList);
+      console.log(fileList);
+      const formData = new FormData();
+      fileList.forEach(file => {
+        formData.append(file.name, file);
+      })
+      URL_LIST['upload_by_form'].data = formData;
+      handleAction('upload_by_form');
+      // console.log(Array.isArray(fileList)); // false
+      // console.log(await utils.readBlobAsText(fileList[0])); // read content of file
+      // console.log(typeof fileList); // object
+      // console.log(fileList instanceof FileList); // true
     }
     const target = evt.target;
     switch (action) {
@@ -182,8 +181,52 @@
         }
         break;
       case 'native_form_submit':
-        URL_LIST['upload_by_form'].data = new FormData(target);
-        handleAction('upload_by_form')
+        if (target.tagName.toUpperCase() !== 'FORM') {
+          console.log(`ERROR: is not a form:`);
+          console.log(target);
+          return;
+        }
+        const formObj = {};
+        [].slice.call(form_submit.elements).filter(it => it.name).forEach(it => {
+          const name = it.name;
+          if (it.tagName.toUpperCase() == 'INPUT') {
+            const inputType = it.type ? it.type : 'text';
+            switch (inputType) {
+              case 'text':
+                if (formObj.hasOwnProperty(name)) {
+                  console.log(`Warning: name ${name} is override!`);
+                }
+                formObj[name] = it.value;
+                break;
+              case 'radio':
+                if (it.checked) {
+                  formObj[name] = it.value;
+                }
+                break;
+              case 'checkbox':
+                formObj[name] = it.checked;
+                break;
+              case 'file':
+                formObj[name] = [].slice.call(it.files);
+                break;
+            }
+          } else if (it.tagName.toUpperCase() == 'SELECT' || it.tagName.toUpperCase() == 'TEXTAREA') {
+            formObj[name] = it.value;
+          }
+        });
+        const formData = new FormData();
+        Object.keys(formObj).forEach(name => {
+          const value = formObj[name];
+          if (Array.isArray(value)) {
+            value.forEach(it => {
+              formData.append(name, it);
+            });
+          } else {
+            formData.append(name, value);
+          }
+        })
+        URL_LIST['upload_by_form'].data = formData;
+        handleAction('upload_by_form');
         evt.preventDefault();
         break;
       case 'native_drag_enter':
@@ -343,6 +386,12 @@
           <div class="button" onclick="onEvent('toggle_native_drag_and_drop', ...arguments)">toggle_drag_and_drop</div>
         </div>
       </div>
+      <div class="form-item assist">
+        <div class="form-item-label">assist:</div>
+        <div class="form-item-content">
+          <button data-action="toggle_assist_request">toggle_assist_request</button>
+        </div>
+      </div>
 
       <!-- start of show browser native_support -->
       <section class="native_support">
@@ -407,6 +456,13 @@
           </div>
           <div class="form-item">
             <div class="label">Upload file</div>
+            <div class="content">
+              <!-- file can be filtered by accept=".png, .jpg, .jpeg" -->
+              <input name="uploadFile" type="file"></input>
+            </div>
+          </div>
+          <div class="form-item">
+            <div class="label">Upload files</div>
             <div class="content">
               <!-- file can be filtered by accept=".png, .jpg, .jpeg" -->
               <input name="uploadFiles" multiple type="file"></input>
