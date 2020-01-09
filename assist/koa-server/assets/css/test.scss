@@ -14,105 +14,96 @@ html, body {
     clip: rect(1px, 1px, 1px, 1px);
   }
 
-  button {
-    display: inline-block;
+  button, .button {
     font-size: 14px;
     line-height: 18px;
-    padding: 3px 6px;
-    background: white;
-    border: 1px solid gray;
-  }
-  button:hover {
-    background: #ccc;
-  }
-  .button {
     display: inline-block;
-    font-size: 14px;
-    line-height: 18px;
-    padding: 3px 6px;
+    padding: 2px 4px;
     background: white;
     border: 1px solid gray;
-  }
-  .button:hover {
-    background: #ccc;
+    margin-bottom: 2px;
+    border-radius: 3px;
+    &:hover {
+      background: #ccc;
+    }
   }
 
   .form {
+    font-size: 14px;
+    line-height: 18px;
     .form-item {
-      margin-bottom: 10px;
-      &::before, &::after {
-        display: table;
-        content: "";
-        clear: both;
-      }
+      display: flex;
+      margin-bottom: 8px;
       &-label {
-        width: 240px;
-        float: left;
+        width: 120px;
         text-align: right;
         padding: 0px 12px 0px 0px;
         color: #FF4560;
       }
       &-content {
-        margin-left: 240px;
+        flex: 1;
       }
-      &.native_area {
-        .form-item-content {
-          .native_submit_form {
-            width: 600px;
-            margin: 0px auto;
-            font-size: 12px;
-            color: black;
-            .title {
-              font-weight: bold;
-              font-size: 18px;
-              text-align: center;
-              margin-bottom: 12px;
-            }
-            .the-form .form-item {
-              display: flex;
-              margin-bottom: 10px;
-            }
-            .the-form .form-item .label {
-              width: 220px;
-              font-size: 14px;
-              line-height: 22px;
-              text-align: right;
-              font-weight: bold;
-              color: black;
-              box-sizing: border-box;
-              padding-right: 10px;
-            }
-            .the-form .form-item .content {
-              flex: 1;
-              box-sizing: border-box;
-            }
-            .the-form .form-item.footer {
-              display: flex;
-            }
-            .the-form .form-item.footer .item {
-              flex: 1;
-              text-align: center;
-            }
-            .the-form input[type="text"],
-            .the-form textarea {
-              font-size: 14px;
-              line-height: 16px;
-              background-color: rgba(255, 255, 255, .5);
-              width: 100%;
-              box-sizing: border-box;
-              padding: 2px;
-            }
+    }
+  }
+
+  .native_area {
+    .native_submit_form {
+      width: 600px;
+      margin-left: 20px;
+      font-size: 12px;
+      color: black;
+      form.the-form {
+        .form-item {
+          display: flex;
+          margin-bottom: 10px;
+          input[type="file"], input[type="submit"], input[type="reset"] {
           }
-          .native_drag_drop {
-            width: 600px;
-            height: 400px;
-            margin: 0px auto;
-            border: 1px dotted gray;
-            &:hover {
-              cursor: pointer;
+          input[type="text"], textarea {
+            font-size: 14px;
+            line-height: 16px;
+            background-color: rgba(255, 255, 255, .5);
+            width: 100%;
+            box-sizing: border-box;
+            padding: 2px;
+          }
+          .label {
+            width: 220px;
+            font-size: 14px;
+            line-height: 22px;
+            text-align: right;
+            font-weight: bold;
+            color: black;
+            box-sizing: border-box;
+            padding-right: 10px;
+          }
+          .content {
+            flex: 1;
+            box-sizing: border-box;
+          }
+          &.title {
+            display: block;
+            font-weight: bold;
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 18px;
+          }
+          &.footer {
+            display: flex;
+            .item {
+              flex: 1;
+              text-align: center;
             }
           }
         }
+      }
+    }
+    .native_drag_drop {
+      width: 600px;
+      height: 400px;
+      margin: 0px auto;
+      border: 1px dotted gray;
+      &:hover {
+        cursor: pointer;
       }
     }
   }
