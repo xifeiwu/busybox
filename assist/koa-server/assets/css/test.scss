@@ -15,15 +15,15 @@ html, body {
   }
 
   button, .button {
+    display: inline-block;
     font-size: 14px;
     line-height: 18px;
-    display: inline-block;
     padding: 2px 4px;
     background: white;
     border: 1px solid gray;
-    margin-bottom: 2px;
-    border-radius: 3px;
+    border-radius: 4px;
     &:hover {
+      cursor: pointer;
       background: #ccc;
     }
   }
@@ -35,10 +35,14 @@ html, body {
       display: flex;
       margin-bottom: 8px;
       &-label {
+        font-weight: bold;
+        font-size: 14px;
+        line-height: 24px;
         width: 120px;
         text-align: right;
         padding: 0px 12px 0px 0px;
-        color: #FF4560;
+        // color: #FF4560;
+        color: #67C23A;
       }
       &-content {
         flex: 1;
@@ -46,61 +50,58 @@ html, body {
     }
   }
 
-  .native_area {
-    .native_submit_form {
+  section.native_support {
+    form.form_submit {
       width: 600px;
       margin-left: 20px;
       font-size: 12px;
       color: black;
-      form.the-form {
-        .form-item {
+      .form-item {
+        display: flex;
+        margin-bottom: 10px;
+        input[type="file"], input[type="submit"], input[type="reset"] {
+        }
+        input[type="text"], textarea {
+          font-size: 14px;
+          line-height: 16px;
+          background-color: rgba(255, 255, 255, .5);
+          width: 100%;
+          box-sizing: border-box;
+          padding: 2px;
+        }
+        .label {
+          width: 220px;
+          font-size: 14px;
+          line-height: 22px;
+          text-align: right;
+          font-weight: bold;
+          color: black;
+          box-sizing: border-box;
+          padding-right: 10px;
+        }
+        .content {
+          flex: 1;
+          box-sizing: border-box;
+        }
+        &.title {
+          display: block;
+          font-size: 14px;
+          text-align: center;
+          margin-bottom: 16px;
+        }
+        &.footer {
           display: flex;
-          margin-bottom: 10px;
-          input[type="file"], input[type="submit"], input[type="reset"] {
-          }
-          input[type="text"], textarea {
-            font-size: 14px;
-            line-height: 16px;
-            background-color: rgba(255, 255, 255, .5);
-            width: 100%;
-            box-sizing: border-box;
-            padding: 2px;
-          }
-          .label {
-            width: 220px;
-            font-size: 14px;
-            line-height: 22px;
-            text-align: right;
-            font-weight: bold;
-            color: black;
-            box-sizing: border-box;
-            padding-right: 10px;
-          }
-          .content {
+          .item {
             flex: 1;
-            box-sizing: border-box;
-          }
-          &.title {
-            display: block;
-            font-weight: bold;
-            font-size: 18px;
             text-align: center;
-            margin-bottom: 18px;
-          }
-          &.footer {
-            display: flex;
-            .item {
-              flex: 1;
-              text-align: center;
-            }
           }
         }
       }
     }
-    .native_drag_drop {
+    .drag_and_drop {
       width: 600px;
       height: 400px;
-      margin: 0px auto;
+      margin-left: 20px;
       border: 1px dotted gray;
       &:hover {
         cursor: pointer;

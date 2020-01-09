@@ -164,13 +164,13 @@
       case 'native_upload_files':
         uploadFileList(target.files);
         break;
-      case 'toggle_native_submit_form':
-      case 'toggle_native_drag_drop':
+      case 'toggle_native_form_submit':
+      case 'toggle_native_drag_and_drop':
         const nodeMap = {
-          toggle_native_submit_form: document.querySelector('.container .native_area .native_submit_form'),
-          toggle_native_drag_drop: document.querySelector('.container .native_area .native_drag_drop')
+          toggle_native_form_submit: document.querySelector('.container section.native_support form.form_submit'),
+          toggle_native_drag_and_drop: document.querySelector('.container section.native_support .drag_and_drop')
         }
-        const targetNode =nodeMap[action];
+        const targetNode = nodeMap[action];
         Object.keys(nodeMap).filter(it => it != action).forEach(it => nodeMap[it].style.display = 'none');
         switch (targetNode.style.display) {
           case 'block':
@@ -181,7 +181,7 @@
             break;
         }
         break;
-      case 'native_submit_form':
+      case 'native_form_submit':
         URL_LIST['upload_by_form'].data = new FormData(target);
         handleAction('upload_by_form')
         evt.preventDefault();
@@ -290,6 +290,15 @@
           <button data-action="get_png">get_png</button>
         </div>
       </div>
+      <div class="form-item post">
+        <div class="form-item-label">post:</div>
+        <div class="form-item-content">
+          <button data-action="post_json">post_json</button>
+          <button data-action="post_form_urlencoded">post_form_urlencoded</button>
+          <button data-action="post_form">post_form</button>
+          <button data-action="post_blob">post_blob</button>
+        </div>
+      </div>
       <div class="form-item">
         <div class="form-item-label">feature:</div>
         <div class="form-item-content">
@@ -298,20 +307,11 @@
           <button data-action="get_js_timeout">get_js_timeout</button>
         </div>
       </div>
-      <div class="form-item">
+      <div class="form-item download">
         <div class="form-item-label">download:</div>
         <div class="form-item-content">
           <button data-action="download_by_blob">download_by_blob</button>
           <button data-action="download_by_tag_a">download_by_tag_a</button>
-        </div>
-      </div>
-      <div class="form-item">
-        <div class="form-item-label">post:</div>
-        <div class="form-item-content">
-          <button data-action="post_json">post_json</button>
-          <button data-action="post_form_urlencoded">post_form_urlencoded</button>
-          <button data-action="post_form">post_form</button>
-          <button data-action="post_blob">post_blob</button>
         </div>
       </div>
       <div class="form-item upload">
@@ -328,116 +328,199 @@
           </div>
         </div>
       </div> -->
-      <div class="form-item native">
+      <div class="form-item native_support">
         <div class="form-item-label">native:</div>
         <div class="form-item-content">
           <label class="button">
-            native_upload_one_file
+            upload_one_file
             <input class="visually-hidden" type="file" name="fileList" onchange="onEvent('native_upload_files', ...arguments)">
           </label>
           <label class="button">
-            native_upload_multiple_files
+            upload_multiple_files
             <input multiple class="visually-hidden" type="file" name="fileList" onchange="onEvent('native_upload_files', ...arguments)">
           </label>
-          <div class="button" data-action="native_submit_form" onclick="onEvent('toggle_native_submit_form', ...arguments)">native_submit_form</div>
-          <div class="button" data-action="native_drag_drop" onclick="onEvent('toggle_native_drag_drop', ...arguments)">toggle_native_drag_drop</div>
+          <div class="button" onclick="onEvent('toggle_native_form_submit', ...arguments)">toggle_form_submit</div>
+          <div class="button" onclick="onEvent('toggle_native_drag_and_drop', ...arguments)">toggle_drag_and_drop</div>
         </div>
       </div>
-      <!-- native_submit_form -->
-      <div class="form-item native_area">
-        <div class="form-item-label"></div>
-        <div class="form-item-content">
-          <div class="native_submit_form" style="display: none">
-            <!-- default enctype is application/x-www-form-urlencoded -->
-            <!-- enctype="multipart/form-data"  -->
-            <!-- method="post" action="/api/post-data" -->
-            <!-- method="post" action="/api/test/upload" -->
-            <form class="the-form" name="the-form" onsubmit="onEvent('native_submit_form', ...arguments)">
-              <div class="form-item title">Research From</div>
-              <div class="form-item">
-                <div class="label">name</div>
-                <div class="content">
-                  <input type="text" name="name">
-                </div>
-              </div>
-              <div class="form-item">
-                <div class="label">email address</div>
-                <div class="content">
-                  <input type="text" name="email" value="default-email">
-                </div>
-              </div>
-              <div class="form-item">
-                <div class="label">apartment farming skills</div>
-                <div class="content">
-                  <label>
-                    <input name="skill" type="radio" value="novice" checked>Novice
-                  </label>
-                  <label>
-                    <input name="skill" type="radio" value="intermediate">Intermediate
-                  </label>
-                  <label>
-                    <input name="skill" type="radio" value="advanced">Advanced
-                  </label>
-                </div>
-              </div>
-              <div class="form-item">
-                <div class="label">Select your favorite</div>
-                <div class="content">
-                  <label>
-                    <input name="likeMovie" type="checkbox" value="movie">Movie
-                  </label>
-                  <label>
-                    <input name="likeMusic" type="checkbox" value="music">Music
-                  </label>
-                  <label>
-                    <input name="likeReading" type="checkbox" value="reading">Reading
-                  </label>
-                </div>
-              </div>
-              <div class="form-item">
-                <div class="label">Where did you hear about us? </div>
-                <div class="content">
-                  <!-- multiple for multiple select -->
-                  <select name="refer">
-                    <option value="no">No</option>
-                    <option value="friend">Friend</option>
-                    <option value="herban-jungle" selected>Herban Jungle</option>
-                    <option value="compost-today">Compost Today</option>
-                    <option value="vanity-fair">Vanity Fair</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-item">
-                <div class="label">Upload file</div>
-                <div class="content">
-                  <!-- file can be filtered by accept=".png, .jpg, .jpeg" -->
-                  <input name="uploadFiles" multiple type="file"></input>
-                </div>
-              </div>
-              <div class="form-item">
-                <div class="label">Any additional comments? </div>
-                <div class="content">
-                  <textarea name="comments" cols="35" rows="4"></textarea>
-                </div>
-              </div>
-              <div class="form-item footer">
-                <div class="item">
-                  <input class="el-button" type="submit" value="Subscribe">
-                </div>
-                <div class="item">
-                  <input class="el-button" type="reset" value="Reset">
-                </div>
-              </div>
-            </form>
+
+      <!-- start of show browser native_support -->
+      <section class="native_support">
+        <!-- default enctype is application/x-www-form-urlencoded -->
+        <!-- enctype="multipart/form-data"  -->
+        <!-- method="post" action="/api/post-data" -->
+        <!-- method="post" action="/api/test/upload" -->
+        <form class="form_submit" name="form_submit" onsubmit="onEvent('native_form_submit', ...arguments)" style="display: none;">
+          <div class="form-item title">Research From</div>
+          <div class="form-item">
+            <div class="label">name</div>
+            <div class="content">
+              <input type="text" name="name">
+            </div>
           </div>
-          <div class="native_drag_drop"
-            ondrop="onEvent('native_drop', ...arguments); return false;"
-            ondragenter="onEvent('native_drag_enter', ...arguments)"
-            ondragover="onEvent('native_drag_over', ...arguments)"
-            style="display: none">
+          <div class="form-item">
+            <div class="label">email address</div>
+            <div class="content">
+              <input type="text" name="email" value="default-email">
+            </div>
           </div>
+          <div class="form-item">
+            <div class="label">apartment farming skills</div>
+            <div class="content">
+              <label>
+                <input name="skill" type="radio" value="novice" checked>Novice
+              </label>
+              <label>
+                <input name="skill" type="radio" value="intermediate">Intermediate
+              </label>
+              <label>
+                <input name="skill" type="radio" value="advanced">Advanced
+              </label>
+            </div>
+          </div>
+          <div class="form-item">
+            <div class="label">Select your favorite</div>
+            <div class="content">
+              <label>
+                <input name="likeMovie" type="checkbox" value="movie">Movie
+              </label>
+              <label>
+                <input name="likeMusic" type="checkbox" value="music">Music
+              </label>
+              <label>
+                <input name="likeReading" type="checkbox" value="reading">Reading
+              </label>
+            </div>
+          </div>
+          <div class="form-item">
+            <div class="label">Where did you hear about us? </div>
+            <div class="content">
+              <!-- multiple for multiple select -->
+              <select name="refer">
+                <option value="no">No</option>
+                <option value="friend">Friend</option>
+                <option value="herban-jungle" selected>Herban Jungle</option>
+                <option value="compost-today">Compost Today</option>
+                <option value="vanity-fair">Vanity Fair</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-item">
+            <div class="label">Upload file</div>
+            <div class="content">
+              <!-- file can be filtered by accept=".png, .jpg, .jpeg" -->
+              <input name="uploadFiles" multiple type="file"></input>
+            </div>
+          </div>
+          <div class="form-item">
+            <div class="label">Any additional comments? </div>
+            <div class="content">
+              <textarea name="comments" cols="35" rows="4"></textarea>
+            </div>
+          </div>
+          <div class="form-item footer">
+            <div class="item">
+              <input class="el-button" type="submit" value="Subscribe">
+            </div>
+            <div class="item">
+              <input class="el-button" type="reset" value="Reset">
+            </div>
+          </div>
+        </form>
+        <div class="drag_and_drop"
+          ondrop="onEvent('native_drop', ...arguments); return false;"
+          ondragenter="onEvent('native_drag_enter', ...arguments)"
+          ondragover="onEvent('native_drag_over', ...arguments)"
+          style="display: none">
         </div>
-      </div>
+      </section>
+      <!-- end of show browser native_support -->
+
+      <section class="assist" style="display: none;">
+        <div class="native_form_submit">
+          <!-- default enctype is application/x-www-form-urlencoded -->
+          <!-- enctype="multipart/form-data"  -->
+          <!-- method="post" action="/api/post-data" -->
+          <!-- method="post" action="/api/test/upload" -->
+          <form class="the-form" name="the-form" onsubmit="onEvent('native_form_submit', ...arguments)">
+            <div class="form-item title">Research From</div>
+            <div class="form-item">
+              <div class="label">name</div>
+              <div class="content">
+                <input type="text" name="name">
+              </div>
+            </div>
+            <div class="form-item">
+              <div class="label">email address</div>
+              <div class="content">
+                <input type="text" name="email" value="default-email">
+              </div>
+            </div>
+            <div class="form-item">
+              <div class="label">apartment farming skills</div>
+              <div class="content">
+                <label>
+                  <input name="skill" type="radio" value="novice" checked>Novice
+                </label>
+                <label>
+                  <input name="skill" type="radio" value="intermediate">Intermediate
+                </label>
+                <label>
+                  <input name="skill" type="radio" value="advanced">Advanced
+                </label>
+              </div>
+            </div>
+            <div class="form-item">
+              <div class="label">Select your favorite</div>
+              <div class="content">
+                <label>
+                  <input name="likeMovie" type="checkbox" value="movie">Movie
+                </label>
+                <label>
+                  <input name="likeMusic" type="checkbox" value="music">Music
+                </label>
+                <label>
+                  <input name="likeReading" type="checkbox" value="reading">Reading
+                </label>
+              </div>
+            </div>
+            <div class="form-item">
+              <div class="label">Where did you hear about us? </div>
+              <div class="content">
+                <!-- multiple for multiple select -->
+                <select name="refer">
+                  <option value="no">No</option>
+                  <option value="friend">Friend</option>
+                  <option value="herban-jungle" selected>Herban Jungle</option>
+                  <option value="compost-today">Compost Today</option>
+                  <option value="vanity-fair">Vanity Fair</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-item">
+              <div class="label">Upload file</div>
+              <div class="content">
+                <!-- file can be filtered by accept=".png, .jpg, .jpeg" -->
+                <input name="uploadFiles" multiple type="file"></input>
+              </div>
+            </div>
+            <div class="form-item">
+              <div class="label">Any additional comments? </div>
+              <div class="content">
+                <textarea name="comments" cols="35" rows="4"></textarea>
+              </div>
+            </div>
+            <div class="form-item footer">
+              <div class="item">
+                <input class="el-button" type="submit" value="Subscribe">
+              </div>
+              <div class="item">
+                <input class="el-button" type="reset" value="Reset">
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
     </div>
   </div>
 </body>
