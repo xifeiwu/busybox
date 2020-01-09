@@ -4,58 +4,6 @@ const net = require('net');
 const NodeUtils = require('../utils/node');
 
 module.exports = class Tools extends NodeUtils {
-  async showRequestProcess(config = {}) {
-    config = this.deepMerge({
-      path: '/',
-      method: 'get',
-      headers: {
-        accept: '*/*'
-      }
-    }, config);
-
-    const axios = require('axios');
-    const net = new axios.Helper({
-      headers: {
-        common: {
-          tag: 'utils.node.showRequestProcess'
-        }
-      }
-    });
-    var axiosResponse = null;
-    try {
-      axiosResponse = await net.requestAxiosResponse(config);
-    } catch(err) {
-      if (err.isAxiosError) {
-        axiosResponse = err.response;
-        if (!axiosResponse) {
-          console.log(err);
-        }
-      } else {
-        console.log(err);
-      }
-    }
-    console.log(' ###### start of showRequestProcess ######');
-    if (axiosResponse) {
-      console.log(' --- request --- ');
-      const config = axiosResponse.config;
-      const urlObject = url.parse(config.url);
-      console.log(`${config.method.toUpperCase()} ${urlObject.path} ${urlObject.protocol}`);
-      console.log(config.headers);
-      console.log(config.data ? config.data : '');
-      // console.log(axiosResponse.request.getHeaders());
-      console.log(' ---response general--- ');
-      console.log(`${axiosResponse.status} ${axiosResponse.statusText}`);
-      console.log(' ---response headers--- ');
-      console.log(axiosResponse.headers);
-      console.log(' ---response body--- ');
-      console.log(axiosResponse.data.length > 1000 ? axiosResponse.data.substring(0, 1000) : axiosResponse.data);
-    } else {
-      console.log(`axiosResponse is null`);
-    }
-    console.log(' ###### end of showRequestProcess ######');
-    return axiosResponse;
-  }
-
   getRootCA() {
     const caPath = path.resolve(__dirname, '../tools/commands/ssl-keys/rootCA.crt');
     return fs.readFileSync(caPath);
