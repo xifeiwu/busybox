@@ -42,7 +42,15 @@ exports.proxy = function({address, port}) {
     if (key === 'local') {
       continue;
     }
-    if (Array.isArray(proxyConfig[key].matchs) && proxyConfig[key].matchs.find(it => it.test(address))) {
+    if (Array.isArray(proxyConfig[key].matchs) && proxyConfig[key].matchs.find(it => {
+      if (it instanceof RegExp) {
+        return it.test(address);
+      } else if (typeof(it) === 'string' || it instanceof String) {
+        return it == address;
+      } else {
+        return false;
+      }
+    })) {
       target = key;
       break;
     }
