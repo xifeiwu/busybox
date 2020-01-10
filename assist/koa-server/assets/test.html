@@ -237,26 +237,34 @@
             throw new Error(`url, method, contentType can not be null`);
           }
 
-          const data = {};
+          var data = {};
           if (fields) {
-            fields.trim().split('\n').forEach(it => {
+            var json = fields.trim().split('\n').filter(it => {
               const index = it.indexOf(':');
               if (index === -1) {
-                return;
+                return false;
               }
               const key = it.slice(0, index).trim();
               const value = it.slice(index + 1).trim();
               if (!key) {
-                return;
+                return false;
               }
-              data[key] = value;
-            });
+              return true;
+            }).map(it => {
+              const index = it.indexOf(':');
+              const key = it.slice(0, index).trim();
+              const value = it.slice(index + 1).trim();
+              return `"${key}": ${value}`;
+            }).join(', ');
+            json = `{${json}}`;
+            // console.log(json);
+            data = JSON.parse(json);
           }
           if (files.length > 0) {
             data.files = [].slice.call(files);
           }
           URL_LIST['assist_proxy_request'] = {
-            path: '/api/assist/proxy',
+            path: `/api/assist/proxy?target=${url}`,
             method,
             headers: {
               'content-type': contentType

@@ -73,6 +73,18 @@ module.exports = class KoaServer {
       // app.listen(port);
       const server = http.createServer(app.callback());
       server.listen(port);
+      // server.on('connection', socket => {
+      //   socket.on('data', chunk => {
+      //     console.log(`${socket.remoteAddress}:${socket.remotePort}`);
+      //     console.log(chunk.toString());
+      //   });
+      //   socket.on('end', chunk => {
+      //     console.log(`end ${socket.remoteAddress}:${socket.remotePort}`);
+      //   });
+      //   socket.on('close', chunk => {
+      //     console.log(`close ${socket.remoteAddress}:${socket.remotePort}`);
+      //   });
+      // });
       return new Promise((resolve, reject) => {
         server.on('error', (err) => {
           console.log(err);

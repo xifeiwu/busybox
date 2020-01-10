@@ -3,6 +3,8 @@ const path = require('path');
 const router = require('koa-router')();
 const nodeUtils = new (require('../../../utils/node'))();
 
+httpProxy = require('node-http-proxy');
+
 router.post('/api/assist/upload', async(ctx, next) => {
   ctx.assert(ctx.request.body, 200, nodeUtils.error({
     msg: 'body not found'
@@ -31,14 +33,29 @@ router.post('/api/assist/upload', async(ctx, next) => {
 });
 
 router.all('/api/assist/proxy', async (ctx, next) => {
-  ctx.type = 'json';
-  ctx.body = {
-    general: `${ctx.method} ${ctx.path} ${ctx.protocol}`,
-    url: ctx.url,
-    headers: ctx.headers,
-    requestBody: ctx.method.toUpperCase() == 'POST' ? ctx.request.body : '',
-    requestData: ctx.method.toUpperCase() == 'POST' ? ctx.request.data.toString() : ''
-  };
+  var {target} = ctx.query;
+  ctx.assert(target, 400, 'target is required in querystring');
+
+  target = new URL(target);
+
+  const proxy = httpProxy.createServer();
+  const start = Date.now();
+  await new Promise((resolve, reject) => {
+    ctx.req.url = target.pathname;
+    proxy.web(ctx.req, ctx.res, {
+      proxyTimeout: 30000,
+      target: target.origin,
+      changeOrigin: true
+    });
+    proxy.once('error', err => {
+      reject(err);
+    });
+    proxy.once('end', err => {
+      ctx.respond = false;
+      console.log(`proxy to ${target.href}[${Date.now() - start}]`);
+      resolve();
+    });
+  });
 });
 
 
