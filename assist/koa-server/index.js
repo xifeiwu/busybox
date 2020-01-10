@@ -4,7 +4,6 @@ const path = require('path');
 const http = require('http');
 const util = require('util');
 const Koa = require('koa');
-const formidable = require('formidable');
 const staticCache = require('koa-static-cache');
 const nodeUtils = new (require('../../utils/node'))();
 const config = require('./config.js');
@@ -65,7 +64,6 @@ module.exports = class KoaServer {
       app.UPLOAD_DIR = this.UPLOAD_DIR;
       this.setLogger(app);
       // parseByFormidable should be used before all api-related middleware
-      this.parseByFormidable(app);
       this.setApi(app);
       // match static file at last
       this.setStatic(app);
@@ -163,88 +161,6 @@ module.exports = class KoaServer {
     //     }, fileStore));
     //   });
     // }
-  }
-
-  // parse body for all post, results is saved to ctx.request.body
-  // ?save=true, save file or not
-  parseByFormidable(app) {
-    app.use(async(ctx, next) => {
-      if (ctx.method !== 'POST' || !ctx.path.startsWith('/api')) return await next();
-
-      const uploadDir = this.uploadDir;
-      var form = new formidable.IncomingForm({
-        uploadDir,
-        keepExtensions: true,
-        multiples: true,
-        maxFileSize: 1024 * 1024 * 1024,
-        hash: 'md5'
-      });
-      // console.log('start parse');
-      const [multipart, originData] = await Promise.all([
-        new Promise((resolve, reject) => {
-          // form.on('progress', (bytesReceived, bytesExpected) => {
-          //   console.log(`${bytesReceived} / ${bytesExpected}`);
-          // });
-          form.parse(ctx.req, (err, fields, files) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve({
-                fields,
-                files
-              });
-            }
-          });
-        }),
-        new Promise((resolve, reject) => {
-          var bufSize = 0;
-          var bufferList = [];
-          ctx.req.on('data', function(chunk){
-            bufSize += chunk.length;
-            if (bufSize > 512 * 1024 * 1024) {
-              return;
-            }
-            bufferList.push(chunk);
-          });
-          ctx.req.on('end', function() {
-            resolve(Buffer.concat(bufferList));
-          });
-          ctx.req.on('error', function(err) {
-            reject(err);
-          })
-        })
-      ])
-      // console.log(multipart);
-      // console.log(originData);
-
-      if (ctx.query['save']) {
-        var fileList = [];
-        Object.keys(multipart.files).forEach(key => {
-          fileList = fileList.concat(multipart.files[key]);
-        });
-
-        if (fileList.length > 0) {
-          const uploadDir = path.resolve(this.UPLOAD_DIR, 'uploads');
-          // mkdir uploads if necessary
-          if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir);
-          }
-          fileList.forEach(file => {
-            var ext = path.extname(file.name);
-            const basename = path.basename(file.name, ext);
-            // ext = ext.replace(/(\.[a-z0-9]+).*/i, '$1');
-            fs.writeFileSync(path.resolve(uploadDir, `${file.hash}.${basename}.${ext}`), file.data);
-          });
-        }
-        // console.log(fileList);
-      }
-
-      // request.body refers to multipart data parsed by formidable
-      // request.data refers to origin data posted by client
-      ctx.request.body = multipart;
-      ctx.request.data = originData;
-      await next();
-    });
   }
 
   setApi(app) {

@@ -6,11 +6,8 @@ const nodeUtils = new (require('../../../utils/node'))();
 httpProxy = require('node-http-proxy');
 
 router.post('/api/assist/upload', async(ctx, next) => {
-  ctx.assert(ctx.request.body, 200, nodeUtils.error({
-    msg: 'body not found'
-  }));
+  const {multipart, originData} = await nodeTools.parseByFormidable(ctx.req);
 
-  const multipart = ctx.request.body;
   var fileList = [];
   Object.keys(multipart.files).forEach(key => {
     fileList = fileList.concat(multipart.files[key]);
@@ -25,11 +22,12 @@ router.post('/api/assist/upload', async(ctx, next) => {
       var ext = path.extname(file.name);
       const basename = path.basename(file.name, ext);
       // ext = ext.replace(/(\.[a-z0-9]+).*/i, '$1');
+      console.log(`write file ${path.resolve(uploadDir, `${file.hash}.${basename}${ext}`)}`);
       fs.writeFileSync(path.resolve(uploadDir, `${file.hash}.${basename}${ext}`), file.data);
     });
   }
   ctx.type = 'json';
-  ctx.body = ctx.request.body;
+  ctx.body = multipart;
 });
 
 router.all('/api/assist/proxy', async (ctx, next) => {

@@ -106,49 +106,25 @@ router.get('/api/test', async(ctx, next) => {
 });
 
 router.post('/api/test', async(ctx, next) => {
-  ctx.assert(ctx.request.body, 200, nodeTools.error({
-    msg: 'body not found'
-  }));
+  const {multipart, originData} = await nodeTools.parseByFormidable(ctx.req);
 
-  if (ctx.query && ctx.query.saveFile) {
-    const multipart = ctx.request.body;
-    var fileList = [];
-    Object.keys(multipart.files).forEach(key => {
-      fileList = fileList.concat(multipart.files[key]);
-    });
-    if (fileList.length > 0) {
-      const uploadDir = path.resolve(ctx.app.UPLOAD_DIR, 'uploads');
-      // mkdir uploads if necessary
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir);
-      }
-      fileList.forEach(file => {
-        var ext = path.extname(file.name);
-        const basename = path.basename(file.name, ext);
-        // ext = ext.replace(/(\.[a-z0-9]+).*/i, '$1');
-        fs.writeFileSync(path.resolve(uploadDir, `${file.hash}.${basename}${ext}`), file.data);
-      });
-    }
-  }
   ctx.type = 'json';
-  ctx.body = ctx.request.body;
+  ctx.body = multipart;
   // console.log(ctx.body);
   handleBody(ctx, next);
 });
 
 router.all('/api/test/echo', async(ctx, next) => {
-  // ctx.request.data is get by parsedByFormidable
-  // const buf = ctx.request.data ? ctx.request.data : await nodeUtils.getStreamData(ctx.req);
-  // console.log(ctx.req.headers)
-  // console.log(buf.toString());
+  const {multipart, originData} = await nodeTools.parseByFormidable(ctx.req);
+
   ctx.type = 'json';
   ctx.body = {
     general: `${ctx.method} ${ctx.path} ${ctx.protocol}`,
     url: ctx.url,
     headers: ctx.headers,
     // body: buf.toString()
-    requestBody: ctx.method.toUpperCase() == 'POST' ? ctx.request.body : '',
-    requestData: ctx.method.toUpperCase() == 'POST' ? ctx.request.data.toString() : ''
+    requestBody: multipart,
+    requestData: originData
   };
   // console.log(ctx.body);
   handleBody(ctx, next);
@@ -164,11 +140,8 @@ router.all('/api/test/error', async(ctx, next) => {
 });
 
 router.post('/api/test/upload', async(ctx, next) => {
-  ctx.assert(ctx.request.body, 200, nodeTools.error({
-    msg: 'body not found'
-  }));
+  const {multipart, originData} = await nodeTools.parseByFormidable(ctx.req);
 
-  const multipart = ctx.request.body;
   var fileList = [];
   Object.keys(multipart.files).forEach(key => {
     fileList = fileList.concat(multipart.files[key]);
@@ -188,7 +161,7 @@ router.post('/api/test/upload', async(ctx, next) => {
     });
   }
   ctx.type = 'json';
-  ctx.body = ctx.request.body;
+  ctx.body = multipart;
 });
 
 module.exports = router;

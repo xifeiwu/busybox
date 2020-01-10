@@ -1,3 +1,7 @@
+### depends
+
+tools.parseByFormidable
+
 ### intro
 
 http服务，提供常用功能：staticServer，post请求解析，自定义api
