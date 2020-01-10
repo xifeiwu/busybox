@@ -6,14 +6,7 @@ var http = require('http'),
     path = require('path'),
     util = require('util');
 
-const httpProxy = require('busybox/node_modules/node-http-proxy');
-// const createDebug = require('busybox/node_modules/debug');
-// createDebug.getState().setConfigs({
-//   debug: '*',
-//   useColors: false,
-//   toFile: path.resolve(__dirname, 'logs/proxy.log')
-// });
-// debug = createDebug('penetrate-fortress');
+const httpProxy = require('node-http-proxy');
 const loggerFactory = require('./logger-factory.js');
 
 const proxy = httpProxy.createServer();
