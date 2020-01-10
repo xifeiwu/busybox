@@ -290,41 +290,6 @@
     }
   }
 
-  async function handleRequest(action) {
-    if (!URL_LIST.hasOwnProperty(action)) {
-      throw new Error(`${action} not exist`);
-    }
-    const config = URL_LIST[action];
-
-    if (config.query && config.query.wait) {
-      var count = config.query.wait;
-      const intervalTag = setInterval(() => {
-        console.log(count--);
-        if (count <= 0) {
-          clearInterval(intervalTag);
-        }
-      }, 1000);
-    }
-
-    // download_by_tag_a
-    if (action === 'download_by_tag_a') {
-      utils.downloadByTagA(config.path, 'test.js');
-      return;
-    }
-    try {
-      const response = await xhrRequest(config);
-
-      // download_by_blob
-      if (action === 'download_by_blob') {
-        utils.downloadByBlob(response.data);
-      }
-      console.log(response);
-    } catch (err) {
-      // console.log(err);
-      throw err;
-    }
-  }
-
   async function handleAction(action) {
     const targetToggleNode = {
       toggle_native_form_submit: document.querySelector('.container section.native_support form.form_submit'),
@@ -360,6 +325,41 @@
       default:
         this.handleRequest(action);
         break;
+    }
+  }
+
+  async function handleRequest(action) {
+    if (!URL_LIST.hasOwnProperty(action)) {
+      throw new Error(`${action} not exist`);
+    }
+    const config = URL_LIST[action];
+
+    if (config.query && config.query.wait) {
+      var count = config.query.wait;
+      const intervalTag = setInterval(() => {
+        console.log(count--);
+        if (count <= 0) {
+          clearInterval(intervalTag);
+        }
+      }, 1000);
+    }
+
+    // download_by_tag_a
+    if (action === 'download_by_tag_a') {
+      utils.downloadByTagA(config.path, 'test.js');
+      return;
+    }
+    try {
+      const response = await xhrRequest(config);
+
+      // download_by_blob
+      if (action === 'download_by_blob') {
+        utils.downloadByBlob(response.data);
+      }
+      console.log(response);
+    } catch (err) {
+      // console.log(err);
+      throw err;
     }
   }
 
