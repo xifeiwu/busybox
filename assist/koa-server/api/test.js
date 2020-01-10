@@ -147,8 +147,8 @@ router.all('/api/test/echo', async(ctx, next) => {
     url: ctx.url,
     headers: ctx.headers,
     // body: buf.toString()
-    requestBody: ctx.request.body,
-    requestData: ctx.request.data.toString()
+    requestBody: ctx.method.toUpperCase() == 'POST' ? ctx.request.body : '',
+    requestData: ctx.method.toUpperCase() == 'POST' ? ctx.request.data.toString() : ''
   };
   // console.log(ctx.body);
   handleBody(ctx, next);

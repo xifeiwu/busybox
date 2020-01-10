@@ -94,7 +94,7 @@
       headers: {
         'content-type': 'application/x-www-form-urlencoded'
       },
-      data: utils.convertJSONDataByContentType({
+      data: utils.dataFromJSONByContentType({
         a: 1, b: 2
       }, 'application/x-www-form-urlencoded')
     },
@@ -104,7 +104,7 @@
       headers: {
         'content-type': 'multipart/form-data'
       },
-      data: utils.convertJSONDataByContentType({
+      data: utils.dataFromJSONByContentType({
         a: 1, b: 2
       }, 'multipart/form-data')
     },
@@ -114,7 +114,7 @@
       headers: {
         'content-type': 'multipart/form-data'
       },
-      data: utils.convertJSONDataByContentType({
+      data: utils.dataFromJSONByContentType({
         a: 1, b: 2,
         blob: new Blob(['This blob contains this text and 10 big-endian 32-bit signed ints.\n', 'second line'])
       }, 'multipart/form-data')
@@ -125,7 +125,7 @@
       headers: {
         'content-type': 'multipart/form-data'
       },
-      data: utils.convertJSONDataByContentType({
+      data: utils.dataFromJSONByContentType({
         a: 1, b: 2,
         blob: new Blob(['This blob contains this text and 10 big-endian 32-bit signed ints.\n', 'second line'])
       }, 'multipart/form-data')
@@ -140,10 +140,18 @@
         console.log(`upload: ${evt.loaded} / ${evt.total}`);
       },
       data: new FormData()
+    },
+    assist_proxy_request: {
+      path: '/api/assist/proxy',
+      method: 'get',
+      headers: {
+        'content-type': 'application/json'
+      },
+      data: {}
     }
   }
 
-  async function onEvent(action, evt) {
+  async function handleEvent(action, evt) {
     const uploadFileList = (fileList) => {
       fileList = [].slice.call(fileList);
       console.log(fileList);
@@ -152,7 +160,7 @@
         formData.append(file.name, file);
       })
       URL_LIST['upload_by_form'].data = formData;
-      handleAction('upload_by_form');
+      handleRequest('upload_by_form');
       // console.log(Array.isArray(fileList)); // false
       // console.log(await utils.readBlobAsText(fileList[0])); // read content of file
       // console.log(typeof fileList); // object
@@ -162,23 +170,6 @@
     switch (action) {
       case 'native_upload_files':
         uploadFileList(target.files);
-        break;
-      case 'toggle_native_form_submit':
-      case 'toggle_native_drag_and_drop':
-        const nodeMap = {
-          toggle_native_form_submit: document.querySelector('.container section.native_support form.form_submit'),
-          toggle_native_drag_and_drop: document.querySelector('.container section.native_support .drag_and_drop')
-        }
-        const targetNode = nodeMap[action];
-        Object.keys(nodeMap).filter(it => it != action).forEach(it => nodeMap[it].style.display = 'none');
-        switch (targetNode.style.display) {
-          case 'block':
-            targetNode.style.display = 'none';
-            break;
-          case 'none':
-            targetNode.style.display = 'block';
-            break;
-        }
         break;
       case 'native_form_submit':
         if (target.tagName.toUpperCase() !== 'FORM') {
@@ -226,7 +217,58 @@
           }
         })
         URL_LIST['upload_by_form'].data = formData;
-        handleAction('upload_by_form');
+        handleRequest('upload_by_form');
+        evt.preventDefault();
+        break;
+      case 'assist_proxy_request':
+        if (target.tagName.toUpperCase() !== 'FORM') {
+          console.log(`ERROR: is not a form:`);
+          console.log(target);
+          return;
+        }
+
+        try {
+          const url = form_proxy_request.targetHref.value.trim();
+          const method = form_proxy_request.method.value.trim();
+          const contentType = form_proxy_request.contentType.value.trim();
+          const fields = form_proxy_request.fields.value.trim();
+          const files = form_proxy_request.files.files;
+          if (!url || !method || !contentType) {
+            throw new Error(`url, method, contentType can not be null`);
+          }
+
+          const data = {};
+          if (fields) {
+            fields.trim().split('\n').forEach(it => {
+              const index = it.indexOf(':');
+              if (index === -1) {
+                return;
+              }
+              const key = it.slice(0, index).trim();
+              const value = it.slice(index + 1).trim();
+              if (!key) {
+                return;
+              }
+              data[key] = value;
+            });
+          }
+          if (files.length > 0) {
+            data.files = [].slice.call(files);
+          }
+          URL_LIST['assist_proxy_request'] = {
+            path: '/api/assist/proxy',
+            method,
+            headers: {
+              'content-type': contentType
+            }
+          }
+          if (method == 'post') {
+            URL_LIST['assist_proxy_request'].data = utils.dataFromJSONByContentType(data, contentType);
+          }
+          handleRequest('assist_proxy_request');
+        } catch (err) {
+          console.log(err);
+        }
         evt.preventDefault();
         break;
       case 'native_drag_enter':
@@ -248,7 +290,7 @@
     }
   }
 
-  async function handleAction(action) {
+  async function handleRequest(action) {
     if (!URL_LIST.hasOwnProperty(action)) {
       throw new Error(`${action} not exist`);
     }
@@ -278,7 +320,46 @@
       }
       console.log(response);
     } catch (err) {
-      console.log(err);
+      // console.log(err);
+      throw err;
+    }
+  }
+
+  async function handleAction(action) {
+    const targetToggleNode = {
+      toggle_native_form_submit: document.querySelector('.container section.native_support form.form_submit'),
+      toggle_native_drag_and_drop: document.querySelector('.container section.native_support .drag_and_drop'),
+      toggle_assist_request: document.querySelector('.container section.assist_work form.form_proxy_request'),
+    }
+    switch (action) {
+      case 'toggle_native_form_submit':
+      case 'toggle_native_drag_and_drop':
+        var targetNode = targetToggleNode[action];
+        Object.keys(targetToggleNode).filter(it => it != action).forEach(it => targetToggleNode[it].style.display = 'none');
+        switch (targetNode.style.display) {
+          case 'block':
+            targetNode.style.display = 'none';
+            break;
+          case 'none':
+            targetNode.style.display = 'block';
+            break;
+        }
+        break;
+      case 'toggle_assist_request':
+        var targetNode = targetToggleNode[action];
+        Object.keys(targetToggleNode).filter(it => it != action).forEach(it => targetToggleNode[it].style.display = 'none');
+        switch (targetNode.style.display) {
+          case 'block':
+            targetNode.style.display = 'none';
+            break;
+          case 'none':
+            targetNode.style.display = 'block';
+            break;
+        }
+        break;
+      default:
+        this.handleRequest(action);
+        break;
     }
   }
 
@@ -376,14 +457,14 @@
         <div class="form-item-content">
           <label class="button">
             upload_one_file
-            <input class="visually-hidden" type="file" name="fileList" onchange="onEvent('native_upload_files', ...arguments)">
+            <input class="visually-hidden" type="file" name="fileList" onchange="handleEvent('native_upload_files', ...arguments)">
           </label>
           <label class="button">
             upload_multiple_files
-            <input multiple class="visually-hidden" type="file" name="fileList" onchange="onEvent('native_upload_files', ...arguments)">
+            <input multiple class="visually-hidden" type="file" name="fileList" onchange="handleEvent('native_upload_files', ...arguments)">
           </label>
-          <div class="button" onclick="onEvent('toggle_native_form_submit', ...arguments)">toggle_form_submit</div>
-          <div class="button" onclick="onEvent('toggle_native_drag_and_drop', ...arguments)">toggle_drag_and_drop</div>
+          <button data-action="toggle_native_form_submit">toggle_form_submit</button>
+          <button data-action="toggle_native_drag_and_drop">toggle_drag_and_drop</button>
         </div>
       </div>
       <div class="form-item assist">
@@ -399,7 +480,7 @@
         <!-- enctype="multipart/form-data"  -->
         <!-- method="post" action="/api/post-data" -->
         <!-- method="post" action="/api/test/upload" -->
-        <form class="form_submit" name="form_submit" onsubmit="onEvent('native_form_submit', ...arguments)" style="display: none;">
+        <form class="form_submit" name="form_submit" onsubmit="handleEvent('native_form_submit', ...arguments)" style="display: none;">
           <div class="form-item title">Research From</div>
           <div class="form-item">
             <div class="label">name</div>
@@ -484,98 +565,72 @@
           </div>
         </form>
         <div class="drag_and_drop"
-          ondrop="onEvent('native_drop', ...arguments); return false;"
-          ondragenter="onEvent('native_drag_enter', ...arguments)"
-          ondragover="onEvent('native_drag_over', ...arguments)"
+          ondrop="handleEvent('native_drop', ...arguments); return false;"
+          ondragenter="handleEvent('native_drag_enter', ...arguments)"
+          ondragover="handleEvent('native_drag_over', ...arguments)"
           style="display: none">
         </div>
       </section>
       <!-- end of show browser native_support -->
 
-      <section class="assist" style="display: none;">
-        <div class="native_form_submit">
-          <!-- default enctype is application/x-www-form-urlencoded -->
-          <!-- enctype="multipart/form-data"  -->
-          <!-- method="post" action="/api/post-data" -->
-          <!-- method="post" action="/api/test/upload" -->
-          <form class="the-form" name="the-form" onsubmit="onEvent('native_form_submit', ...arguments)">
-            <div class="form-item title">Research From</div>
-            <div class="form-item">
-              <div class="label">name</div>
-              <div class="content">
-                <input type="text" name="name">
-              </div>
+      <section class="assist_work">
+        <!-- default enctype is application/x-www-form-urlencoded -->
+        <!-- enctype="multipart/form-data"  -->
+        <!-- method="post" action="/api/post-data" -->
+        <!-- method="post" action="/api/test/upload" -->
+        <form class="form_proxy_request" name="form_proxy_request" style="display: none"
+              onsubmit="handleEvent('assist_proxy_request', ...arguments)">
+          <div class="form-item title">proxy request</div>
+          <div class="form-item">
+            <div class="label">target href</div>
+            <div class="content">
+              <input type="text" name="targetHref">
             </div>
-            <div class="form-item">
-              <div class="label">email address</div>
-              <div class="content">
-                <input type="text" name="email" value="default-email">
-              </div>
+          </div>
+          <div class="form-item">
+            <div class="label">method</div>
+            <div class="content">
+              <label>
+                <input name="method" type="radio" value="get" checked>GET
+              </label>
+              <label>
+                <input name="method" type="radio" value="post">POST
+              </label>
             </div>
-            <div class="form-item">
-              <div class="label">apartment farming skills</div>
-              <div class="content">
-                <label>
-                  <input name="skill" type="radio" value="novice" checked>Novice
-                </label>
-                <label>
-                  <input name="skill" type="radio" value="intermediate">Intermediate
-                </label>
-                <label>
-                  <input name="skill" type="radio" value="advanced">Advanced
-                </label>
-              </div>
+          </div>
+          <div class="form-item">
+            <div class="label">content-type </div>
+            <div class="content">
+              <!-- multiple for multiple select -->
+              <select name="contentType">
+                <option value="application/json" selected>application/json</option>
+                <option value="multipart/form-data">multipart/form-data</option>
+                <option value="application/x-www-form-urlencoded">application/x-www-form-urlencoded</option>
+              </select>
             </div>
-            <div class="form-item">
-              <div class="label">Select your favorite</div>
-              <div class="content">
-                <label>
-                  <input name="likeMovie" type="checkbox" value="movie">Movie
-                </label>
-                <label>
-                  <input name="likeMusic" type="checkbox" value="music">Music
-                </label>
-                <label>
-                  <input name="likeReading" type="checkbox" value="reading">Reading
-                </label>
-              </div>
+          </div>
+          <div class="form-item">
+            <div class="label">Fields</div>
+            <div class="content">
+              <textarea name="fields" cols="35" rows="4"></textarea>
             </div>
-            <div class="form-item">
-              <div class="label">Where did you hear about us? </div>
-              <div class="content">
-                <!-- multiple for multiple select -->
-                <select name="refer">
-                  <option value="no">No</option>
-                  <option value="friend">Friend</option>
-                  <option value="herban-jungle" selected>Herban Jungle</option>
-                  <option value="compost-today">Compost Today</option>
-                  <option value="vanity-fair">Vanity Fair</option>
-                </select>
-              </div>
+          </div>
+          <div class="form-item">
+            <div class="label">Files</div>
+            <div class="content">
+              <!-- file can be filtered by accept=".png, .jpg, .jpeg" -->
+              <input name="files" multiple type="file"></input>
             </div>
-            <div class="form-item">
-              <div class="label">Upload file</div>
-              <div class="content">
-                <!-- file can be filtered by accept=".png, .jpg, .jpeg" -->
-                <input name="uploadFiles" multiple type="file"></input>
-              </div>
+          </div>
+          <div class="form-item footer">
+            <div class="item">
+              <input class="el-button" type="submit" value="Subscribe">
             </div>
-            <div class="form-item">
-              <div class="label">Any additional comments? </div>
-              <div class="content">
-                <textarea name="comments" cols="35" rows="4"></textarea>
-              </div>
+            <div class="item">
+              <input class="el-button" type="reset" value="Reset">
             </div>
-            <div class="form-item footer">
-              <div class="item">
-                <input class="el-button" type="submit" value="Subscribe">
-              </div>
-              <div class="item">
-                <input class="el-button" type="reset" value="Reset">
-              </div>
-            </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </section>
     </div>
   </div>

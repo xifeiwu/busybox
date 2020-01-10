@@ -299,9 +299,11 @@ class Utils extends FEUtils {
     }
     return data;
   }
-  convertJSONDataByContentType(obj, contentType) {
+  dataFromJSONByContentType(obj, contentType) {
     var data = obj;
     switch (contentType) {
+      case 'application/json':
+        break;
       case 'application/x-www-form-urlencoded':
         data = new URLSearchParams();
         for (let key in obj) {
@@ -312,7 +314,8 @@ class Utils extends FEUtils {
       case 'multipart/form-data':
         data = new FormData();
         for (let key in obj) {
-          data.append(key, obj[key]);
+          const value = obj[key];
+          Array.isArray(value) ? value.forEach(it => data.append(key, it)) : data.append(key, obj[key]);
         }
         break;
     }
@@ -351,6 +354,7 @@ function xhrRequest(config) {
   if (config.query) {
     config.params = config.query
   }
+  // NOTICE: the logic of url and path
   if (config.path && config.path.startsWith('/') && !config.url) {
     config.url = location.origin + config.path;
   }

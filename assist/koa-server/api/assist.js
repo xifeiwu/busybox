@@ -1,9 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 const router = require('koa-router')();
-const nodeUtils = new (require('../../utils/node'))();
+const nodeUtils = new (require('../../../utils/node'))();
 
-router.post('/api/upload', async(ctx, next) => {
+router.post('/api/assist/upload', async(ctx, next) => {
   ctx.assert(ctx.request.body, 200, nodeUtils.error({
     msg: 'body not found'
   }));
@@ -28,6 +28,17 @@ router.post('/api/upload', async(ctx, next) => {
   }
   ctx.type = 'json';
   ctx.body = ctx.request.body;
+});
+
+router.all('/api/assist/proxy', async (ctx, next) => {
+  ctx.type = 'json';
+  ctx.body = {
+    general: `${ctx.method} ${ctx.path} ${ctx.protocol}`,
+    url: ctx.url,
+    headers: ctx.headers,
+    requestBody: ctx.method.toUpperCase() == 'POST' ? ctx.request.body : '',
+    requestData: ctx.method.toUpperCase() == 'POST' ? ctx.request.data.toString() : ''
+  };
 });
 
 

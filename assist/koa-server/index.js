@@ -237,6 +237,7 @@ module.exports = class KoaServer {
 
   setApi(app) {
     app.use(require('./api/test.js').routes());
+    app.use(require('./api/assist.js').routes());
   }
 }
 
