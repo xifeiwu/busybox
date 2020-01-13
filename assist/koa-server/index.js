@@ -58,9 +58,6 @@ module.exports = class KoaServer {
       port = await nodeUtils.getAFreePort(port ? port : config.port);
       const host = nodeUtils.getLocalIP();
       const app = new Koa();
-      app.on('error', err => {
-        console.log(err);
-      });
       app.UPLOAD_DIR = this.UPLOAD_DIR;
       this.setLogger(app);
       // parseByFormidable should be used before all api-related middleware
@@ -99,12 +96,41 @@ module.exports = class KoaServer {
     }
   }
 
+  // replace logic of error-handler in koa
+  // NOTICE: handleError should be used in first middleware
+  async handleError(err, ctx) {
+    ctx.status = err.status ? err.status : 200;
+    if (ctx.status == 200) {
+      /**
+        {
+          success: false
+          t: 1578881876483
+          msg: "userName is needed"
+        }
+       */
+      ctx.body = {
+        success: false,
+        t: Date.now(),
+        msg: err.message,
+      };
+    } else {
+      // [restful format ref](https://eggjs.org/zh-cn/tutorials/restful.html)
+      ctx.body = {
+        error: err.message
+      }
+    }
+  }
+
   setLogger(app) {
     app.use(async(ctx, next) => {
-      console.log(`${ctx.url}`);
-      await next();
-      if (!ctx.body) {
-        ctx.body = 'default response';
+        try {
+        console.log(`${ctx.url}`);
+        await next();
+        if (!ctx.body) {
+          ctx.body = 'default response';
+        }
+      } catch (err) {
+        this.handleError(err, ctx);
       }
     });
     app.on('error', err => {

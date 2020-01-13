@@ -131,12 +131,10 @@ router.all('/api/test/echo', async(ctx, next) => {
 });
 
 router.all('/api/test/error', async(ctx, next) => {
-  ctx.throw(200, {
-    message: JSON.stringify({
-      success: false,
-      msg: '错误信息'
-    })
-  });
+  var {code, message} = ctx.query;
+  code = code ? parseInt(code) : 200;
+  message = message ? message : '';
+  ctx.throw(code, message);
 });
 
 router.post('/api/test/upload', async(ctx, next) => {

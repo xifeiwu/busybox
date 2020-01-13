@@ -148,6 +148,22 @@
         'content-type': 'application/json'
       },
       data: {}
+    },
+    error_400: {
+      path: '/api/test/error',
+      method: 'get',
+      query: {
+        code: 400,
+        message: 'error message for error_400'
+      }
+    },
+    error_200: {
+      path: '/api/test/error',
+      method: 'get',
+      query: {
+        code: 200,
+        message: 'error message for error_200'
+      }
     }
   }
 
@@ -450,6 +466,13 @@
         <div class="form-item-label">upload:</div>
         <div class="form-item-content">
           <button data-action="upload_blob">upload_blob</button>
+        </div>
+      </div>
+      <div class="form-item upload">
+        <div class="form-item-label">error:</div>
+        <div class="form-item-content">
+          <button data-action="error_400">error_400</button>
+          <button data-action="error_200">error_200</button>
         </div>
       </div>
 <!--       <div class="form-item" style="display: none">
