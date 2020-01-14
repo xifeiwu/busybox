@@ -343,7 +343,7 @@ function xhrRequest(config) {
         reject(utils.createError(
           'Request failed with status code ' + response.status,
           response.config,
-          null,
+          response.status,
           response.request,
           response
         ));
