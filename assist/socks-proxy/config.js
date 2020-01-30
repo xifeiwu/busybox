@@ -2,14 +2,7 @@ module.exports = {
   elif: {
     host: 'elif.site',
     port: 2080,
-    matchs: [/google/, /gist\.github\.com/, /chrome\.com/],
-    username: 'wxf',
-    password: 'wxf'
-  },
-  '10_10_80_242': {
-    host: '10.10.80.242',
-    port: 2080,
-    matchs: [/elif\.site/, /pan\.baidu\.com/],
+    matchs: [/google/, /gist\.github\.com/, /chrome\.com/, 'stackoverflow.com', 'github-production-release-asset-2e65be.s3.amazonaws.com'],
     username: 'wxf',
     password: 'wxf'
   },
