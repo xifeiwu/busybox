@@ -1,0 +1,9 @@
+[submodule "modules/lib/fe"]
+	path = modules/lib/fe
+	url = git@elif.site:fe/module/lib.git
+[submodule "modules/lib/node"]
+	path = modules/lib/node
+	url = git@elif.site:node/module/lib.git
+[submodule "modules/lib/net"]
+	path = modules/lib/net
+	url = git@elif.site:node/module/net.git
