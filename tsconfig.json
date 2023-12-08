@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
+    "noUnusedLocals": false,
+    "esModuleInterop": true,
+    "strict": false,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@modules/*": ["modules/*"],
+      "@src/*": ["src/*"],
+    },
+  },
+  "include": ["bin", "src"],
+}
+
