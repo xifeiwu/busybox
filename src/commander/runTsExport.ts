@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import readline from 'readline';
+import {Command} from 'commander';
 
 function isObject(val: any) {
   return val !== null && typeof val === 'object';
@@ -102,46 +103,44 @@ async function handleClass(Module: {new (): any; prototype: any}, functionAndPar
   return await runFunction(func, params);
 }
 
-(async () => {
-  const {argv} = process;
-  console.log(`argv`);
-  console.log(argv);
-  /**
-   * 前两个参数分别为node和当前脚本
-   * ['/Applications/node/.nvm/versions/node/v12.12.0/bin/node', '/Applications/node/.nvm/versions/node/v12.12.0/bin/nrun']
-   */
-  const params = argv.slice(2);
-  try {
-    if (params.length === 0) {
-      throw new Error(`usage: run target.js functionNameOfModule`);
+const program = new Command();
+program.name('runTsExport').description('utility for process handling');
+program
+  .argument('<tsFilePath>', 'path to ts file to run')
+  .argument('[funcName]', 'name of function')
+  .argument('[funcParams...]', 'params passed to the function')
+  .option('-p, --print', 'print process info or not')
+  .option('-s, --seleect', 'select the process to kill when more than on process exist')
+  .action(async (tsFilePath, funcName, funcParams, options) => {
+    const {print, select} = options;
+    try {
+      // const [relativePathOfFile, ...functionAndParams] = params;
+      const fullPath = path.resolve(process.cwd(), tsFilePath);
+      if (!fs.existsSync(fullPath)) {
+        throw new Error(`file ${fullPath} not exist`);
+      }
+      const Module = require(fullPath);
+      let result: any = undefined;
+      if (isObject(Module)) {
+        // 通过module.exports.chain = function() {}导出模块
+        const functionList = Object.keys(Module).filter(name => isFunction(Module[name]));
+        // const [funcName_, ...params] = functionAndParams;
+        funcName = await getFunctionName(functionList, funcName);
+        const func = Module[funcName];
+        result = await runFunction(func, funcParams);
+      } else if (isFunction(Module)) {
+        // TODO: logic rarely arrive here
+        result = await handleClass(Module, [funcName, ...funcParams]);
+      } else {
+        throw new Error(`${Module} is not a class`);
+      }
+      console.log('');
+      console.log(TAG + ` [${funcName}]`);
+      console.log(result);
+      console.log('------');
+    } catch (err) {
+      console.error(err);
+      throw err;
     }
-    const [relativePathOfFile, ...functionAndParams] = params;
-    const fullPath = path.resolve(process.cwd(), relativePathOfFile);
-    if (!fs.existsSync(fullPath)) {
-      throw new Error(`file ${fullPath} not exist`);
-    }
-    const Module = require(fullPath);
-    let funcName = '';
-    let res: any = undefined;
-    if (isObject(Module)) {
-      // 通过module.exports.chain = function() {}导出模块
-      const functionList = Object.keys(Module).filter(name => isFunction(Module[name]));
-      const [funcName_, ...params] = functionAndParams;
-      funcName = await getFunctionName(functionList, funcName_);
-      const func = Module[funcName];
-      res = await runFunction(func, params);
-    } else if (isFunction(Module)) {
-      // TODO: logic rarely arrive here
-      res = await handleClass(Module, functionAndParams);
-    } else {
-      throw new Error(`${Module} is not a class`);
-    }
-    console.log('');
-    console.log(TAG + ` [${funcName}]`);
-    console.log(res);
-    console.log('------');
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
-})();
+  });
+program.parse(process.argv);
