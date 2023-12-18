@@ -38,7 +38,14 @@ program
       tsConfigJson,
       printCommand: true,
       params,
-      spawnOptions: {stdio: [0, 1, 2]},
+      spawnOptions: {stdio: ['pipe', 1, 2]},
+    });
+    childProcess.on('spawn', () => {
+      console.log(`pid of main/child process: ${process.pid}/${childProcess.pid}`);
+    });
+    process.stdin.pipe(childProcess.stdin);
+    process.stdin.on('data', chunk => {
+      // console.log(chunk);
     });
     childProcess.on('exit', () => {
       process.stdin.setRawMode(true);

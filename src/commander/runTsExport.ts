@@ -139,6 +139,7 @@ program
       console.log(result);
       console.log('------');
     } catch (err) {
+      console.log(`TAG catch Error:`);
       console.error(err);
       throw err;
     }
