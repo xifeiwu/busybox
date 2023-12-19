@@ -5,6 +5,7 @@ const {HOME} = process.env;
 const binDir = path.resolve(HOME, 'code/bin');
 const bin = {
   runTsExport: 'runTsExport.ts',
+  runOnTsNode: 'runOnTsNode.ts',
   nb: 'nb.ts',
   'nb-process': 'nb-process.ts',
   'nb-net': 'nb-net.ts',
