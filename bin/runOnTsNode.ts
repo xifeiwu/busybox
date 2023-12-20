@@ -32,8 +32,6 @@ program
     const tsConfigJson = findClosestFile(tsFileDir, 'tsconfig.json');
     process.stdin.setRawMode(false);
     const childProcess = spawnTsFile(tsFileToRun, {
-      tsConfigPathsRegister,
-      tsConfigJson,
       printCommand: true,
       params,
       spawnOptions: {stdio: ['pipe', 1, 2]},

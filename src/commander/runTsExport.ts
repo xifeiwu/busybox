@@ -139,9 +139,12 @@ program
       console.log(result);
       console.log('------');
     } catch (err) {
-      console.log(`TAG catch Error:`);
+      console.log(`${TAG} catch Error:`);
       console.error(err);
       throw err;
     }
   });
 program.parse(process.argv);
+process.stdin.on('data', (chunk: Buffer) => {
+  // console.log(chunk);
+})
