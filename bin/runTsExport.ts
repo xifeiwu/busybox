@@ -1,7 +1,8 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env ts-node --transpileOnly
+import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
-import {findClosestFile, spawnTsFile} from '../modules/lib/node';
+import {findClosestFile, spawnTsFile, SpawnTsFileOptions} from '../modules/lib/node';
 
 const program = new Command();
 program.name('runTsExport').description('utility for process handling');
@@ -32,23 +33,33 @@ program
     }
     const tsConfigPathsRegister = path.resolve(NVM_BIN, '../lib/node_modules/tsconfig-paths/register.js');
     const tsConfigJson = findClosestFile(tsFileDir, 'tsconfig.json');
+    const tsNodeOptions: SpawnTsFileOptions['tsNodeOptions'] = {
+      '--transpileOnly': true,
+    };
+    if (fs.existsSync(tsConfigPathsRegister)) {
+      tsNodeOptions['-r'] = tsConfigPathsRegister;
+    }
+    if (fs.existsSync(tsConfigJson)) {
+      tsNodeOptions['--project'] = tsConfigJson;
+    }
     process.stdin.setRawMode(false);
     const childProcess = spawnTsFile(path.resolve(__dirname, '../src/commander/runTsExport.ts'), {
-      tsConfigPathsRegister,
-      tsConfigJson,
+      tsNodeOptions,
       printCommand: true,
       params,
-      spawnOptions: {stdio: ['pipe', 1, 2]},
+      spawnOptions: {stdio: [0, 1, 2]},
     });
     childProcess.on('spawn', () => {
       console.log(`pid of main/child process: ${process.pid}/${childProcess.pid}`);
     });
-    process.stdin.pipe(childProcess.stdin);
-    process.stdin.on('data', chunk => {
-      // console.log(chunk);
-    });
+    // process.stdin.pipe(childProcess.stdin);
+    // process.stdin.on('data', chunk => {
+    // });
     childProcess.on('exit', () => {
+      // console.log('exit child process');
       process.stdin.setRawMode(true);
+      // process.stdin.unpipe(childProcess.stdin);
+      // process.stdin.off('data', )
     });
   });
 program.parse(process.argv);
