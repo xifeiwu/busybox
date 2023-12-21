@@ -1,5 +1,5 @@
 import {Command} from 'commander';
-import {killByPort} from '@modules/lib/node';
+import {getAllProcessInfo, killByPort, logWithColor} from '@modules/lib/node';
 
 const program = new Command();
 
@@ -16,6 +16,14 @@ program
       printProcessInfo: print,
       selectProcessToKill: select,
     });
+  });
+
+program
+  .command('infoByPid')
+  .argument('<pid>', 'pid of process')
+  .action(async pid => {
+    const info = await getAllProcessInfo({filter: info => info.pid === pid});
+    logWithColor('black', info);
   });
 // console.log(`process.argv1`);
 // console.log(process.argv);
