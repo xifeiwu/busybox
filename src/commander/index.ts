@@ -7,7 +7,7 @@ import {
   flatChildren,
   getFileInfoTree,
   getFileList,
-  getFileSizeList,
+  getFileSizeTree,
   getLineCountMap,
   logWithColor,
   toConsole,
@@ -42,13 +42,15 @@ program
   .description('show line count of a file or a directory')
   .action(async filePath => {
     const lineCountMap = getLineCountMap(filePath);
-    const lineCountList = flatChildren(lineCountMap, {ignoreParent: true});
-    const finalStr = lineCountList
-      .sort((prev, next) => {
+    const lineCountList = flatChildren(lineCountMap, {
+      ignoreParent: false,
+      sortChildren: (prev, next) => {
         return next.lineCount - prev.lineCount;
-      })
-      .map(({relativePath, lineCount}) => {
-        return relativePath + ': ' + lineCount;
+      },
+    });
+    const finalStr = lineCountList
+      .map(({relativePath, lineCount, children}) => {
+        return `${relativePath}${Array.isArray(children) ? '/' : ''}: ${lineCount}`;
       })
       .join('\n');
     logWithColor('black', finalStr);
@@ -59,18 +61,15 @@ program
   .description('show size of file(dir)')
   .option('-m, --max-depth <maxDepth>', 'max dir depth', null)
   .action(async (dir, command) => {
-    const fileInfoTree = getFileInfoTree(dir);
-    const fileInfoList = flatChildren(fileInfoTree, {ignoreParent: true});
-    const finalStr = fileInfoList
-      .map(it => {
-        const {stat, relativePath} = it;
-        return {relativePath, size: stat.size};
-      })
-      .sort((prev, next) => {
-        return next.size - prev.size;
-      })
-      .map(({relativePath, size}) => {
-        return relativePath + ': ' + filesize(size);
+    const fileSizeTree = getFileSizeTree(dir);
+    const fileSizeList = flatChildren(fileSizeTree, {
+      sortChildren(pre, next) {
+        return next.size - pre.size;
+      },
+    });
+    const finalStr = fileSizeList
+      .map(({relativePath, size, children}) => {
+        return `${relativePath}${Array.isArray(children) ? '/' : ''}: ${filesize(size)}`;
       })
       .join('\n');
     logWithColor('black', finalStr);
