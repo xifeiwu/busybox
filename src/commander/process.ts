@@ -1,10 +1,23 @@
 import {Command} from 'commander';
-import {getAllProcessInfo, killByPort, logWithColor} from '@modules/lib/node';
+import {
+  getAllProcessInfo,
+  selectProcessToKill,
+  logWithColor,
+  getProcessInfoByPort,
+  toConsole,
+} from '@modules/lib/node';
 
 const program = new Command();
 
 program.name('process').description('utility for process handling');
 
+program
+  .command('infoByPort')
+  .argument('<port>', 'the port')
+  .action(async (port, options) => {
+    const processInfoList = await getProcessInfoByPort(port);
+    toConsole(processInfoList);
+  });
 program
   .command('killByPort')
   .argument('<port>', 'the port')
@@ -12,7 +25,8 @@ program
   .option('-s, --seleect', 'select the process to kill when more than on process exist')
   .action(async (port, options) => {
     const {print = true, select} = options;
-    await killByPort(port, {
+    const processInfoList = await getProcessInfoByPort(port);
+    await selectProcessToKill(processInfoList, {
       printProcessInfo: print,
       selectProcessToKill: select,
     });
