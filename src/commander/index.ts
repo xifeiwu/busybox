@@ -6,11 +6,9 @@ import {
   filesize,
   flatChildren,
   getFileInfoTree,
-  getFileList,
   getFileSizeTree,
   getLineCountMap,
   logWithColor,
-  toConsole,
 } from '@modules/lib/node';
 
 const program = new Command();
@@ -60,7 +58,7 @@ program
   .command('size <dir>')
   .description('show size of file(dir)')
   .option('-m, --max-depth <maxDepth>', 'max dir depth', null)
-  .action(async (dir, command) => {
+  .action(async (dir, options) => {
     const fileSizeTree = getFileSizeTree(dir);
     const fileSizeList = flatChildren(fileSizeTree, {
       sortChildren(pre, next) {
@@ -80,9 +78,9 @@ program
   .description('find file by key')
   .option('-d, --dir <directory>', 'data to post', '.')
   .option('-m, --max-depth <maxDepth>', 'max dir depth', null)
-  .action(async (key, command) => {
+  .action(async (key, options) => {
     const reg = new RegExp(key);
-    var {dir, maxDepth} = command;
+    var {dir, maxDepth} = options;
     dir = path.resolve(dir);
     console.log(`searching dir: ${dir}`);
     console.log('');
@@ -105,8 +103,8 @@ program
 //   .description('rm file by key')
 //   .option('-d, --dir <directory>', 'data to post', '.')
 //   .option('-m, --max-depth <maxDepth>', 'max dir depth', null)
-//   .action(async (key, command) => {
-//     var {dir, maxDepth} = command;
+//   .action(async (key, options) => {
+//     var {dir, maxDepth} = options;
 //     dir = path.resolve(dir);
 //     console.log(`target dir: ${dir}`);
 //     console.log('');

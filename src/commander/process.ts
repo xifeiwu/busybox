@@ -11,7 +11,7 @@ program
   .option('-p, --print', 'print process info or not')
   .option('-s, --seleect', 'select the process to kill when more than on process exist')
   .action(async (port, options) => {
-    const {print, select} = options;
+    const {print = true, select} = options;
     await killByPort(port, {
       printProcessInfo: print,
       selectProcessToKill: select,
