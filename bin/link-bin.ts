@@ -43,6 +43,7 @@ program.argument('[targetDir] dir to locate the bin').action(async binDir => {
     fs.symlinkSync(targetFile, linkFile);
     console.log(`link: ${binName} -> ${targetFile}`);
   }
+  console.log(`export PATH=${binDir}:$PATH`)
 });
 
 program.parse(process.argv);

@@ -16,19 +16,32 @@ export const config: SocketServerConfig = {
   httpServerConfig: {
     port: 2081,
   },
-  // proxyAsSocketClientConfigList: [
-  //   {
-  //     methodList: [
-  //       {method: EMethod.NoAuth},
-  //       {method: EMethod.UserPass, info: {username: 'aaa', password: 'socksService1'}},
-  //     ],
-  //     socketConfig: {
-  //       host,
-  //       port: socksService1.port,
-  //     },
-  //     matches: [/elif\.site/, {address: host, port: targetServerInfo1.port}],
-  //   },
-  // ],
+  proxyAsSocketClientConfigList: [
+    {
+      methodList: [
+        {method: EMethod.NoAuth},
+        {method: EMethod.UserPass, info: {username: 'elif.site', password: 'socks5'}},
+      ],
+      socketConfig: {
+        host: 'elif.site',
+        port: 3307,
+      },
+      matches: [
+        /google/,
+        /medium.com/,
+        /bonus.ly/,
+        /youtube.com/,
+        /github.com/,
+        /formulae.brew.sh/,
+        /chrome\.com/,
+        'stackoverflow.com',
+        'www.howtogeek.com',
+        /imgur\.com/,
+        /wikipedia/,
+        /v2ex.com/,
+      ],
+    },
+  ],
   onConnection(status) {
     toConsole(getConnectStatusInJson(status));
   },

@@ -3,8 +3,8 @@ import {toConsole} from '@modules/lib/node';
 
 export const config: SocketServerConfig = {
   methodList: [
-    {method: EMethod.NoAuth},
-    {method: EMethod.UserPass, info: {username: 'aaa', password: 'socksService'}},
+    // {method: EMethod.NoAuth},
+    {method: EMethod.UserPass, info: {username: 'elif.site', password: 'socks5'}},
   ],
   serverConfig: {
     host: '0.0.0.0',
