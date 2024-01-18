@@ -1,8 +1,8 @@
 #!/usr/bin/env ts-node
 import fs from 'fs';
 import path from 'path';
-const {HOME} = process.env;
-const binDir = path.resolve(HOME, 'code/bin');
+import {Command} from 'commander';
+
 const bin = {
   runTsExport: 'runTsExport.ts',
   runOnTsNode: 'runOnTsNode.ts',
@@ -21,7 +21,15 @@ function linkeFileExist(filePath) {
     return false;
   }
 }
-async function start() {
+
+const program = new Command();
+program.argument('[targetDir] dir to locate the bin').action(async binDir => {
+  if (!binDir) {
+    const {HOME} = process.env;
+    binDir = path.resolve(HOME, 'code/bin');
+  }
+  console.log(`will create link under dir ${binDir}`);
+
   if (!fs.existsSync(binDir)) {
     fs.mkdirSync(binDir, {recursive: true});
   }
@@ -35,6 +43,6 @@ async function start() {
     fs.symlinkSync(targetFile, linkFile);
     console.log(`link: ${binName} -> ${targetFile}`);
   }
-}
+});
 
-start();
+program.parse(process.argv);
