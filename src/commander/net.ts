@@ -7,7 +7,7 @@ program.name('net').description('utility for net handling');
 
 program.command('port-check <host> <port>').action(async (host, port, args, command) => {
   console.log(host, port);
-  const isOK = await isPortOpen(host, port);
+  const isOK = await isPortOpen(port, host);
   console.log(`isOK: ${isOK}`);
 });
 

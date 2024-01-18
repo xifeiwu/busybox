@@ -1,7 +1,7 @@
-import { EMethod, SocketServerConfig } from "@modules/lib/net/socks";
+import {EMethod, SocketServerConfig, getConnectStatusInJson} from '@modules/lib/net/socks';
+import {toConsole} from '@modules/lib/node';
 
 export const config: SocketServerConfig = {
-  isStartHttpServer: true,
   methodList: [
     {method: EMethod.NoAuth},
     {method: EMethod.UserPass, info: {username: 'aaa', password: 'socksService'}},
@@ -12,6 +12,9 @@ export const config: SocketServerConfig = {
     options: {
       allowHalfOpen: true,
     },
+  },
+  httpServerConfig: {
+    port: 3308
   },
   // proxyAsSocketClientConfigList: [
   //   {
@@ -26,5 +29,7 @@ export const config: SocketServerConfig = {
   //     matches: [/elif\.site/, {address: host, port: targetServerInfo1.port}],
   //   },
   // ],
-  onConnection(status) {},
-}
+  onConnection(status) {
+    toConsole(getConnectStatusInJson(status));
+  },
+};

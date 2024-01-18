@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {startSocksServer, SocketServerConfig} from '@modules/lib/net/socks';
+import {runSocksServeronSocket, SocketServerConfig} from '@modules/lib/net/socks';
 import {Command} from 'commander';
 import {srcDir} from '@src/service';
 
@@ -18,6 +18,6 @@ program.argument('[configFile]', 'socks server config').action(async configFile 
   if (!config) {
     throw new Error(`config is not found`);
   }
-  const {socksService, httpService} = await startSocksServer(config);
+  const {socksService, httpService} = await runSocksServeronSocket(config);
 });
 program.parse(process.argv);
