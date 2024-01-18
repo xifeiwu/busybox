@@ -14,7 +14,7 @@ export const config: SocketServerConfig = {
     },
   },
   httpServerConfig: {
-    port: 2081,
+    port: 2080,
   },
   proxyAsSocketClientConfigList: [
     {
