@@ -9,9 +9,9 @@ export const config: SocketServerConfig = {
   serverConfig: {
     host: '127.0.0.1',
     port: 2080,
-    options: {
-      allowHalfOpen: true,
-    },
+    // options: {
+    //   allowHalfOpen: true,
+    // },
   },
   httpServerConfig: {
     port: 2080,
