@@ -18,13 +18,16 @@ export const config: SocketServerConfig = {
   },
   proxyAsSocketClientConfigList: [
     {
+      cipher: {},
       methodList: [
         {method: EMethod.NoAuth},
         {method: EMethod.UserPass, info: {username: 'elif.site', password: 'socks5'}},
       ],
       socketConfig: {
-        host: 'elif.site',
-        port: 3307,
+        // host: 'elif.site',
+        // port: 3307,
+        host: '127.0.0.1',
+        port: 3080,
       },
       matches: [
         /google/,
