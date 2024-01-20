@@ -14,6 +14,7 @@ export const config: SocketServerConfig = {
     // },
   },
   httpServerConfig: {
+    host: '127.0.0.1',
     port: 3308
   },
   onConnection(status) {
