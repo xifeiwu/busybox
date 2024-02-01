@@ -25,9 +25,10 @@ export const config: SocketServerConfig = {
       ],
       socketConfig: {
         // host: 'elif.site',
-        // port: 3307,
-        host: '127.0.0.1',
-        port: 3080,
+        host: '124.156.155.64',
+        port: 3307,
+        // host: '127.0.0.1',
+        // port: 3080,
       },
       matches: [
         /google/,
