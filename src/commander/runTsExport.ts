@@ -145,6 +145,7 @@ program
     }
   });
 program.parse(process.argv);
-process.stdin.on('data', (chunk: Buffer) => {
-  // console.log(chunk);
-})
+// remove this logic as it will block process
+// process.stdin.on('data', (chunk: Buffer) => {
+//   // console.log(chunk);
+// })
