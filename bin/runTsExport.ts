@@ -1,4 +1,4 @@
-#!/usr/bin/env ts-node --transpileOnly
+#!/usr/bin/env ts-node
 import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
