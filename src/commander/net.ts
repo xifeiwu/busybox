@@ -1,5 +1,6 @@
 import {Command} from 'commander';
-import {isPortOpen} from '@modules/lib/node';
+import {PORT, isPortOpen} from '@src/service/external';
+import {startDefaultServer} from '@modules/lib/net/koa';
 
 const program = new Command();
 
@@ -10,5 +11,20 @@ program.command('port-check <host> <port>').action(async (host, port, args, comm
   const isOK = await isPortOpen(port, host);
   console.log(`isOK: ${isOK}`);
 });
+
+program
+  .command('basic-http-server')
+  .option('-p, --port', 'port for the basic http server')
+  .action(async options => {
+    const {port = PORT.basicHttpServer.port} = options;
+    const inUse = await isPortOpen(port);
+    if (inUse) {
+      throw new Error(`port ${port} is inuse`);
+    }
+    const {origin} = await startDefaultServer([], {
+      port,
+    });
+    console.log(`http server start at: ${origin}`);
+  });
 
 program.parse(process.argv);
