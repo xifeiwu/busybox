@@ -36,11 +36,16 @@ program.argument('[targetDir] dir to locate the bin').action(async binDir => {
   for (const [binName, relatePath] of Object.entries(bin)) {
     const targetFile = path.resolve(__dirname, relatePath);
     const linkFile = path.resolve(binDir, binName);
+    const relativePath = path.relative(path.dirname(linkFile), targetFile);
+    // console.log(linkFile);
+    // console.log(targetFile);
+    // console.log(relativePath);
+    // console.log();
     if (linkeFileExist(linkFile)) {
       fs.unlinkSync(linkFile);
       console.log(`remove: ${linkFile}`);
     }
-    fs.symlinkSync(targetFile, linkFile);
+    fs.symlinkSync(relativePath, linkFile);
     console.log(`link: ${binName} -> ${targetFile}`);
   }
   console.log(`export PATH=${binDir}:$PATH`)

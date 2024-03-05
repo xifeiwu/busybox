@@ -1,6 +1,6 @@
 import {Command} from 'commander';
 import {PORT, isPortOpen} from '@src/service/external';
-import {startDefaultServer} from '@modules/lib/net/koa';
+import {startDebugServer} from '@modules/lib/net/koa';
 
 const program = new Command();
 
@@ -21,7 +21,7 @@ program
     if (inUse) {
       throw new Error(`port ${port} is inuse`);
     }
-    const {origin} = await startDefaultServer([], {
+    const {origin} = await startDebugServer([], {
       port,
     });
     console.log(`http server start at: ${origin}`);
