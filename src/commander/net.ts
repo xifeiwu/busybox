@@ -1,12 +1,15 @@
 import {Command} from 'commander';
-import {PORT, isPortOpen} from '@src/service/external';
-import {startDebugServer} from '@modules/lib/net/koa';
+import {PORT, isPortOpen, startDebugServer} from '@src/service/external';
 
 const program = new Command();
 
 program.name('net').description('utility for net handling');
 
-program.command('port-check <host> <port>').action(async (host, port, args, command) => {
+program.command('port-check <host> [port]').action(async (host, port, args, command) => {
+  if (port === undefined) {
+    port = host;
+    host = '127.0.0.1';
+  }
   console.log(host, port);
   const isOK = await isPortOpen(port, host);
   console.log(`isOK: ${isOK}`);

@@ -22,7 +22,7 @@ program
   .command('killByPort')
   .argument('<port>', 'the port')
   .option('-p, --print', 'print process info or not')
-  .option('-s, --seleect', 'select the process to kill when more than on process exist')
+  .option('-s, --select', 'select the process to kill when more than on process exist')
   .action(async (port, options) => {
     const {print = true, select} = options;
     const processInfoList = await getProcessInfoByPort(port);
