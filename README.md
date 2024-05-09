@@ -1,4 +1,10 @@
-## intro
+## Intro
+
+This is a busybox for frequently used stable tools.
+
+## How to run script under dir src/commander
+
+Take http-server as example: `runOnTsNode src/commander/http-server.ts`
 
 ## Use command runTsExport in vscoce
 
