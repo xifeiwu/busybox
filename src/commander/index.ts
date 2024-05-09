@@ -3,13 +3,13 @@ import path from 'path';
 import {createHash} from 'crypto';
 import {Command} from 'commander';
 import {
-  filesize,
   flatChildren,
   getFileInfoTree,
   getFileSizeTree,
   getLineCountMap,
   logWithColor,
 } from '@modules/lib/node';
+import {intWord} from '@modules/lib/fe';
 
 const program = new Command();
 program
@@ -67,7 +67,7 @@ program
     });
     const finalStr = fileSizeList
       .map(({relativePath, size, children}) => {
-        return `${relativePath}${Array.isArray(children) ? '/' : ''}: ${filesize(size)}`;
+        return `${relativePath}${Array.isArray(children) ? '/' : ''}: ${intWord(size)}`;
       })
       .join('\n');
     logWithColor('black', finalStr);
