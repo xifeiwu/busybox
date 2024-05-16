@@ -26,18 +26,27 @@ function getStaticMiddlewares() {
       },
     },
   ];
-  const middlewareList = preferredDir.map(options => {
-    const {dir, pathnameRewrite: alias} = options;
-    const fullPath = path.resolve(process.env.HOME, dir);
-    if (!fs.existsSync(fullPath)) {
-      return null;
-    }
-    return getStaticMiddleware({
-      dir: fullPath,
-      pathnameRewrite: alias,
-      store: map,
-    });
-  });
+  const baseDirMap = {
+    elifServer: '/share',
+    local: process.env.HOME,
+    /** On remote server, put code under dir `/share` to make it can be shared between all users */
+  };
+  const middlewareList = preferredDir
+    .map(options => {
+      const {dir, pathnameRewrite: alias} = options;
+      const fullPath = Object.values(baseDirMap)
+        .map(it => path.resolve(it, dir))
+        .find(it => fs.existsSync(it));
+      if (!fullPath) {
+        return null;
+      }
+      return getStaticMiddleware({
+        dir: fullPath,
+        pathnameRewrite: alias,
+        store: map,
+      });
+    })
+    .filter(it => it !== null);
   return middlewareList;
 }
 
