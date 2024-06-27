@@ -8,6 +8,7 @@ import {
   getFileSizeTree,
   getLineCountMap,
   logWithColor,
+  hashStream,
 } from '@modules/lib/node';
 import {intWord} from '@modules/lib/fe';
 
@@ -20,10 +21,15 @@ program
 program.command('md5 <fileOrContent>').action(async fileOrContent => {
   let data = fileOrContent;
   const filePath = path.resolve(process.cwd(), fileOrContent);
-  if (fs.existsSync(filePath)) {
-    data = fs.readFileSync(filePath);
-  }
-  console.log(createHash('md5').update(data).digest('hex'));
+  const md5 = await hashStream(createHash('md5'), fs.createReadStream(filePath));
+  console.log(md5);
+});
+
+program.command('sha1 <fileOrContent>').action(async fileOrContent => {
+  let data = fileOrContent;
+  const filePath = path.resolve(process.cwd(), fileOrContent);
+  const sha1 = await hashStream(createHash('sha1'), fs.createReadStream(filePath));
+  console.log(sha1);
 });
 
 program.command('base64 <fileOrContent>').action(async fileOrContent => {
