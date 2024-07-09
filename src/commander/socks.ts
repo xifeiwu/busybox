@@ -6,7 +6,7 @@ import {srcDir} from '@src/service';
 
 const program = new Command();
 program.argument('[configFile]', 'socks server config').action(async configFile => {
-  const configDir = path.resolve(srcDir, 'socks-config');
+  const configDir = path.resolve(srcDir, 'config/socks');
   const fullPath = [configFile, path.resolve(configDir, configFile)].find(it => {
     return fs.existsSync(it);
   });
