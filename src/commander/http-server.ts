@@ -1,3 +1,7 @@
+/**
+ * A basic server contains frequently used function
+ */
+
 import fs from 'fs';
 import path from 'path';
 import {
