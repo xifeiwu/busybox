@@ -28,7 +28,7 @@ program.command('md5 <fileOrContent>').action(async fileOrContent => {
 program.command('sha1 <fileOrContent>').action(async fileOrContent => {
   let data = fileOrContent;
   const filePath = path.resolve(process.cwd(), fileOrContent);
-  const sha1 = await hashStream(createHash('sha1'), fs.createReadStream(filePath));
+  const sha1 = await hashStream(createHash('sha1'), fs.createReadStream(filePath), 'hex');
   console.log(sha1);
 });
 
