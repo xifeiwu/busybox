@@ -7,10 +7,11 @@ import {config as localConfig} from '@src/config/http-server/local';
 import {Command} from 'commander';
 import {StaticMWConfig} from '@modules/lib/net';
 import path from 'path';
-import { logColorful } from '@modules/lib/node';
+import {logColorful} from '@modules/lib/node';
 
 const defaultConfig: CustomKoaConfig = {
-  useErrorCatchMW: true,
+  // useErrorCatchMW: true,
+  logMWOptions: {},
   useDebugMW: true,
   corsWMOptions: {},
   logsMWOptions: {},
@@ -27,11 +28,11 @@ const configByEnv: {
 const program = new Command();
 program
   .argument('[staticDir]', 'static dir')
-  .option('-p, --port <port>', 'the port used for http server')
   .option('-e, --env <env>', 'env to run this command: local | elif')
+  .option('-p, --port <port>', 'the port used for http server')
   .option('-u, --upload-dir <upload>', 'dir to locate upload files')
   .action(async (staticDir, options) => {
-    const {env = 'local'} = options;
+    const {env = 'local', port, uploadDir} = options;
     const envConfig: Partial<CustomKoaConfig> = configByEnv[env as Env] ? configByEnv[env as Env] : {};
     if (staticDir) {
       staticDir = path.resolve(process.cwd(), staticDir);
@@ -41,6 +42,13 @@ program
       } as StaticMWConfig);
     }
     const mergedConfig = deepMerge(defaultConfig, envConfig);
+    if (port !== undefined) {
+      mergedConfig.port = port;
+    }
+    if (uploadDir !== undefined) {
+      const {bodyParserOptions} = mergedConfig;
+      mergedConfig.bodyParserOptions = deepMerge(bodyParserOptions, {uploadDir});
+    }
     logColorful({color: 'yellow'}, mergedConfig);
     await startCustomKoaServer(mergedConfig);
   });

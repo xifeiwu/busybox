@@ -7,6 +7,11 @@ export const config: CustomKoaConfig = {
   bodyParserOptions: {
     uploadDir: uploadDirOnCwd,
   },
+  logMWOptions: {
+    logBody: {
+      maxSize: 1024
+    }
+  },
   staticWMConfig: {
     spaDirList: [
       {
