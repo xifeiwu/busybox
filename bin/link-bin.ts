@@ -10,6 +10,7 @@ const bin = {
   'nb-process': 'nb-process.ts',
   'nb-net': 'nb-net.ts',
   'login-to-server': 'login-to-server.ts',
+  'http-server': 'http-server.ts',
 };
 
 function linkeFileExist(filePath) {
