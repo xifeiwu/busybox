@@ -1,13 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import {createHash} from 'crypto';
 import {Command} from 'commander';
 import {
   flatChildren,
   getFileInfoTree,
-  getFileSizeTree,
   getLineCountMap,
-  logWithColor,
+  logColorful,
   hashStream,
 } from '@modules/lib/node';
 import {intWord} from '@modules/lib/fe';
@@ -18,10 +16,13 @@ program
   .description('busybox on node')
   .command('process', 'handle process', {executableFile: 'process.ts'});
 
-program.command('md5 <fileOrContent>').action(async fileOrContent => {
-  let data = fileOrContent;
-  const filePath = path.resolve(process.cwd(), fileOrContent);
-  const md5 = await hashStream(createHash('md5'), fs.createReadStream(filePath));
+program.command('md5 <relativePath>').action(async relativePath => {
+  // let data = relativePath;
+  const filePath = path.resolve(process.cwd(), relativePath);
+  const md5 = await hashStream(fs.createReadStream(filePath), {
+    algorithm: 'md5',
+    encode: 'hex',
+  });
   console.log(md5);
 });
 
@@ -34,7 +35,7 @@ program
       throw new Error(`encode should in ['base64', 'base64url', 'hex', 'binary']`);
     }
     const filePath = path.resolve(process.cwd(), fileOrContent);
-    const sha1 = await hashStream(createHash('sha1'), fs.createReadStream(filePath), encode);
+    const sha1 = await hashStream(fs.createReadStream(filePath), {algorithm: 'sha1', encode});
     console.log(sha1);
   });
 
@@ -53,7 +54,7 @@ program
   .action(async filePath => {
     const lineCountMap = getLineCountMap(filePath);
     const lineCountList = flatChildren(lineCountMap, {
-      ignoreParent: false,
+      includeDir: true,
       sortChildren: (prev, next) => {
         return next.lineCount - prev.lineCount;
       },
@@ -63,7 +64,7 @@ program
         return `${relativePath}${Array.isArray(children) ? '/' : ''}: ${lineCount}`;
       })
       .join('\n');
-    logWithColor('black', finalStr);
+    logColorful({color: 'black'}, finalStr);
   });
 
 program
@@ -71,18 +72,18 @@ program
   .description('show size of file(dir)')
   .option('-m, --max-depth <maxDepth>', 'max dir depth', null)
   .action(async (dir, options) => {
-    const fileSizeTree = getFileSizeTree(dir);
+    const fileSizeTree = getFileInfoTree(dir);
     const fileSizeList = flatChildren(fileSizeTree, {
       sortChildren(pre, next) {
         return next.size - pre.size;
       },
     });
     const finalStr = fileSizeList
-      .map(({relativePath, size, children}) => {
-        return `${relativePath}${Array.isArray(children) ? '/' : ''}: ${intWord(size)}`;
+      .map(({relativePath, stat, children}) => {
+        return `${relativePath}${Array.isArray(children) ? '/' : ''}: ${intWord(stat.size)}`;
       })
       .join('\n');
-    logWithColor('black', finalStr);
+    logColorful({color: 'black'}, finalStr);
   });
 
 program
@@ -98,11 +99,11 @@ program
     console.log('');
     // const fileList = getFileList(dir);
     const fileInfoTree = getFileInfoTree(dir, {
-      fileFilter({baseName, relativePath}) {
+      fileFilter({relativePath}) {
         return reg.test(relativePath);
       },
     });
-    const filePathList = flatChildren(fileInfoTree, {ignoreParent: true}).map(it => it.relativePath);
+    const filePathList = flatChildren(fileInfoTree, {includeDir: true}).map(it => it.relativePath);
     if (filePathList.length === 0) {
       console.log('not found');
     } else {
