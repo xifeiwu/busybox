@@ -9,6 +9,9 @@ import {StaticMWConfig} from '@modules/lib/net';
 import path from 'path';
 import {logColorful} from '@modules/lib/node';
 
+/**
+ * Default middlewares that this server will include
+ */
 const defaultConfig: CustomKoaConfig = {
   // useErrorCatchMW: true,
   logMWOptions: {},
