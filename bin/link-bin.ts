@@ -11,6 +11,7 @@ const bin = {
   'nb-net': 'nb-net.ts',
   'login-to-server': 'login-to-server.ts',
   'http-server': 'http-server.ts',
+  'tcp-server': 'tcp-server.ts',
 };
 
 function linkeFileExist(filePath) {
