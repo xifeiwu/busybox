@@ -25,21 +25,18 @@ program
   .action(async (staticDir, options) => {
     const {env = 'local', port, uploadDir} = options;
     const envConfig: Partial<KoaConfig> = configByEnv[env as Env] ? configByEnv[env as Env] : {};
-    if (staticDir) {
-      staticDir = path.resolve(process.cwd(), staticDir);
-      const dirList = get(envConfig, ['mwConfig', 'staticWMConfig', 'dirList'], []);
-      dirList.push(staticDir);
-      set(envConfig, ['mwConfig', 'staticWMConfig', 'dirList'], dirList);
-    }
     const mergedConfig = deepMerge({mwConfig: mwConfigCommon}, envConfig);
     if (port !== undefined) {
       mergedConfig.port = port;
     }
-    if (uploadDir !== undefined) {
-      const {bodyParserOptions} = mergedConfig;
-      mergedConfig.bodyParserOptions = deepMerge(bodyParserOptions, {uploadDir});
-    }
+    // if (uploadDir !== undefined) {
+    //   const {bodyParserOptions} = mergedConfig;
+    //   mergedConfig.bodyParserOptions = deepMerge(bodyParserOptions, {uploadDir});
+    // }
     logColorful({color: 'yellow'}, mergedConfig);
-    await startKoaServer(mergedConfig);
+    await startKoaServer(mergedConfig, {
+      staticDir,
+      uploadDir,
+    });
   });
 program.parse(process.argv);
