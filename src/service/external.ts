@@ -1,8 +1,3 @@
-export {toInt, deepMerge} from '@modules/lib/fe';
+export {toInt, deepMerge, get, set} from '@modules/lib/fe';
 export {PORT, checkPort as isPortOpen} from '@modules/lib/node';
-export {
-  startDebugServer,
-  CustomKoaConfig,
-  startCustomKoaServer,
-  StaticMiddlewareOptions,
-} from '@modules/lib/net';
+export {startDebugServer, KoaConfig, startKoaServer, StaticMiddlewareOptions} from '@modules/lib/net';

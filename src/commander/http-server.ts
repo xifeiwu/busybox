@@ -1,29 +1,17 @@
 /**
  * A basic server contains frequently used function
  */
-import {CustomKoaConfig, deepMerge, startCustomKoaServer} from '@src/service/external';
+import path from 'path';
+import {KoaConfig, deepMerge, get, set, startKoaServer} from '@src/service/external';
 import {config as elifConfig} from '@src/config/http-server/elif';
 import {config as localConfig} from '@src/config/http-server/local';
 import {Command} from 'commander';
-import {StaticMWConfig} from '@modules/lib/net';
-import path from 'path';
+import {mwConfigCommon} from '@modules/lib/net';
 import {logColorful} from '@modules/lib/node';
 
-/**
- * Default middlewares that this server will include
- */
-const defaultConfig: CustomKoaConfig = {
-  // useErrorCatchMW: true,
-  logMWOptions: {},
-  useDebugMW: true,
-  corsWMOptions: {},
-  logsMWOptions: {},
-  useForumMW: true,
-  printOrigin: true,
-};
 type Env = 'local' | 'elif';
 const configByEnv: {
-  [env in Env]: CustomKoaConfig;
+  [env in Env]: KoaConfig;
 } = {
   local: localConfig,
   elif: elifConfig,
@@ -36,15 +24,14 @@ program
   .option('-u, --upload-dir <upload>', 'dir to locate upload files')
   .action(async (staticDir, options) => {
     const {env = 'local', port, uploadDir} = options;
-    const envConfig: Partial<CustomKoaConfig> = configByEnv[env as Env] ? configByEnv[env as Env] : {};
+    const envConfig: Partial<KoaConfig> = configByEnv[env as Env] ? configByEnv[env as Env] : {};
     if (staticDir) {
       staticDir = path.resolve(process.cwd(), staticDir);
-      const {staticWMConfig} = envConfig;
-      envConfig.staticWMConfig = deepMerge(staticWMConfig, {
-        dirList: [staticDir],
-      } as StaticMWConfig);
+      const dirList = get(envConfig, ['mwConfig', 'staticWMConfig', 'dirList'], []);
+      dirList.push(staticDir);
+      set(envConfig, ['mwConfig', 'staticWMConfig', 'dirList'], dirList);
     }
-    const mergedConfig = deepMerge(defaultConfig, envConfig);
+    const mergedConfig = deepMerge({mwConfig: mwConfigCommon}, envConfig);
     if (port !== undefined) {
       mergedConfig.port = port;
     }
@@ -53,6 +40,6 @@ program
       mergedConfig.bodyParserOptions = deepMerge(bodyParserOptions, {uploadDir});
     }
     logColorful({color: 'yellow'}, mergedConfig);
-    await startCustomKoaServer(mergedConfig);
+    await startKoaServer(mergedConfig);
   });
 program.parse(process.argv);
