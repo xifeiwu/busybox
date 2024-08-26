@@ -1,5 +1,5 @@
 import {Command} from 'commander';
-import {PORT, isPortOpen, startDebugServer} from '@src/service/external';
+import {isPortOpen} from '@src/service/external';
 
 const program = new Command();
 
@@ -15,19 +15,19 @@ program.command('port-check <host> [port]').action(async (host, port, args, comm
   console.log(`isOK: ${isOK}`);
 });
 
-program
-  .command('basic-http-server')
-  .option('-p, --port', 'port for the basic http server')
-  .action(async options => {
-    const {port = PORT.basicHttpServer.port} = options;
-    const inUse = await isPortOpen(port);
-    if (inUse) {
-      throw new Error(`port ${port} is inuse`);
-    }
-    const {origin} = await startDebugServer([], {
-      port,
-    });
-    console.log(`http server start at: ${origin}`);
-  });
+// program
+//   .command('basic-http-server')
+//   .option('-p, --port', 'port for the basic http server')
+//   .action(async options => {
+//     const {port = PORT.basicHttpServer.port} = options;
+//     const inUse = await isPortOpen(port);
+//     if (inUse) {
+//       throw new Error(`port ${port} is inuse`);
+//     }
+//     const {origin} = await startDebugServer([], {
+//       port,
+//     });
+//     console.log(`http server start at: ${origin}`);
+//   });
 
 program.parse(process.argv);
