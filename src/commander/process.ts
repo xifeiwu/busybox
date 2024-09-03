@@ -39,6 +39,40 @@ program
     const info = await getAllProcessInfo({filter: info => info.pid === pid});
     logColorful({color: 'black'}, info);
   });
+program
+  .command('infoByCommand')
+  .argument('<cmdText>', 'cmdText of process')
+  .action(async cmdText => {
+    /** Ignore current process */
+    const pidIgnore = [process.pid, process.ppid];
+    const info = await getAllProcessInfo({
+      filter: info => {
+        if (!info) {
+          return false;
+        }
+        const {command, pid} = info;
+        if (!command) {
+          return false;
+        }
+        if (pidIgnore.includes(Number(pid))) {
+          return false;
+        }
+        return info.command && info.command.includes(cmdText);
+      },
+    });
+    logColorful({color: 'black'}, info);
+  });
+
+program
+  .command('killByPid')
+  .argument('<pid>', 'pid of process')
+  .action(async pid => {
+    const info = await getAllProcessInfo({filter: info => info.pid === pid});
+    if (!info) {
+      throw new Error(`No process with pid ${pid}`);
+    }
+    process.kill(Number(pid));
+  });
 // console.log(`process.argv1`);
 // console.log(process.argv);
 program.parse(process.argv);
