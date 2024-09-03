@@ -2,7 +2,7 @@ import {Command} from 'commander';
 import {
   getAllProcessInfo,
   selectProcessToKill,
-  logWithColor,
+  logColorful,
   getProcessInfoByPort,
   toConsole,
 } from '@modules/lib/node';
@@ -37,7 +37,7 @@ program
   .argument('<pid>', 'pid of process')
   .action(async pid => {
     const info = await getAllProcessInfo({filter: info => info.pid === pid});
-    logWithColor('black', info);
+    logColorful({color: 'black'}, info);
   });
 // console.log(`process.argv1`);
 // console.log(process.argv);
