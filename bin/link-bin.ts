@@ -7,8 +7,6 @@ const bin = {
   runTsExport: 'runTsExport.ts',
   runOnTsNode: 'runOnTsNode.ts',
   nb: 'nb.ts',
-  'nb-process': 'nb-process.ts',
-  'nb-net': 'nb-net.ts',
   'login-to-server': 'login-to-server.ts',
   'http-server': 'http-server.ts',
   'tcp-server': 'tcp-server.ts',
@@ -50,7 +48,7 @@ program.argument('[targetDir] dir to locate the bin').action(async binDir => {
     fs.symlinkSync(relativePath, linkFile);
     console.log(`link: ${binName} -> ${targetFile}`);
   }
-  console.log(`export PATH=${binDir}:$PATH`)
+  console.log(`export PATH=${binDir}:$PATH`);
 });
 
 program.parse(process.argv);

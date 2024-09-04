@@ -1,0 +1,14 @@
+import {Command} from 'commander';
+import {isPortOpen} from '@src/service/external';
+
+export function appendNetCommand(program: Command) {
+  program.command('port-check <host> [port]').action(async (host, port, args, command) => {
+    if (port === undefined) {
+      port = host;
+      host = '127.0.0.1';
+    }
+    console.log(host, port);
+    const isOK = await isPortOpen(port, host);
+    console.log(`isOK: ${isOK}`);
+  });
+}
