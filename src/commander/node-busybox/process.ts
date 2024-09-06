@@ -38,7 +38,7 @@ export function appendProcessCommand(program: Command) {
         const {pid, ppid} = process;
         return ![pid, ppid].includes(info.pid) && filterFunc(info);
       };
-      const {allInfoList, pidToInfo} = await getProcessInfo({appendChildInfo: true});
+      const {allInfoList, pidToInfo} = await getProcessInfo({appendChildInfo: !killMain});
       const filteredInfoList = allInfoList.filter(finalFilter);
       if (filteredInfoList.length === 0) {
         logColorful({color: 'red'}, `No process meets filter condition`);
