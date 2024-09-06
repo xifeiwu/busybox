@@ -39,11 +39,16 @@ export function appendProcessCommand(program: Command) {
       };
       const {allInfoList, pidToInfo} = await getProcessInfo({appendChildInfo: true});
       const filteredInfoList = allInfoList.filter(finalFilter);
+      if (filteredInfoList.length === 0) {
+        logColorful({color: 'red'}, `No process found by filter condition`);
+        return;
+      }
       if (kill) {
-        await killProcessByPid(
+        const success = await killProcessByPid(
           filteredInfoList.map(it => it.pid),
           {pidToInfo, doubleConfirm: true}
         );
+        logColorful({}, success ? 'Success' : 'fail');
       } else {
         logColorful({color: 'black'}, filteredInfoList);
       }
