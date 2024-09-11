@@ -17,10 +17,10 @@ export function appendProcessCommand(program: Command) {
     .option('-c, --cmd <command>', 'command filter')
     .option('-p, --port <port>', 'find process by port')
     .option('-k, --kill', 'kill processes filtered out')
-    .option('--kill-main', 'Only kill main process only, keep child process')
+    .option('--no-tree', 'include child process during operation')
     .action(async (argPid, options) => {
       // console.log(options);
-      const {pid, cmd: command, port, kill, killMain} = options;
+      const {pid, cmd: command, port, kill, tree} = options;
       const filter: ProcessFilter = {pid: pid ? pid : argPid, command};
       const filterFunc = getFilterFunc(filter);
 
@@ -38,16 +38,16 @@ export function appendProcessCommand(program: Command) {
         const {pid, ppid} = process;
         return ![pid, ppid].includes(info.pid) && filterFunc(info);
       };
-      const {allInfoList, pidToInfo} = await getProcessInfo({appendChildInfo: !killMain});
+      const {allInfoList, pidToInfo} = await getProcessInfo({appendChildInfo: tree});
       const filteredInfoList = allInfoList.filter(finalFilter);
       if (filteredInfoList.length === 0) {
         logColorful({color: 'red'}, `No process meets filter condition`);
         return;
       }
-      if (kill || killMain) {
+      if (kill) {
         const success = await killProcessByPid(
           filteredInfoList.map(it => it.pid),
-          {pidToInfo, doubleConfirm: true, killChildren: !killMain}
+          {pidToInfo, doubleConfirm: true, killChildren: tree}
         );
         logColorful({}, success ? 'Success' : 'fail');
       } else {
