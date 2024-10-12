@@ -4,7 +4,7 @@
 import {Command} from 'commander';
 import {KoaConfig, deepMerge, PORT} from '@src/service/external';
 import {config as elifConfig} from '@src/config/http-server/elif';
-import {config as localConfig} from '@src/config/http-server/local';
+import {config as localConfig} from '@src/config/koa-server/local';
 import {toNumber, mwConfigCommon, startSyntheticTcpServer, logColorful} from '@src/service/external';
 import {isNumber} from '@modules/lib/node';
 

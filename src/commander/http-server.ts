@@ -4,7 +4,7 @@
 import {Command} from 'commander';
 import {KoaConfig, deepMerge, startKoaServer} from '@src/service/external';
 import {config as elifConfig} from '@src/config/http-server/elif';
-import {config as localConfig} from '@src/config/http-server/local';
+import {config as localConfig} from '@src/config/koa-server/local';
 import {mwConfigCommon} from '@modules/lib/net';
 import {logColorful} from '@modules/lib/node';
 
