@@ -7,7 +7,7 @@ import {
   startSocketClient,
   startKoaServer,
   customDeepMerge,
-  startRedirectSocketServer,
+  startTcpGateWay,
   TcpServerConfig,
   localTcpServerConfig,
   KoaShortCutConfig,
@@ -45,7 +45,7 @@ export async function startFullFeatureTcpServer(options?: {
     const proxyClient = await startSocketClient({host, port});
     socket.pipe(proxyClient).pipe(socket);
   }
-  // return await startRedirectSocketServer(
+  // return await startTcpGateWay(
   //   {
   //     httpHandler,
   //     // tcpHandler,
@@ -56,7 +56,7 @@ export async function startFullFeatureTcpServer(options?: {
   if (isNumber(tcpPort)) {
     tcpServerConfig.port = tcpPort;
   }
-  const {host, port, server} = await startRedirectSocketServer(
+  const {host, port, server} = await startTcpGateWay(
     {
       httpHandler,
     },

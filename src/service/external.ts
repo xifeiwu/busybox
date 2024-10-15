@@ -4,7 +4,6 @@ export {
   checkPort as isPortOpen,
   logColorful,
   uploadDirOnHome,
-  startRedirectSocketServer,
   customDeepMerge,
   startSocketClient,
   TcpServerConfig,
@@ -17,6 +16,7 @@ export {
   mwConfigDefault,
   localTcpServerConfig,
   KoaShortCutConfig,
-  localKoaConfig,
+  KOA_CONFIG as localKoaConfig,
   serializeKoaConfig,
+  startTcpGateWay,
 } from '@modules/lib/net';
