@@ -8,6 +8,10 @@ export {
   startSocketClient,
   TcpServerConfig,
   SocksServerConfigPerVersion,
+  Daemon,
+  getCpConfigByScriptPath,
+  InfoToCp,
+  startDetachedDaemon,
 } from '@modules/lib/node';
 export {
   KoaConfig,

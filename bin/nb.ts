@@ -5,7 +5,7 @@ import {spawnTsFile} from '../modules/lib/node';
 async function start() {
   const argv = process.argv;
   process.stdin.setRawMode(false);
-  const childProcess = spawnTsFile(path.resolve(__dirname, '../src/commander/node-busybox/index.ts'), {
+  const childProcess = spawnTsFile(path.resolve(__dirname, '../src/commander/nb/index.ts'), {
     printCommand: true,
     params: argv.length > 2 ? argv.slice(2) : [],
     spawnOptions: {stdio: [0, 1, 2]},

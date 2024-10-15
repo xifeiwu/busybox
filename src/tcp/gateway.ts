@@ -1,13 +1,13 @@
 /**
  * A basic server contains frequently used function
  */
-import {TcpGateWayConfig} from '@src/service/external';
+import {serializeTcpGatewayConfig, TcpGateWayConfig} from '@src/service/external';
 import {elifTcpGateWayConfig} from '@src/config/tcp-gateway/elif';
 import {localTcpGateWayConfig} from '@src/config/tcp-gateway/local';
 import {startTcpGateWay, KoaShortCutConfig} from '@src/service/external';
 import {isNumber} from '@modules/lib/node';
+import {Env, TcpGateWayOptions} from '@src/types';
 
-type Env = 'local' | 'elif';
 const configByEnv: {
   [env in Env]: TcpGateWayConfig;
 } = {
@@ -16,12 +16,7 @@ const configByEnv: {
 };
 
 // const customizeDeepMerge = customDeepMerge({mergeArraySolution: 'concat'});
-export async function startTcpGateway(options?: {
-  env?: Env;
-  port?: number;
-  uploadDir?: string;
-  staticDir?: string;
-}) {
+export async function startTcpGatewayByOptions(options?: TcpGateWayOptions) {
   const {env = 'local', uploadDir, port: tcpPort, staticDir} = options ?? {};
   const tcpGatewayConfig = configByEnv[env as Env];
   const {koa, tcpServerConfig} = tcpGatewayConfig;
@@ -38,4 +33,17 @@ export async function startTcpGateway(options?: {
   }
   const {host, port, server, koaServerInfo} = await startTcpGateWay(tcpGatewayConfig);
   return {host, port, server, tcpGatewayConfig, koaServerInfo};
+}
+
+export async function serializeTcpGatewayInfo(info: Awaited<ReturnType<typeof startTcpGatewayByOptions>>) {
+  const {host, port, koaServerInfo, tcpGatewayConfig} = info;
+  const serializeableInfo = {
+    host,
+    port,
+    tcpGatewayConfig: serializeTcpGatewayConfig(tcpGatewayConfig),
+    koaServerInfo: {
+      origin: koaServerInfo.origin,
+    },
+  };
+  return serializeableInfo;
 }

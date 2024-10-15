@@ -3,8 +3,8 @@
  */
 import path from 'path';
 import {Command} from 'commander';
-import {logColorful, serializeTcpGatewayConfig} from '@src/service/external';
-import {startTcpGateway} from '@src/tcp/gateway';
+import {logColorful} from '@src/service/external';
+import {serializeTcpGatewayInfo, startTcpGatewayByOptions} from '@src/tcp/gateway';
 
 const program = new Command();
 program
@@ -14,22 +14,12 @@ program
   .option('-u, --upload-dir <upload>', 'dir to locate upload files')
   .action(async (staticDir, options) => {
     const {env = 'local', uploadDir, port: tcpPort} = options;
-    const {tcpGatewayConfig, host, port, server, koaServerInfo} = await startTcpGateway({
+    const info = await startTcpGatewayByOptions({
       env,
       staticDir: staticDir ? path.resolve(process.cwd(), staticDir) : undefined,
       uploadDir,
       port: tcpPort,
     });
-    logColorful(
-      {},
-      {
-        host,
-        port,
-        tcpGatewayConfig: serializeTcpGatewayConfig(tcpGatewayConfig),
-        koaServerInfo: {
-          origin: koaServerInfo.origin,
-        },
-      }
-    );
+    logColorful({}, serializeTcpGatewayInfo(info));
   });
 program.parse(process.argv);
