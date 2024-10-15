@@ -7,6 +7,7 @@ export {
   customDeepMerge,
   startSocketClient,
   TcpServerConfig,
+  SocksServerConfigPerVersion,
 } from '@modules/lib/node';
 export {
   KoaConfig,
@@ -19,4 +20,7 @@ export {
   KOA_CONFIG as localKoaConfig,
   serializeKoaConfig,
   startTcpGateWay,
+  TcpGateWayConfig,
+  TCP_GATEWAY_CONFIG,
+  serializeTcpGatewayConfig,
 } from '@modules/lib/net';

@@ -9,7 +9,7 @@ const bin = {
   nb: 'nb.ts',
   'login-to-server': 'login-to-server.ts',
   'http-server': 'http-server.ts',
-  'tcp-server': 'tcp-server.ts',
+  'tcp-gateway': 'tcp-gateway.ts',
 };
 
 function linkeFileExist(filePath) {

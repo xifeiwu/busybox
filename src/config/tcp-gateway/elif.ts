@@ -1,6 +1,13 @@
-import {KoaConfig, mwConfigDefault, TcpServerConfig, uploadDirOnHome} from '@src/service/external';
+import {
+  KoaConfig,
+  mwConfigDefault,
+  SocksServerConfigPerVersion,
+  TcpGateWayConfig,
+  TcpServerConfig,
+  uploadDirOnHome,
+} from '@src/service/external';
 
-export const config: KoaConfig = {
+export const koaConfig: KoaConfig = {
   /** Make http server can be accessed from outside */
   host: '127.0.0.1',
   port: 8880,
@@ -24,4 +31,30 @@ export const config: KoaConfig = {
 export const tcpServerConfig: TcpServerConfig = {
   port: 80,
   host: '0.0.0.0',
+};
+
+export const SOCKS_SERVER_CONFIG: Partial<SocksServerConfigPerVersion> = {
+  '1': {
+    socksVersion: 1,
+    auth: {
+      username: 'abc',
+      password: 'dddd',
+    },
+  },
+  // '5': {
+  //   socksVersion: 5,
+  //   methodList: [
+  //     {
+  //       method: 0,
+  //     },
+  //   ],
+  // },
+};
+export const elifTcpGateWayConfig: TcpGateWayConfig = {
+  tcpServerConfig: tcpServerConfig,
+  mwConfig: {socksConfig: SOCKS_SERVER_CONFIG},
+  middlewares: [],
+  koa: {
+    config: koaConfig
+  }
 };

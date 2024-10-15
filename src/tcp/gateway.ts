@@ -1,69 +1,41 @@
 /**
  * A basic server contains frequently used function
  */
-import {KoaConfig} from '@src/service/external';
-import {config as elifKoaConfig, tcpServerConfig as elifTcpServerConfig} from '@src/config/koa-server/elif';
-import {
-  startSocketClient,
-  startKoaServer,
-  customDeepMerge,
-  startTcpGateWay,
-  TcpServerConfig,
-  localTcpServerConfig,
-  KoaShortCutConfig,
-  localKoaConfig,
-  serializeKoaConfig,
-} from '@src/service/external';
-import {Socket} from 'net';
+import {TcpGateWayConfig} from '@src/service/external';
+import {elifTcpGateWayConfig} from '@src/config/tcp-gateway/elif';
+import {localTcpGateWayConfig} from '@src/config/tcp-gateway/local';
+import {startTcpGateWay, KoaShortCutConfig} from '@src/service/external';
 import {isNumber} from '@modules/lib/node';
 
 type Env = 'local' | 'elif';
 const configByEnv: {
-  [env in Env]: {koa: KoaConfig; tcp: TcpServerConfig};
+  [env in Env]: TcpGateWayConfig;
 } = {
-  local: {koa: localKoaConfig, tcp: localTcpServerConfig},
-  elif: {koa: elifKoaConfig, tcp: elifTcpServerConfig},
+  local: localTcpGateWayConfig,
+  elif: elifTcpGateWayConfig,
 };
 
-const customizeDeepMerge = customDeepMerge({mergeArraySolution: 'concat'});
-export async function startFullFeatureTcpServer(options?: {
+// const customizeDeepMerge = customDeepMerge({mergeArraySolution: 'concat'});
+export async function startTcpGateway(options?: {
   env?: Env;
   port?: number;
   uploadDir?: string;
   staticDir?: string;
 }) {
   const {env = 'local', uploadDir, port: tcpPort, staticDir} = options ?? {};
-  const {koa: koaConfig, tcp: tcpServerConfig} = configByEnv[env as Env];
-  const mergedKoaConfig = customizeDeepMerge<KoaConfig, KoaConfig>(koaConfig, {});
+  const tcpGatewayConfig = configByEnv[env as Env];
+  const {koa, tcpServerConfig} = tcpGatewayConfig;
+  // const mergedKoaConfig = customizeDeepMerge<KoaConfig, KoaConfig>(koaConfig, {});
   const koaShortCutConfig: KoaShortCutConfig = {
     staticDir,
     uploadDir,
   };
-  const koaServerInfo = await startKoaServer(mergedKoaConfig, koaShortCutConfig);
-  async function httpHandler(socket: Socket) {
-    const {host, port} = koaServerInfo;
-    const proxyClient = await startSocketClient({host, port});
-    socket.pipe(proxyClient).pipe(socket);
+  if (koa) {
+    koa.shortCut = koaShortCutConfig;
   }
-  // return await startTcpGateWay(
-  //   {
-  //     httpHandler,
-  //     // tcpHandler,
-  //   },
-  //   tcpServerConfig
-  // );
-
   if (isNumber(tcpPort)) {
     tcpServerConfig.port = tcpPort;
   }
-  const {host, port, server} = await startTcpGateWay(
-    {
-      httpHandler,
-    },
-    {
-      ...tcpServerConfig,
-    }
-  );
-  return {host, port, server, koaConfig: serializeKoaConfig(koaConfig)};
+  const {host, port, server, koaServerInfo} = await startTcpGateWay(tcpGatewayConfig);
+  return {host, port, server, tcpGatewayConfig, koaServerInfo};
 }
-

@@ -3,8 +3,8 @@
  */
 import path from 'path';
 import {Command} from 'commander';
-import {logColorful} from '@src/service/external';
-import {startFullFeatureTcpServer} from '@src/tcp/full-feature';
+import {logColorful, serializeTcpGatewayConfig} from '@src/service/external';
+import {startTcpGateway} from '@src/tcp/gateway';
 
 const program = new Command();
 program
@@ -14,9 +14,9 @@ program
   .option('-u, --upload-dir <upload>', 'dir to locate upload files')
   .action(async (staticDir, options) => {
     const {env = 'local', uploadDir, port: tcpPort} = options;
-    const {host, port, koaConfig} = await startFullFeatureTcpServer({
+    const {tcpGatewayConfig, host, port, server, koaServerInfo} = await startTcpGateway({
       env,
-      staticDir: path.resolve(process.cwd(), staticDir),
+      staticDir: staticDir ? path.resolve(process.cwd(), staticDir) : undefined,
       uploadDir,
       port: tcpPort,
     });
@@ -25,7 +25,10 @@ program
       {
         host,
         port,
-        koaConfig,
+        tcpGatewayConfig: serializeTcpGatewayConfig(tcpGatewayConfig),
+        koaServerInfo: {
+          origin: koaServerInfo.origin,
+        },
       }
     );
   });
