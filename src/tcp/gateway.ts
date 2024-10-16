@@ -34,7 +34,7 @@ export async function startTcpGatewayByOptions(options?: TcpGateWayOptions) {
   return {host, port, server, tcpGatewayConfig, koaServerInfo};
 }
 
-export async function serializeTcpGatewayInfo(info: Awaited<ReturnType<typeof startTcpGatewayByOptions>>) {
+export function serializeTcpGatewayInfo(info: Awaited<ReturnType<typeof startTcpGatewayByOptions>>) {
   const {host, port, koaServerInfo, tcpGatewayConfig} = info;
   const serializeableInfo = {
     host,
