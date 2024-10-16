@@ -17,7 +17,7 @@ export async function getId(id?: string) {
     return id;
   }
   const selected = await selectOption(
-    idList.map(it => {
+    idList.map(id => {
       return {
         label: id,
         id,
@@ -42,13 +42,19 @@ export async function ping() {
 }
 export async function info(id?: string) {
   id = await getId(id);
+  console.log(`id`);
+  console.log(id);
   const result = await socketClient.info(id);
   return result;
 }
 export async function start(id?: string) {
   id = await getId(id);
-  const result = await socketClient.start(cpManagerConfigMap[id]);
-  return result;
+  if (id === daemonId) {
+    return await runDetachedDaemon();
+  } else {
+    const result = await socketClient.start(cpManagerConfigMap[id]);
+    return result;
+  }
 }
 export async function stop(id?: string) {
   id = await getId(id);

@@ -16,6 +16,7 @@ export {
   getSocketPath,
   SocketClientToDaemon,
   getScriptFullpath,
+  CP,
 } from '@modules/lib/node';
 export {
   KoaConfig,

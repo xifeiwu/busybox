@@ -1,5 +1,5 @@
 import {Command} from 'commander';
-import {ping, info, start, stop} from '../daemon-cp';
+import {ping, info, start, stop} from '../daemon';
 import {logColorful} from '../service/external';
 
 const program = new Command();
@@ -13,14 +13,14 @@ program
     logColorful({}, result);
   });
 program
-  .command('info <id>')
+  .command('info [id]')
   .description('')
   .action(async id => {
     const result = await info(id);
     logColorful({}, result);
   });
 program
-  .command('start <id>')
+  .command('start [id]')
   .description('start daemon or child process managed by daemon')
   .action(async id => {
     const result = await start(id);
@@ -28,7 +28,7 @@ program
   });
 
 program
-  .command('stop <id>')
+  .command('stop [id]')
   .description('stop daemon or child process managed by daemon')
   .action(async id => {
     const result = await stop(id);

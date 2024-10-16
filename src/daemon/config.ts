@@ -1,5 +1,5 @@
 import path from 'path';
-import {Daemon, getCpConfigByScriptPath, getScriptFullpath} from '@src/service/external';
+import {CP, Daemon, getCpConfigByScriptPath, getScriptFullpath} from '@src/service/external';
 import {TcpGateWayOptions} from '@src/types';
 
 export function debugServer() {
@@ -12,11 +12,11 @@ export function debugServer() {
         minInterval: 5000,
       },
     },
-    spawnConfig: getCpConfigByScriptPath<TcpGateWayOptions>(getScriptFullpath('debug-server.ts'), {
-      // spawnOptions: {
-      //   stdio,
-      // },
-      infoToCp: {},
+    spawnConfig: getCpConfigByScriptPath<CP.DebugServerConfig>(getScriptFullpath('debug-server.ts'), {
+      spawnOptions: {
+        stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
+      },
+      infoToCp: {config: {port: 3800}},
       maxWaitTime4Ipc: 20,
     }),
   };
@@ -38,7 +38,7 @@ export function tcpGateway() {
         // spawnOptions: {
         //   stdio,
         // },
-        infoToCp: {},
+        // infoToCp: {},
         maxWaitTime4Ipc: 20,
       }
     ),
@@ -48,9 +48,10 @@ export function tcpGateway() {
 
 export const cpManagerConfigMap = [debugServer, tcpGateway].reduce<{[key: string]: Daemon.CpManagerConfig}>(
   (sum, func) => {
+    const config = func();
     return {
       ...sum,
-      [func.name]: func(),
+      [config.id]: config,
     };
   },
   {}

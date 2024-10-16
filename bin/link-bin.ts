@@ -10,6 +10,7 @@ const bin = {
   'login-to-server': 'login-to-server.ts',
   'http-server': 'http-server.ts',
   'tcp-gateway': 'tcp-gateway.ts',
+  daemon: 'daemon.ts',
 };
 
 function linkeFileExist(filePath) {
