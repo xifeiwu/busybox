@@ -12,6 +12,10 @@ export {
   getCpConfigByScriptPath,
   InfoToCp,
   startDetachedDaemon,
+  selectOption,
+  getSocketPath,
+  SocketClientToDaemon,
+  getScriptFullpath,
 } from '@modules/lib/node';
 export {
   KoaConfig,
