@@ -2,23 +2,22 @@
  * A basic server contains frequently used function
  */
 import {serializeTcpGatewayConfig, TcpGateWayConfig} from '@src/service/external';
-import {elifTcpGateWayConfig} from '@src/config/tcp-gateway/elif';
-import {localTcpGateWayConfig} from '@src/config/tcp-gateway/local';
 import {startTcpGateWay, KoaShortCutConfig} from '@src/service/external';
 import {isNumber} from '@modules/lib/node';
 import {Env, TcpGateWayOptions} from '@src/types';
+import {tcpGatewayConfigByEnv} from '@src/config/tcp-gateway';
 
-const configByEnv: {
-  [env in Env]: TcpGateWayConfig;
-} = {
-  local: localTcpGateWayConfig,
-  elif: elifTcpGateWayConfig,
-};
+// export const configByEnv: {
+//   [env in Env]: TcpGateWayConfig;
+// } = {
+//   local: localTcpGateWayConfig,
+//   elif: elifTcpGateWayConfig,
+// };
 
 // const customizeDeepMerge = customDeepMerge({mergeArraySolution: 'concat'});
 export async function startTcpGatewayByOptions(options?: TcpGateWayOptions) {
   const {env = 'local', uploadDir, port: tcpPort, staticDir} = options ?? {};
-  const tcpGatewayConfig = configByEnv[env as Env];
+  const tcpGatewayConfig = tcpGatewayConfigByEnv[env as Env];
   const {koa, tcpServerConfig} = tcpGatewayConfig;
   // const mergedKoaConfig = customizeDeepMerge<KoaConfig, KoaConfig>(koaConfig, {});
   const koaShortCutConfig: KoaShortCutConfig = {
