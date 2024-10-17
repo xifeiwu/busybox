@@ -1,7 +1,18 @@
+import fs from 'fs';
 import path from 'path';
 import {CP, Daemon, getCpConfigByScriptPath, getScriptFullpath, logColorful} from '@src/service/external';
 import {TcpGateWayOptions} from '@src/types';
 
+function tryUseJsFile(fullPath: string) {
+  let jsFilePath: string;
+  if (fullPath.endsWith('.ts')) {
+    jsFilePath = fullPath.replace(/ts$/, 'js');
+  }
+  if (jsFilePath && fs.existsSync(jsFilePath)) {
+    return jsFilePath;
+  }
+  return fullPath;
+}
 export function debugServer() {
   const id = 'debug-server';
   const config: Daemon.CpManagerConfig = {
@@ -12,15 +23,17 @@ export function debugServer() {
         minInterval: 5000,
       },
     },
-    spawnConfig: getCpConfigByScriptPath<CP.DebugServerConfig>(getScriptFullpath('debug-server.ts'), {
-      spawnOptions: {
-        stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
-      },
-      infoToCp: {config: {port: 3800}},
-      maxWaitTime4Ipc: 20,
-    }),
+    spawnConfig: getCpConfigByScriptPath<CP.DebugServerConfig>(
+      tryUseJsFile(getScriptFullpath('debug-server.ts')),
+      {
+        spawnOptions: {
+          stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
+        },
+        infoToCp: {config: {port: 3800}},
+        maxWaitTime4Ipc: 20,
+      }
+    ),
   };
-  logColorful({}, config);
   return config;
 }
 export function tcpGateway() {
@@ -34,7 +47,7 @@ export function tcpGateway() {
       },
     },
     spawnConfig: getCpConfigByScriptPath<TcpGateWayOptions>(
-      path.resolve(__dirname, 'script/tcp-gateway.ts'),
+      tryUseJsFile(path.resolve(__dirname, 'script/tcp-gateway.ts')),
       {
         // spawnOptions: {
         //   stdio,
@@ -44,6 +57,5 @@ export function tcpGateway() {
       }
     ),
   };
-  logColorful({}, config);
   return config;
 }
