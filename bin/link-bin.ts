@@ -5,6 +5,7 @@ import {Command} from 'commander';
 
 const bin = {
   runTsExport: 'runTsExport.ts',
+  runJsExport: 'runJsExport.js',
   runOnTsNode: 'runOnTsNode.ts',
   nb: 'nb.ts',
   'login-to-server': 'login-to-server.ts',
@@ -36,6 +37,10 @@ program.argument('[targetDir] dir to locate the bin').action(async binDir => {
   }
   for (const [binName, relatePath] of Object.entries(bin)) {
     const targetFile = path.resolve(__dirname, relatePath);
+    if (!fs.existsSync(targetFile)) {
+      console.error(`File not exist: ${targetFile}`);
+      continue;
+    }
     const linkFile = path.resolve(binDir, binName);
     const relativePath = path.relative(path.dirname(linkFile), targetFile);
     // console.log(linkFile);

@@ -11,6 +11,7 @@
     "login-to-server": "./bin/login-to-server.ts"
   },
   "scripts": {
+    "build": "tsc && npx tsc-alias",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
