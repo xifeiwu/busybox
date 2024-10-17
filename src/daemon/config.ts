@@ -1,5 +1,5 @@
 import path from 'path';
-import {CP, Daemon, getCpConfigByScriptPath, getScriptFullpath} from '@src/service/external';
+import {CP, Daemon, getCpConfigByScriptPath, getScriptFullpath, logColorful} from '@src/service/external';
 import {TcpGateWayOptions} from '@src/types';
 
 export function debugServer() {
@@ -20,6 +20,7 @@ export function debugServer() {
       maxWaitTime4Ipc: 20,
     }),
   };
+  logColorful({}, config);
   return config;
 }
 export function tcpGateway() {
@@ -43,16 +44,6 @@ export function tcpGateway() {
       }
     ),
   };
+  logColorful({}, config);
   return config;
 }
-
-export const cpManagerConfigMap = [debugServer, tcpGateway].reduce<{[key: string]: Daemon.CpManagerConfig}>(
-  (sum, func) => {
-    const config = func();
-    return {
-      ...sum,
-      [config.id]: config,
-    };
-  },
-  {}
-);

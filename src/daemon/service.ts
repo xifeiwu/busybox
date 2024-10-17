@@ -4,9 +4,20 @@ import {
   selectOption,
   startDetachedDaemon,
   SocketClientToDaemon,
+  Daemon,
 } from '@src/service/external';
-import {cpManagerConfigMap} from './config';
+import {debugServer, tcpGateway} from './config';
 
+export const cpManagerConfigMap = [debugServer, tcpGateway].reduce<{[key: string]: Daemon.CpManagerConfig}>(
+  (sum, func) => {
+    const config = func();
+    return {
+      ...sum,
+      [config.id]: config,
+    };
+  },
+  {}
+);
 const daemonId = 'busybox-daemon';
 const daemonSocketPath = getSocketPath(daemonId);
 const socketClient = new SocketClientToDaemon({path: daemonSocketPath});
