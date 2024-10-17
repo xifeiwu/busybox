@@ -1,5 +1,5 @@
 import {Command} from 'commander';
-import {ping, info, start, stop} from '../daemon';
+import {ping, info, start, restart, stop} from '../daemon';
 import {logColorful} from '../service/external';
 
 const program = new Command();
@@ -24,6 +24,13 @@ program
   .description('start daemon or child process managed by daemon')
   .action(async id => {
     const result = await start(id);
+    logColorful({}, result);
+  });
+program
+  .command('restart [id]')
+  .description('restart child process managed by daemon')
+  .action(async id => {
+    const result = await restart(id);
     logColorful({}, result);
   });
 

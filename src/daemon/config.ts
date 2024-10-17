@@ -49,10 +49,14 @@ export function tcpGateway() {
     spawnConfig: getCpConfigByScriptPath<TcpGateWayOptions>(
       tryUseJsFile(path.resolve(__dirname, 'script/tcp-gateway.ts')),
       {
-        // spawnOptions: {
-        //   stdio,
-        // },
-        // infoToCp: {},
+        spawnOptions: {
+          stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
+        },
+        infoToCp: {
+          config: {
+            env: 'local',
+          },
+        },
         maxWaitTime4Ipc: 20,
       }
     ),

@@ -67,6 +67,15 @@ export async function start(id?: string) {
     return result;
   }
 }
+export async function restart(id?: string) {
+  id = await getId(id);
+  const cpManagerConfig = cpManagerConfigMap[id];
+  if (!cpManagerConfig) {
+    throw new Error(`cpManagerConfig is null`);
+  }
+  const result = await socketClient.restart(cpManagerConfigMap[id]);
+  return result;
+}
 export async function stop(id?: string) {
   id = await getId(id);
   const result = await socketClient.stop(id);

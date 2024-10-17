@@ -25,3 +25,4 @@ export async function start() {
     out(responseError(err));
   }
 }
+start();
