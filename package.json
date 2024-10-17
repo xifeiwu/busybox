@@ -19,5 +19,8 @@
     "@types/node": "^20.10.3",
     "commander": "^11.1.0",
     "tsconfig-paths": "^4.2.0"
+  },
+  "devDependencies": {
+    "tsc-alias": "^1.8.10"
   }
 }
