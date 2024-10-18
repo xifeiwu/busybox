@@ -13,7 +13,14 @@ import {tcpGatewayConfigByEnv} from '@src/config/tcp-gateway';
 //   local: localTcpGateWayConfig,
 //   elif: elifTcpGateWayConfig,
 // };
-
+/**
+ * used to catch error, such as:
+ * node Error: read ECONNRESET
+ */
+process.on('uncaughtException', function (err) {
+  console.log('uncaughtException:');
+  console.log(err.stack);
+});
 // const customizeDeepMerge = customDeepMerge({mergeArraySolution: 'concat'});
 export async function startTcpGatewayByOptions(options?: TcpGateWayOptions) {
   const {env = 'local', uploadDir, port: tcpPort, staticDir} = options ?? {};
