@@ -17,6 +17,7 @@ export {
   SocketClientToDaemon,
   getScriptFullpath,
   CP,
+  tryUseJsFile,
 } from '@modules/lib/node';
 export {
   KoaConfig,

@@ -1,18 +1,13 @@
-import fs from 'fs';
 import path from 'path';
-import {CP, Daemon, getCpConfigByScriptPath, getScriptFullpath, logColorful} from '@src/service/external';
+import {
+  CP,
+  Daemon,
+  getCpConfigByScriptPath,
+  getScriptFullpath,
+  tryUseJsFile,
+} from '@src/service/external';
 import {TcpGateWayOptions} from '@src/types';
 
-function tryUseJsFile(fullPath: string) {
-  let jsFilePath: string;
-  if (fullPath.endsWith('.ts')) {
-    jsFilePath = fullPath.replace(/ts$/, 'js');
-  }
-  if (jsFilePath && fs.existsSync(jsFilePath)) {
-    return jsFilePath;
-  }
-  return fullPath;
-}
 export function debugServer() {
   const id = 'debug-server';
   const config: Daemon.CpManagerConfig = {
