@@ -18,6 +18,7 @@ export {
   getScriptFullpath,
   CP,
   tryUseJsFile,
+  getLocalIpAddress,
 } from '@modules/lib/node';
 export {
   KoaConfig,
