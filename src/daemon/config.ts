@@ -1,12 +1,6 @@
 import path from 'path';
-import {
-  CP,
-  Daemon,
-  getCpConfigByScriptPath,
-  getScriptFullpath,
-  tryUseJsFile,
-} from '@src/service/external';
-import {TcpGateWayOptions} from '@src/types';
+import {CP, Daemon, getCpConfigByScriptPath, getScriptFullpath, tryUseJsFile} from '@src/service/external';
+import {Env, TcpGateWayOptions} from '@src/types';
 
 export function debugServer() {
   const id = 'debug-server';
@@ -31,6 +25,7 @@ export function debugServer() {
   };
   return config;
 }
+
 export function tcpGateway() {
   const id = 'tcp-gateway';
   const config: Daemon.CpManagerConfig = {
@@ -49,7 +44,7 @@ export function tcpGateway() {
         },
         infoToCp: {
           config: {
-            env: 'local',
+            env: process.env.NODE_ENV ? (process.env.NODE_ENV as Env) : 'local',
           },
         },
         maxWaitTime4Ipc: 20,

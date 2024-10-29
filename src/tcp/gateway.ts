@@ -25,6 +25,9 @@ process.on('uncaughtException', function (err) {
 export async function startTcpGatewayByOptions(options?: TcpGateWayOptions) {
   const {env = 'local', uploadDir, port: tcpPort, staticDir} = options ?? {};
   const tcpGatewayConfig = tcpGatewayConfigByEnv[env as Env];
+  if (!tcpGatewayConfig) {
+    throw new Error(`Not found config for env: ${env}`);
+  }
   const {koa, tcpServerConfig} = tcpGatewayConfig;
   // const mergedKoaConfig = customizeDeepMerge<KoaConfig, KoaConfig>(koaConfig, {});
   const koaShortCutConfig: KoaShortCutConfig = {
