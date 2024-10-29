@@ -19,6 +19,7 @@ export {
   CP,
   tryUseJsFile,
   getLocalIpAddress,
+  basicAuth,
 } from '@modules/lib/node';
 export {
   KoaConfig,
