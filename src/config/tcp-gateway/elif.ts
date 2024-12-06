@@ -1,5 +1,5 @@
 import {
-  basicAuth,
+  SOCKS_AUTH_USER_PASS,
   KoaConfig,
   defaultMwConfig,
   SocksServerConfigPerVersion,
@@ -11,7 +11,7 @@ import {
 export const SOCKS_SERVER_CONFIG: Partial<SocksServerConfigPerVersion> = {
   '1': {
     socksVersion: 1,
-    auth: basicAuth,
+    auth: SOCKS_AUTH_USER_PASS,
   },
   // '5': {
   //   socksVersion: 5,

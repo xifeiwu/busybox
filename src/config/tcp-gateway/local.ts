@@ -1,9 +1,9 @@
-import {basicAuth, TCP_GATEWAY_CONFIG} from '../../service/external';
+import {SOCKS_AUTH_USER_PASS, TCP_GATEWAY_CONFIG} from '../../service/external';
 
 TCP_GATEWAY_CONFIG.mwConfig.socksConfig[5].proxyConfigList = [
   {
     socksVersion: 1,
-    auth: basicAuth,
+    auth: SOCKS_AUTH_USER_PASS,
     socksServer: {
       host: 'elif.site',
       // host: '124.156.155.64',

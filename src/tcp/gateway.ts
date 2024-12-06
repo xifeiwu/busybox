@@ -5,12 +5,6 @@ import {startTcpGateWay, KoaShortCutConfig, isNumber, serializeTcpGatewayConfig}
 import {Env, TcpGateWayOptions} from '@src/types';
 import {tcpGatewayConfigByEnv} from '@src/config/tcp-gateway';
 
-// export const configByEnv: {
-//   [env in Env]: TcpGateWayConfig;
-// } = {
-//   local: localTcpGateWayConfig,
-//   elif: elifTcpGateWayConfig,
-// };
 /**
  * used to catch error, such as:
  * node Error: read ECONNRESET

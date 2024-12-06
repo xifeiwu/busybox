@@ -17,7 +17,7 @@ export {
   CP,
   tryUseJsFile,
   getLocalIpAddress,
-  basicAuth,
+  SOCKS_AUTH_USER_PASS,
 } from '@modules/lib/node';
 export {
   KoaConfig,

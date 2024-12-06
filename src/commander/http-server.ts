@@ -2,9 +2,7 @@
  * A basic server contains frequently used function
  */
 import {Command} from 'commander';
-import {deepMerge, startKoaServer} from '@src/service/external';
-import {mwConfigDefault} from '@modules/lib/net';
-import {logColorful} from '@modules/lib/node';
+import {startKoaServer, logColorful} from '@src/service/external';
 import {tcpGatewayConfigByEnv} from '@src/config/tcp-gateway';
 import {Env} from '@src/types';
 
@@ -17,7 +15,7 @@ program
   .action(async (staticDir, options) => {
     const {env = 'local', port, uploadDir} = options;
     const {config: koaConfig} = tcpGatewayConfigByEnv[env as Env].koa;
-    const mergedConfig = deepMerge({mwConfig: mwConfigDefault}, koaConfig);
+    const mergedConfig = koaConfig;
     if (port !== undefined) {
       mergedConfig.port = port;
     }
