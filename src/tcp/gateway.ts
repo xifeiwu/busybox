@@ -1,9 +1,7 @@
 /**
  * A basic server contains frequently used function
  */
-import {serializeTcpGatewayConfig, TcpGateWayConfig} from '@src/service/external';
-import {startTcpGateWay, KoaShortCutConfig} from '@src/service/external';
-import {isNumber} from '@modules/lib/node';
+import {startTcpGateWay, KoaShortCutConfig, isNumber, serializeTcpGatewayConfig} from '@src/service/external';
 import {Env, TcpGateWayOptions} from '@src/types';
 import {tcpGatewayConfigByEnv} from '@src/config/tcp-gateway';
 

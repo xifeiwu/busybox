@@ -1,3 +1,6 @@
+/**
+ * Add child process id to make it easy to find the process even daemon process is die
+ */
 import path from 'path';
 import {CP, Daemon, getCpConfigByScriptPath, getScriptFullpath, tryUseJsFile} from '@src/service/external';
 import {Env, TcpGateWayOptions} from '@src/types';
@@ -20,6 +23,7 @@ export function debugServer() {
         },
         infoToCp: {config: {port: 3800}},
         maxWaitTime4Ipc: 20,
+        params: [id]
       }
     ),
   };
@@ -48,6 +52,7 @@ export function tcpGateway() {
           },
         },
         maxWaitTime4Ipc: 20,
+        params: [id]
       }
     ),
   };

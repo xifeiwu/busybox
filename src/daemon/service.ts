@@ -53,8 +53,7 @@ export async function ping() {
 }
 export async function info(id?: string) {
   id = await getId(id);
-  console.log(`id`);
-  console.log(id);
+  logColorful({color: 'red'}, `id: ${id}`);
   const result = await socketClient.info(id);
   return result;
 }

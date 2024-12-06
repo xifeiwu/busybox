@@ -1,7 +1,7 @@
 import {
   basicAuth,
   KoaConfig,
-  mwConfigDefault,
+  defaultMwConfig,
   SocksServerConfigPerVersion,
   TcpGateWayConfig,
   TcpServerConfig,
@@ -31,7 +31,7 @@ export const koaConfig: KoaConfig = {
     uploadDir: uploadDirOnHome,
   },
   mwConfig: {
-    ...mwConfigDefault,
+    ...defaultMwConfig,
     staticWMConfig: {
       spaDirList: [
         {

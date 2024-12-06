@@ -1,6 +1,5 @@
 import {Command} from 'commander';
-import {isPortOpen, getLocalIpAddress, logColorful} from '@src/service/external';
-import {toUrlProps} from '@modules/lib/node';
+import {isPortOpen, getLocalIpAddress, logColorful, toUrlProps} from '@src/service/external';
 
 export function appendNetCommand(program: Command) {
   program.command('port-check <host> [port]').action(async (host, port, args, command) => {

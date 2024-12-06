@@ -1,10 +1,8 @@
-export {toNumber, deepMerge, get, set} from '@modules/lib/fe';
+export {toNumber, deepMerge, get, set, PORT, customDeepMerge, toUrlProps, isNumber} from '@modules/lib/fe';
 export {
-  PORT,
   checkPort as isPortOpen,
   logColorful,
   uploadDirOnHome,
-  customDeepMerge,
   startSocketClient,
   TcpServerConfig,
   SocksServerConfigPerVersion,
@@ -26,13 +24,13 @@ export {
   startKoaServer,
   startTcpServer,
   StaticMiddlewareOptions,
-  mwConfigDefault,
   localTcpServerConfig,
   KoaShortCutConfig,
-  KOA_CONFIG as localKoaConfig,
+  DEFAULT_KOA_CONFIG as localKoaConfig,
   serializeKoaConfig,
   startTcpGateWay,
   TcpGateWayConfig,
+  defaultMwConfig,
   TCP_GATEWAY_CONFIG,
   serializeTcpGatewayConfig,
 } from '@modules/lib/net';
