@@ -7,3 +7,9 @@
 [submodule "modules/lib/net"]
 	path = modules/lib/net
 	url = git@elif.site:node/module/net.git
+[submodule "modules/lib/db"]
+	path = modules/lib/db
+	url = git@elif.site:node/module/db.git
+[submodule "modules/lib/utils"]
+	path = modules/lib/utils
+	url = git@elif.site:node/module/utils.git
