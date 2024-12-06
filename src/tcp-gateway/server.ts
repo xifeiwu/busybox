@@ -3,7 +3,7 @@
  */
 import {startTcpGateWay, KoaShortCutConfig, isNumber, serializeTcpGatewayConfig} from '@src/service/external';
 import {Env, TcpGateWayOptions} from '@src/types';
-import {tcpGatewayConfigByEnv} from '@src/config/tcp-gateway';
+import {tcpGatewayConfigByEnv} from './config';
 
 /**
  * used to catch error, such as:
@@ -13,7 +13,6 @@ process.on('uncaughtException', function (err) {
   console.log('uncaughtException:');
   console.log(err.stack);
 });
-// const customizeDeepMerge = customDeepMerge({mergeArraySolution: 'concat'});
 export async function startTcpGatewayByOptions(options?: TcpGateWayOptions) {
   const {env = 'local', uploadDir, port: tcpPort, staticDir} = options ?? {};
   const tcpGatewayConfig = tcpGatewayConfigByEnv[env as Env];
@@ -21,7 +20,6 @@ export async function startTcpGatewayByOptions(options?: TcpGateWayOptions) {
     throw new Error(`Not found config for env: ${env}`);
   }
   const {koa, tcpServerConfig} = tcpGatewayConfig;
-  // const mergedKoaConfig = customizeDeepMerge<KoaConfig, KoaConfig>(koaConfig, {});
   const koaShortCutConfig: KoaShortCutConfig = {
     staticDir,
     uploadDir,

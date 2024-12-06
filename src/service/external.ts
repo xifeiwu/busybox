@@ -24,7 +24,6 @@ export {
   startKoaServer,
   startTcpServer,
   StaticMiddlewareOptions,
-  localTcpServerConfig,
   KoaShortCutConfig,
   DEFAULT_KOA_CONFIG as localKoaConfig,
   serializeKoaConfig,

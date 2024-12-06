@@ -4,7 +4,7 @@
 import path from 'path';
 import {Command} from 'commander';
 import {logColorful} from '@src/service/external';
-import {serializeTcpGatewayInfo, startTcpGatewayByOptions} from '@src/tcp/gateway';
+import {serializeTcpGatewayInfo, startTcpGatewayByOptions} from '@src/tcp-gateway';
 
 const program = new Command();
 program
@@ -13,7 +13,7 @@ program
   .option('-p, --port <port>', 'the port used for http server')
   .option('-u, --upload-dir <upload>', 'dir to locate upload files')
   .action(async (staticDir, options) => {
-    const {env = 'local', uploadDir, port: tcpPort} = options;
+    const {env = process.env.NODE_ENV ?? 'local', uploadDir, port: tcpPort} = options;
     const info = await startTcpGatewayByOptions({
       env,
       staticDir: staticDir ? path.resolve(process.cwd(), staticDir) : undefined,

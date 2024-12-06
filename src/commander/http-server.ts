@@ -3,7 +3,7 @@
  */
 import {Command} from 'commander';
 import {startKoaServer, logColorful} from '@src/service/external';
-import {tcpGatewayConfigByEnv} from '@src/config/tcp-gateway';
+import {tcpGatewayConfigByEnv} from '@src/tcp-gateway';
 import {Env} from '@src/types';
 
 const program = new Command();
