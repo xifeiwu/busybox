@@ -1,7 +1,7 @@
 /**
  * A basic server contains frequently used function
  */
-import {startTcpGateWay, KoaShortCutConfig, isNumber, serializeTcpGatewayConfig} from '@src/service/external';
+import {startCustomizedTcpGateway, KoaShortCutConfig, isNumber, serializeTcpGatewayConfig} from '@src/service/external';
 import {Env, TcpGateWayOptions} from '@src/types';
 import {tcpGatewayConfigByEnv} from './config';
 
@@ -30,7 +30,7 @@ export async function startTcpGatewayByOptions(options?: TcpGateWayOptions) {
   if (tcpPort !== undefined) {
     tcpServerConfig.port = tcpPort;
   }
-  const {host, port, server, koaServerInfo} = await startTcpGateWay(tcpGatewayConfig);
+  const {host, port, server, koaServerInfo} = await startCustomizedTcpGateway(tcpGatewayConfig);
   return {host, port, server, tcpGatewayConfig, koaServerInfo};
 }
 
