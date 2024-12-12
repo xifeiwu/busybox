@@ -27,7 +27,7 @@ export async function startTcpGatewayByOptions(options?: TcpGateWayOptions) {
   if (koa) {
     koa.shortCut = koaShortCutConfig;
   }
-  if (isNumber(tcpPort)) {
+  if (tcpPort !== undefined) {
     tcpServerConfig.port = tcpPort;
   }
   const {host, port, server, koaServerInfo} = await startTcpGateWay(tcpGatewayConfig);
