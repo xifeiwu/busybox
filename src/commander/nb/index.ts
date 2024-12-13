@@ -3,6 +3,7 @@ import {appendFileCommand} from './file';
 import {appendNetCommand} from './net';
 import {appendProcessCommand} from './process';
 import {appendOtherCommand} from './others';
+import {hashStream, logColorful, prettyCurlCommand} from '@src/service/external';
 
 const program = new Command();
 program
@@ -15,4 +16,10 @@ appendNetCommand(program);
 appendProcessCommand(program);
 appendOtherCommand(program);
 
-program.parse(process.argv);
+const command = process.argv[2];
+if (command === 'pretty-curl') {
+  const rest = process.argv.slice(3);
+  program.parse([...process.argv.slice(0, 2), ...rest])
+} else {
+  program.parse(process.argv);
+}

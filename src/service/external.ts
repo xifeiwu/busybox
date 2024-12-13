@@ -1,4 +1,15 @@
-export {toNumber, deepMerge, get, set, PORT, customDeepMerge, toUrlProps, isNumber} from '@modules/lib/fe';
+export {
+  toNumber,
+  deepMerge,
+  get,
+  set,
+  PORT,
+  customDeepMerge,
+  toUrlProps,
+  isNumber,
+  prettyCurlCommand,
+  isPlainObject,
+} from '@modules/lib/fe';
 export {
   checkPort as isPortOpen,
   logColorful,
@@ -18,6 +29,7 @@ export {
   tryUseJsFile,
   getLocalIpAddress,
   SOCKS_AUTH_USER_PASS,
+  hashStream,
 } from '@modules/lib/node';
 export {
   KoaConfig,
