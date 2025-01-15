@@ -9,7 +9,7 @@ export {
   isNumber,
   prettyCurlCommand,
   isPlainObject,
-} from '@modules/lib/fe';
+} from '../../modules/lib/fe';
 export {
   checkPort as isPortOpen,
   logColorful,
@@ -30,7 +30,8 @@ export {
   getLocalIpAddress,
   SOCKS_AUTH_USER_PASS,
   hashStream,
-} from '@modules/lib/node';
+  hashData,
+} from '../../modules/lib/node';
 export {
   KoaConfig,
   startKoaServer,
@@ -43,4 +44,4 @@ export {
   defaultMwConfig,
   TCP_GATEWAY_CONFIG,
   serializeTcpGatewayConfig,
-} from '@modules/lib/net';
+} from '../../modules/lib/net';
