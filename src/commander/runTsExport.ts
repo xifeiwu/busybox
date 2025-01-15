@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import readline from 'readline';
 import {Command} from 'commander';
+import {logColorful} from '../service/external';
 
 function isObject(val: any) {
   return val !== null && typeof val === 'object';
@@ -109,12 +110,11 @@ program
   .argument('<tsFilePath>', 'path to ts file to run')
   .argument('[funcName]', 'name of function')
   .argument('[funcParams...]', 'params passed to the function')
-  .option('-p, --print', 'print process info or not')
+  .option('-a, --all', 'run all exported function')
   .option('-s, --seleect', 'select the process to kill when more than on process exist')
   .action(async (tsFilePath, funcName, funcParams, options) => {
-    const {print, select} = options;
+    const {all, select} = options;
     try {
-      // const [relativePathOfFile, ...functionAndParams] = params;
       const fullPath = path.resolve(process.cwd(), tsFilePath);
       if (!fs.existsSync(fullPath)) {
         throw new Error(`file ${fullPath} not exist`);
@@ -124,10 +124,17 @@ program
       if (isObject(Module)) {
         // 通过module.exports.chain = function() {}导出模块
         const functionList = Object.keys(Module).filter(name => isFunction(Module[name]));
-        // const [funcName_, ...params] = functionAndParams;
-        funcName = await getFunctionName(functionList, funcName);
-        const func = Module[funcName];
-        result = await runFunction(func, funcParams);
+        if (all) {
+          for (const it of functionList) {
+            logColorful({color: 'yellow'}, `Running function: ${it}`);
+            const func = Module[it];
+            result = await runFunction(func, funcParams);
+          }
+        } else {
+          funcName = await getFunctionName(functionList, funcName);
+          const func = Module[funcName];
+          result = await runFunction(func, funcParams);
+        }
       } else if (isFunction(Module)) {
         // TODO: logic rarely arrive here
         result = await handleClass(Module, [funcName, ...funcParams]);

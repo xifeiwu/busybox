@@ -4,13 +4,16 @@ import path from 'path';
 import {Command} from 'commander';
 import {findClosestFile, spawnTsFile, SpawnTsFileOptions} from '../modules/lib/node';
 
+/**
+ * NOTICE: the params used by Command should be the same as params used in ../src/commander/runTsExport.ts
+ */
 const program = new Command();
 program.name('runTsExport').description('utility for process handling');
 program
   .argument('<tsFilePath>', 'path to ts file to run')
   .argument('[funcName]', 'name of function')
   .argument('[funcParams...]', 'params passed to the function')
-  .option('-p, --print', 'print process info or not')
+  .option('-a, --all', 'run all exported function')
   .option('-s, --seleect', 'select the process to kill when more than on process exist')
   .action(async (tsFilePath, funcName, funcParams, options) => {
     /**
