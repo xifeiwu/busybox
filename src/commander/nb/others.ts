@@ -1,30 +1,25 @@
 import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
-import {hashStream, logColorful, isPlainObject} from '@src/service/external';
+import {hashData, logColorful, isPlainObject} from '@src/service/external';
 
 export function appendOtherCommand(program: Command) {
-  program.command('md5 <relativePath>').action(async relativePath => {
-    // let data = relativePath;
-    const filePath = path.resolve(process.cwd(), relativePath);
-    const md5 = await hashStream(fs.createReadStream(filePath), {
-      algorithm: 'md5',
-      encode: 'hex',
-    });
-    console.log(md5);
-  });
-
   program
-    .command('sha1 <fileOrContent>')
-    .option('-e, --encode <ENCODE>', `encode['base64' | 'base64url' | 'hex' | 'binary']`, 'hex')
+    .command('hash <fileOrContent>')
+    .option('-a, --algorithm <algorithm>', `algorithm['md5' | 'sha1' | 'sha256']`, 'sha1')
+    .option('-e, --encode <encode>', `encode['base64' | 'base64url' | 'hex' | 'binary']`, 'hex')
     .action(async (fileOrContent, options) => {
-      const {encode} = options;
-      if (!['base64', 'base64url', 'hex', 'binary'].includes(encode)) {
-        throw new Error(`encode should in ['base64', 'base64url', 'hex', 'binary']`);
-      }
+      const {algorithm, encode} = options;
+      // if (!['base64', 'base64url', 'hex', 'binary'].includes(algorithm)) {
+      //   throw new Error(`encode should in ['base64', 'base64url', 'hex', 'binary']`);
+      // }
+      // if (!['base64', 'base64url', 'hex', 'binary'].includes(encode)) {
+      //   throw new Error(`encode should in ['base64', 'base64url', 'hex', 'binary']`);
+      // }
       const filePath = path.resolve(process.cwd(), fileOrContent);
-      const sha1 = await hashStream(fs.createReadStream(filePath), {algorithm: 'sha1', encode});
-      console.log(sha1);
+      const digest = await hashData(fs.createReadStream(filePath), {algorithm, encode});
+      console.log(`${algorithm} ${encode} digest:`);
+      console.log(digest);
     });
 
   program.command('base64 <fileOrContent>').action(async fileOrContent => {
