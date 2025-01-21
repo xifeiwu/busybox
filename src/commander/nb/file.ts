@@ -1,14 +1,41 @@
 import {Command} from 'commander';
 import path from 'path';
-import {flatChildren, getFileInfoTree, getLineCountMap, logColorful} from '@modules/lib/node';
-import {intWord} from '@modules/lib/fe';
+import {
+  intWord,
+  getFileInfoTree,
+  logColorful,
+  flatChildren,
+  getLineCountMap,
+  FileFilter,
+} from '@src/service/external';
 
 export function appendFileCommand(program: Command) {
   program
     .command('line-count <filePath>')
+    .option('-e, --exclude <exclude...>', 'exclude by relativePath')
     .description('show line count of a file or a directory')
-    .action(async filePath => {
-      const lineCountMap = getLineCountMap(filePath);
+    .action(async (filePath, options) => {
+      function getFilter() {
+        const filterOutList: string[] = [];
+        const {exclude} = options;
+        let filter: FileFilter = () => true;
+        if (Array.isArray(exclude) && exclude.length > 0) {
+          const regList = exclude.map(it => new RegExp(it));
+          filter = ({relativePath}) => {
+            const noMatch = !regList.some(it => it.test(relativePath));
+            if (!noMatch) {
+              filterOutList.push(relativePath);
+            }
+            return noMatch;
+          };
+        }
+        return {fileFilter: filter, dirFilter: filter, filterOutList};
+      }
+      const {fileFilter, dirFilter, filterOutList} = getFilter();
+      const lineCountMap = getLineCountMap(filePath, {
+        fileFilter,
+        dirFilter,
+      });
       const lineCountList = flatChildren(lineCountMap, {
         includeDir: true,
         sortChildren: (prev, next) => {
@@ -21,6 +48,12 @@ export function appendFileCommand(program: Command) {
         })
         .join('\n');
       logColorful({color: 'black'}, finalStr);
+      if (filterOutList.length > 0) {
+        logColorful({color: 'red'}, `filter out file list:`);
+        for (const relativePath of filterOutList) {
+          logColorful({color: 'black'}, relativePath);
+        }
+      }
     });
 
   program
