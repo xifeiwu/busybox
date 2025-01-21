@@ -9,6 +9,7 @@ export {
   isNumber,
   prettyCurlCommand,
   isPlainObject,
+  intWord,
 } from '../../modules/lib/fe';
 export {
   checkPort as isPortOpen,
@@ -31,6 +32,10 @@ export {
   SOCKS_AUTH_USER_PASS,
   hashStream,
   hashData,
+  getFileInfoTree,
+  flatChildren,
+  getLineCountMap,
+  FileFilter,
 } from '../../modules/lib/node';
 export {
   KoaConfig,
