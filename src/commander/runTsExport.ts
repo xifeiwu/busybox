@@ -4,6 +4,8 @@ import readline from 'readline';
 import {Command} from 'commander';
 import {logColorful} from '../service/external';
 
+const RUN_ALL = '_all';
+
 function isObject(val: any) {
   return val !== null && typeof val === 'object';
 }
@@ -58,13 +60,14 @@ async function getFunctionName(funcNameList: string[], funcName?: string) {
   if (!Array.isArray(funcNameList) || funcNameList.length === 0) {
     throw new Error(`funcNameList not exist or is empty array`);
   }
+  const allFuncNames = [...funcNameList, RUN_ALL];
   let result = funcName;
-  if (!funcName || !funcNameList.includes(funcName)) {
+  if (!funcName || !allFuncNames.includes(funcName)) {
     if (funcNameList.length === 1) {
       result = funcNameList[0];
     } else {
       const {label} = await selectOption(
-        funcNameList.map(it => {
+        allFuncNames.map(it => {
           return {
             label: it,
           };
@@ -124,14 +127,14 @@ program
       if (isObject(Module)) {
         // 通过module.exports.chain = function() {}导出模块
         const functionList = Object.keys(Module).filter(name => isFunction(Module[name]));
-        if (all) {
+        funcName = await getFunctionName(functionList, funcName);
+        if (all || funcName === RUN_ALL) {
           for (const it of functionList) {
             logColorful({color: 'yellow'}, `Running function: ${it}`);
             const func = Module[it];
             result = await runFunction(func, funcParams);
           }
         } else {
-          funcName = await getFunctionName(functionList, funcName);
           const func = Module[funcName];
           result = await runFunction(func, funcParams);
         }
