@@ -14,7 +14,7 @@ program
   .argument('[funcName]', 'name of function')
   .argument('[funcParams...]', 'params passed to the function')
   .option('-a, --all', 'run all exported function')
-  .option('-s, --seleect', 'select the process to kill when more than on process exist')
+  .option('-s, --select', 'select the process to kill when more than on process exist')
   .action(async (tsFilePath, funcName, funcParams, options) => {
     /**
      * Format of argv:

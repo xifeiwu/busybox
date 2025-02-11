@@ -12,6 +12,7 @@ const bin = {
   'http-server': 'http-server.ts',
   'tcp-gateway': 'tcp-gateway.ts',
   daemon: 'daemon.ts',
+  'syncup-gitmodules': 'syncup-gitmodules.ts',
 };
 
 function linkeFileExist(filePath) {
