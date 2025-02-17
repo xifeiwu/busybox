@@ -2,15 +2,21 @@
 import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
-import {SpawnTsFileOptions, findClosestFile, spawnTsFile} from '../modules/lib/node';
+import {
+  SpawnTsFileOptions,
+  findClosestFile,
+  spawnTsFile,
+  getSpawnConfigByScriptPath,
+} from '../modules/lib/node';
 
 const program = new Command();
 program.name('runTsExport').description('utility for process handling');
 program
   .argument('<tsFilePath>', 'path to ts file to run')
   // .argument('[funcName]', 'name of function')
-  .option('-p, --print', 'print process info or not')
+  .option('-d, --dry-run', 'show the command without runn it. ')
   .action(async (tsFilePath, options) => {
+    const {dryRun} = options ?? {};
     /**
      * Format of argv:
      * [
@@ -39,6 +45,11 @@ program
     }
     if (fs.existsSync(tsConfigJson)) {
       tsNodeOptions['--project'] = tsConfigJson;
+    }
+    if (dryRun) {
+      const {command, args} = getSpawnConfigByScriptPath(tsFileToRun);
+      console.log(`${command} ${args.join(' ')}`);
+      return;
     }
     // const tsConfigPathsRegister = path.resolve(NVM_BIN, '../lib/node_modules/tsconfig-paths/register.js');
     // const tsConfigJson = findClosestFile(tsFileDir, 'tsconfig.json');
