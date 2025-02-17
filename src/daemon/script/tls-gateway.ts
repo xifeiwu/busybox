@@ -20,6 +20,7 @@ export async function start() {
         socket.pipe(client).pipe(socket);
       },
       {
+        port: 443,
         options: {
           key: fs.readFileSync(path.join(certDir, 'private.key')),
           cert: fs.readFileSync(path.join(certDir, 'certificate.crt')),

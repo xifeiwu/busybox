@@ -2,7 +2,12 @@
 import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
-import {findClosestFile, spawnTsFile, SpawnTsFileOptions} from '../modules/lib/node';
+import {
+  findClosestFile,
+  getSpawnConfigByScriptPath,
+  spawnTsFile,
+  SpawnTsFileOptions,
+} from '../modules/lib/node';
 
 /**
  * NOTICE: the params used by Command should be the same as params used in ../src/commander/runTsExport.ts
@@ -14,8 +19,9 @@ program
   .argument('[funcName]', 'name of function')
   .argument('[funcParams...]', 'params passed to the function')
   .option('-a, --all', 'run all exported function')
-  .option('-s, --select', 'select the process to kill when more than on process exist')
+  .option('-d, --dry-run', 'show the command without running it. ')
   .action(async (tsFilePath, funcName, funcParams, options) => {
+    const {dryRun} = options ?? {};
     /**
      * Format of argv:
      * [
@@ -44,6 +50,11 @@ program
     }
     if (fs.existsSync(tsConfigJson)) {
       tsNodeOptions['--project'] = tsConfigJson;
+    }
+    if (dryRun) {
+      const {command, args} = getSpawnConfigByScriptPath(tsFileToRun);
+      console.log(`${command} ${args.join(' ')}`);
+      return;
     }
     process.stdin.setRawMode(false);
     const childProcess = spawnTsFile(path.resolve(__dirname, '../src/commander/runTsExport.ts'), {

@@ -14,7 +14,7 @@ program.name('runTsExport').description('utility for process handling');
 program
   .argument('<tsFilePath>', 'path to ts file to run')
   // .argument('[funcName]', 'name of function')
-  .option('-d, --dry-run', 'show the command without runn it. ')
+  .option('-d, --dry-run', 'show the command without running it. ')
   .action(async (tsFilePath, options) => {
     const {dryRun} = options ?? {};
     /**
