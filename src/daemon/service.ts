@@ -61,6 +61,7 @@ export async function info(id?: string) {
   return result;
 }
 export async function start(id?: string) {
+  logColorful({color: 'yellow'}, `NOTICE: ${daemonId} should be started before any other child process.`);
   id = await getId(id);
   if (id === daemonId) {
     return await runDetachedDaemon();

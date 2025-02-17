@@ -5,6 +5,8 @@ import path from 'path';
 import {CP, Daemon, getCpConfigByScriptPath, getScriptFullpath, tryUseJsFile} from '@src/service/external';
 import {Env, TcpGateWayOptions} from '@src/types';
 
+const maxWaitTime4Ipc = 60;
+
 export function debugServer() {
   const id = 'debug-server';
   const config: Daemon.CpManagerConfig = {
@@ -22,7 +24,7 @@ export function debugServer() {
           stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
         },
         infoToCp: {config: {port: 3800}},
-        maxWaitTime4Ipc: 20,
+        maxWaitTime4Ipc,
         params: [id],
       }
     ),
@@ -74,7 +76,7 @@ export function tcpGateway() {
             env: process.env.NODE_ENV ? (process.env.NODE_ENV as Env) : 'local',
           },
         },
-        maxWaitTime4Ipc: 20,
+        maxWaitTime4Ipc,
         params: [id],
       }
     ),
