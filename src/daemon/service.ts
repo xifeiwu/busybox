@@ -6,18 +6,17 @@ import {
   SocketClientToDaemon,
   Daemon,
 } from '@src/service/external';
-import {debugServer, tcpGateway} from './config';
+import {debugServer, tlsGateway, tcpGateway} from './config';
 
-export const cpManagerConfigMap = [debugServer, tcpGateway].reduce<{[key: string]: Daemon.CpManagerConfig}>(
-  (sum, func) => {
-    const config = func();
-    return {
-      ...sum,
-      [config.id]: config,
-    };
-  },
-  {}
-);
+export const cpManagerConfigMap = [debugServer, tlsGateway, tcpGateway].reduce<{
+  [key: string]: Daemon.CpManagerConfig;
+}>((sum, func) => {
+  const config = func();
+  return {
+    ...sum,
+    [config.id]: config,
+  };
+}, {});
 const daemonId = 'busybox-daemon';
 const daemonSocketPath = getSocketPath(daemonId);
 const socketClient = new SocketClientToDaemon({path: daemonSocketPath});

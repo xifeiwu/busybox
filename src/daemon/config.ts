@@ -23,7 +23,30 @@ export function debugServer() {
         },
         infoToCp: {config: {port: 3800}},
         maxWaitTime4Ipc: 20,
-        params: [id]
+        params: [id],
+      }
+    ),
+  };
+  return config;
+}
+
+export function tlsGateway() {
+  const id = 'tls-gateway';
+  const config: Daemon.CpManagerConfig = {
+    id,
+    managerConfig: {
+      retry: {
+        maxCount: 3,
+        minInterval: 5000,
+      },
+    },
+    spawnConfig: getCpConfigByScriptPath<TcpGateWayOptions>(
+      tryUseJsFile(path.resolve(__dirname, 'script/tls-gateway.ts')),
+      {
+        spawnOptions: {
+          stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
+        },
+        params: [id],
       }
     ),
   };
@@ -52,7 +75,7 @@ export function tcpGateway() {
           },
         },
         maxWaitTime4Ipc: 20,
-        params: [id]
+        params: [id],
       }
     ),
   };
