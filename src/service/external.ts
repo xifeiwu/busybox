@@ -15,7 +15,6 @@ export {
   checkPort as isPortOpen,
   logColorful,
   uploadDirOnHome,
-  startSocketClient,
   TcpServerConfig,
   SocksServerConfigPerVersion,
   Daemon,
@@ -36,6 +35,9 @@ export {
   flatChildren,
   getLineCountMap,
   FileFilter,
+  HttpRequestInfo,
+  startSocketClient,
+  startSocketServer,
 } from '../../modules/lib/node';
 export {
   KoaConfig,

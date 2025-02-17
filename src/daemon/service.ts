@@ -49,7 +49,11 @@ export async function runDetachedDaemon() {
 }
 
 export async function ping() {
-  return await socketClient.ping();
+  try {
+    return await socketClient.ping();
+  } catch (err) {
+    logColorful({color: 'red'}, 'ping fail with Error message:', err.message);
+  }
 }
 export async function info(id?: string) {
   id = await getId(id);

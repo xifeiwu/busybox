@@ -7,14 +7,14 @@ program.name('daemon').description('daemon child process');
 
 program
   .command('ping')
-  .description('')
+  .description('check if daemon is runing in background')
   .action(async () => {
     const result = await ping();
     logColorful({}, result);
   });
 program
   .command('info [id]')
-  .description('')
+  .description('get info of all child process managed by daemon, or the distinct cp by if id provided')
   .action(async id => {
     const result = await info(id);
     logColorful({}, result);
