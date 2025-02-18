@@ -38,6 +38,7 @@ export {
   HttpRequestInfo,
   startSocketClient,
   startSocketServer,
+  getDefaultTlsConfig,
 } from '../../modules/lib/node';
 export {
   KoaConfig,

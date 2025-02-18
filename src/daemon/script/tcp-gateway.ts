@@ -2,6 +2,7 @@ import {InfoToCp} from '@src/service/external';
 import {serializeTcpGatewayInfo, startTcpGatewayByOptions} from '@src/tcp-gateway';
 import {TcpGateWayOptions} from '@src/types';
 import {out, responseError} from './service';
+import {startTlsGateway} from './tls-gateway';
 
 export async function start() {
   let ipcMessage: InfoToCp<TcpGateWayOptions> = {};
@@ -26,3 +27,7 @@ export async function start() {
   }
 }
 start();
+/**
+ * In order to save resource cost on elif.site, startTlsGateway in the same process.
+ */
+startTlsGateway();

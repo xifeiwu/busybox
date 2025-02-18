@@ -1,6 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import {HttpRequestInfo, startSocketClient, startSocketServer} from '@src/service/external';
+import {
+  HttpRequestInfo,
+  startSocketClient,
+  startSocketServer,
+  getDefaultTlsConfig,
+} from '@src/service/external';
 import {out, responseError} from './service';
 
 function route(requestInfo?: HttpRequestInfo) {
@@ -10,7 +15,7 @@ function route(requestInfo?: HttpRequestInfo) {
   };
 }
 
-export async function start() {
+export async function startTlsGateway() {
   try {
     const certDir = path.resolve(process.env.HOME, '.ssh/elif.site');
     const {server, host, port} = await startSocketServer(
@@ -21,11 +26,7 @@ export async function start() {
       },
       {
         port: 443,
-        options: {
-          key: fs.readFileSync(path.join(certDir, 'private.key')),
-          cert: fs.readFileSync(path.join(certDir, 'certificate.crt')),
-          ca: [fs.readFileSync(path.join(certDir, 'ca_bundle.crt'))],
-        },
+        options: getDefaultTlsConfig(),
       }
     );
     out({host, port});
@@ -33,4 +34,4 @@ export async function start() {
     out(responseError(err));
   }
 }
-start();
+startTlsGateway();
