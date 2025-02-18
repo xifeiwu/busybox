@@ -23,9 +23,9 @@ export async function startTlsGateway(config: TcpGateWayOptions) {
       const client = await startSocketClient({host, port});
       socket.pipe(client).pipe(socket);
     }, getDefaultHttpsConfig(config));
-    out({host, port});
+    return {host, port};
   } catch (err) {
-    out(responseError(err));
+    return err.message;
   }
 }
 
@@ -46,8 +46,8 @@ export async function start() {
   try {
     const info = await startTcpGatewayByOptions(config);
     const response = serializeTcpGatewayInfo(info);
-    await startTlsGateway(config);
-    out(response);
+    const tlsInfo = await startTlsGateway(config);
+    out({...response, tlsInfo});
   } catch (err) {
     out(responseError(err));
   }
