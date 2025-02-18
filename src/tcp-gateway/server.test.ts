@@ -7,12 +7,12 @@ export async function testStartTcpGatewayByOptions() {
   const env: Env = (process.env.NODE_ENV ?? 'local') as Env;
   const uploadDir = path.resolve(__dirname, 'uploads');
   const staticDir = undefined;
-  const tcpPort = 3161;
+  // const tcpPort = 3161;
   const info = await startTcpGatewayByOptions({
     env,
     staticDir: staticDir ? path.resolve(process.cwd(), staticDir) : undefined,
     uploadDir,
-    port: tcpPort,
+    // port: tcpPort,
   });
   logColorful({}, serializeTcpGatewayInfo(info));
 }
