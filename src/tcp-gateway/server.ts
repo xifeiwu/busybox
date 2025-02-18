@@ -19,7 +19,7 @@ process.on('uncaughtException', function (err) {
   console.log(err.stack);
 });
 export async function startTcpGatewayByOptions(options?: TcpGateWayOptions) {
-  const {env = 'local', uploadDir, port: tcpPort, staticDir} = options ?? {};
+  const {env = process.env.NODE_ENV ?? Env.local, uploadDir, port: tcpPort, staticDir} = options ?? {};
   const tcpGatewayConfig = tcpGatewayConfigByEnv[env as Env];
   if (!tcpGatewayConfig) {
     throw new Error(`Not found config for env: ${env}`);
