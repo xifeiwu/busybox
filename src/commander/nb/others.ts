@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
-import {hashData, logColorful, isPlainObject} from '@src/service/external';
+import {hashData, logColorful, isObject} from '@src/service/external';
 
 export function appendOtherCommand(program: Command) {
   program
@@ -55,7 +55,7 @@ export function appendOtherCommand(program: Command) {
             /** Ignore */
           }
         }
-        parts.push(`'${isPlainObject(value) ? JSON.stringify(value, null, 2) : value}'`);
+        parts.push(`'${isObject(value) ? JSON.stringify(value, null, 2) : value}'`);
         return parts.join(' ');
       };
       const lines: string[] = [`curl ${url}`];

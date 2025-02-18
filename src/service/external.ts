@@ -10,6 +10,7 @@ export {
   prettyCurlCommand,
   isPlainObject,
   intWord,
+  isObject,
 } from '../../modules/lib/fe';
 export {
   checkPort as isPortOpen,
