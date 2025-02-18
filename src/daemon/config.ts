@@ -2,8 +2,15 @@
  * Add child process id to make it easy to find the process even daemon process is die
  */
 import path from 'path';
-import {CP, Daemon, getCpConfigByScriptPath, getScriptFullpath, tryUseJsFile} from '@src/service/external';
-import {Env, TcpGateWayOptions} from '@src/types';
+import {
+  CP,
+  Daemon,
+  getCpConfigByScriptPath,
+  getScriptFullpath,
+  tryUseJsFile,
+  Env,
+} from '@src/service/external';
+import {TcpGateWayOptions} from '@src/types';
 
 const maxWaitTime4Ipc = 60;
 
@@ -73,7 +80,7 @@ export function tcpGateway() {
         },
         infoToCp: {
           config: {
-            env: process.env.NODE_ENV ? (process.env.NODE_ENV as Env) : 'local',
+            env: process.env.NODE_ENV ? (process.env.NODE_ENV as Env) : Env.local,
           },
         },
         maxWaitTime4Ipc,

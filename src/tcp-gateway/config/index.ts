@@ -1,11 +1,10 @@
-import {TcpGateWayConfig} from '@src/service/external';
-import {Env} from '@src/types';
+import {Env, TcpGateWayConfig} from '@src/service/external';
 import {elifTcpGateWayConfig} from './elif';
 import {localTcpGateWayConfig} from './local';
 
 export const tcpGatewayConfigByEnv: {
   [env in Env]: TcpGateWayConfig;
 } = {
-  local: localTcpGateWayConfig,
-  elif: elifTcpGateWayConfig,
+  [Env.local]: localTcpGateWayConfig,
+  [Env.elif]: elifTcpGateWayConfig,
 };

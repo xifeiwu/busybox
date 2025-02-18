@@ -2,9 +2,8 @@
  * A basic server contains frequently used function
  */
 import {Command} from 'commander';
-import {startKoaServer, logColorful} from '@src/service/external';
+import {startKoaServer, logColorful, Env} from '@src/service/external';
 import {tcpGatewayConfigByEnv} from '@src/tcp-gateway';
-import {Env} from '@src/types';
 
 const program = new Command();
 program

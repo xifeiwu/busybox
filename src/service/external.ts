@@ -11,6 +11,7 @@ export {
   isPlainObject,
   intWord,
   isObject,
+  Env,
 } from '../../modules/lib/fe';
 export {
   checkPort as isPortOpen,
@@ -40,6 +41,7 @@ export {
   startSocketClient,
   startSocketServer,
   getDefaultTlsConfig,
+  getDefaultHttpsConfig,
 } from '../../modules/lib/node';
 export {
   KoaConfig,

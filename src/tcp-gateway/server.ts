@@ -1,8 +1,13 @@
 /**
  * A basic server contains frequently used function
  */
-import {startCustomizedTcpGateway, KoaShortCutConfig, isNumber, serializeTcpGatewayConfig} from '@src/service/external';
-import {Env, TcpGateWayOptions} from '@src/types';
+import {
+  startCustomizedTcpGateway,
+  KoaShortCutConfig,
+  Env,
+  serializeTcpGatewayConfig,
+} from '@src/service/external';
+import {TcpGateWayOptions} from '@src/types';
 import {tcpGatewayConfigByEnv} from './config';
 
 /**

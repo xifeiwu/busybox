@@ -1,6 +1,7 @@
 import {HttpRequestInfo, startSocketClient, startSocketServer} from '@src/service/external';
 import {out, responseError} from './service';
 import {getDefaultHttpsConfig} from '@modules/lib/node';
+import {TcpGateWayOptions} from '@src/types';
 
 function route(requestInfo?: HttpRequestInfo) {
   return {
@@ -9,16 +10,19 @@ function route(requestInfo?: HttpRequestInfo) {
   };
 }
 
-export async function startTlsGateway() {
+/**
+ * NOTICE: not stable
+ * @param config
+ */
+export async function startTlsGateway(config: TcpGateWayOptions) {
   try {
     const {server, host, port} = await startSocketServer(async socket => {
       const {host, port} = route();
       const client = await startSocketClient({host, port});
       socket.pipe(client).pipe(socket);
-    }, getDefaultHttpsConfig());
+    }, getDefaultHttpsConfig(config));
     out({host, port});
   } catch (err) {
     out(responseError(err));
   }
 }
-startTlsGateway();
