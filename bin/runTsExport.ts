@@ -51,13 +51,14 @@ program
     if (fs.existsSync(tsConfigJson)) {
       tsNodeOptions['--project'] = tsConfigJson;
     }
+    const mainScript = path.resolve(__dirname, '../src/commander/runTsExport.ts');
     if (dryRun) {
-      const {command, args} = getSpawnConfigByScriptPath(tsFileToRun);
+      const {command, args} = getSpawnConfigByScriptPath(mainScript, {params: [tsFileToRun]});
       console.log(`${command} ${args.join(' ')}`);
       return;
     }
     process.stdin.setRawMode(false);
-    const childProcess = spawnTsFile(path.resolve(__dirname, '../src/commander/runTsExport.ts'), {
+    const childProcess = spawnTsFile(mainScript, {
       tsNodeOptions,
       printCommand: true,
       params,
