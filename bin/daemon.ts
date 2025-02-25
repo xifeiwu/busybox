@@ -1,18 +1,46 @@
-#!/usr/bin/env ts-node
-import path from 'path';
-import {spawnTsFile} from '../modules/lib/node';
+#!/usr/bin/env ts-node -r /Users/wuxifei/code/node/tool/busybox/node_modules/tsconfig-paths/register.js --project /Users/wuxifei/code/node/tool/busybox/tsconfig.json --swc
+import {Command} from 'commander';
+import {ping, info, start, restart, stop} from '../src/daemon';
+import {logColorful} from '../src/service/external';
 
-async function start() {
-  const argv = process.argv;
-  process.stdin.setRawMode(false);
-  const childProcess = spawnTsFile(path.resolve(__dirname, '../src/commander/daemon.ts'), {
-    printCommand: true,
-    params: argv.length > 2 ? argv.slice(2) : [],
-    spawnOptions: {stdio: [0, 1, 2]},
-  });
-  childProcess.on('exit', () => {
-    process.stdin.setRawMode(true);
-  });
-}
+const program = new Command();
+program.name('daemon').description('daemon child process');
 
-start();
+program
+  .command('ping')
+  .description('check if daemon is runing in background')
+  .action(async () => {
+    const result = await ping();
+    logColorful({}, result);
+  });
+program
+  .command('info [id]')
+  .description('get info of all child process managed by daemon, or the distinct cp by if id provided')
+  .action(async id => {
+    const result = await info(id);
+    logColorful({}, result);
+  });
+program
+  .command('start [id]')
+  .description('start daemon or child process managed by daemon')
+  .action(async id => {
+    const result = await start(id);
+    logColorful({}, result);
+  });
+program
+  .command('restart [id]')
+  .description('restart child process managed by daemon')
+  .action(async id => {
+    const result = await restart(id);
+    logColorful({}, result);
+  });
+
+program
+  .command('stop [id]')
+  .description('stop daemon or child process managed by daemon')
+  .action(async id => {
+    const result = await stop(id);
+    logColorful({}, result);
+  });
+
+program.parse(process.argv);
