@@ -44,7 +44,6 @@ program
     const tsConfigJson = findClosestFile(tsFileDir, 'tsconfig.json');
     const tsNodeOptions: SpawnTsFileOptions['tsNodeOptions'] = {
       '--transpileOnly': true,
-      // @ts-ignore
       '--swc': true,
     };
     if (fs.existsSync(tsConfigPathsRegister)) {

@@ -17,9 +17,10 @@ const commandToLink = {
   daemon: 'daemon.ts',
   'syncup-gitmodules': 'syncup-gitmodules.ts',
 };
+type CommandName = keyof typeof commandToLink;
 
-function generateDaemonCommand(binDir: string) {
-  const daemonScriptPath = path.resolve(BASE_DIR, commandToLink['daemon']);
+function appendShebangLine(command: CommandName) {
+  const daemonScriptPath = path.resolve(BASE_DIR, commandToLink[command]);
   const tsParams = getTsParams(daemonScriptPath, {
     tsNodeOptions: {
       '--swc': true,
@@ -35,6 +36,12 @@ function generateDaemonCommand(binDir: string) {
   }
   fs.writeFileSync(daemonScriptPath, lines.join('\n'));
   fs.chmodSync(daemonScriptPath, '755');
+}
+
+function preHandleComand(command: CommandName) {
+  for (const command of ['daemon', 'nb'] as CommandName[]) {
+    appendShebangLine(command);
+  }
 }
 
 function isLinkFileExist(filePath) {
@@ -92,7 +99,7 @@ program.argument('[targetDir] dir to locate the bin').action(async binDir => {
   if (!fs.existsSync(binDir)) {
     fs.mkdirSync(binDir, {recursive: true});
   }
-  generateDaemonCommand(binDir);
+  preHandleComand(binDir);
   linkFile(binDir);
 });
 

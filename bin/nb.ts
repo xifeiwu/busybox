@@ -1,18 +1,28 @@
-#!/usr/bin/env ts-node
-import path from 'path';
-import {spawnTsFile} from '../modules/lib/node';
+#!/usr/bin/env ts-node -r /Users/wuxifei/code/node/tool/busybox/node_modules/tsconfig-paths/register.js --project /Users/wuxifei/code/node/tool/busybox/tsconfig.json --swc
+import {Command} from 'commander';
+import {
+  appendFileCommand,
+  appendNetCommand,
+  appendProcessCommand,
+  appendOtherCommand,
+} from '../src/commander/nb';
 
-async function start() {
-  const argv = process.argv;
-  process.stdin.setRawMode(false);
-  const childProcess = spawnTsFile(path.resolve(__dirname, '../src/commander/nb/index.ts'), {
-    printCommand: true,
-    params: argv.length > 2 ? argv.slice(2) : [],
-    spawnOptions: {stdio: [0, 1, 2]},
-  });
-  childProcess.on('exit', () => {
-    process.stdin.setRawMode(true);
-  });
+const program = new Command();
+program
+  .name('nb')
+  .description('busybox on node')
+  .command('process', 'handle process', {executableFile: 'process.ts'});
+
+appendFileCommand(program);
+appendNetCommand(program);
+appendProcessCommand(program);
+appendOtherCommand(program);
+
+const command = process.argv[2];
+if (command === 'pretty-curl') {
+  /** if command is pertty-curl, shift the command and pass the rest args to commander for parse and pretty curl command */
+  const rest = process.argv.slice(3);
+  program.parse([...process.argv.slice(0, 2), ...rest]);
+} else {
+  program.parse(process.argv);
 }
-
-start();
