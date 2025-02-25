@@ -78,18 +78,18 @@ async function getFunctionName(funcNameList: string[], funcName?: string) {
         }
       );
       result = label;
+      if (
+        !(await goOnOrNot({
+          style: {
+            color: 'red',
+          },
+          tips: [`run ${result}?`],
+          defaultValue: true,
+        }))
+      ) {
+        throw new Error(`Manually Interrupt`);
+      }
     }
-  }
-  if (
-    !(await goOnOrNot({
-      style: {
-        color: 'red',
-      },
-      tips: [`run ${result}?`],
-      defaultValue: true,
-    }))
-  ) {
-    throw new Error(`Manually Interrupt`);
   }
   return result;
 }
