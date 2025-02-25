@@ -1,4 +1,4 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env ts-node --swc
 import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
@@ -44,6 +44,8 @@ program
     const tsConfigJson = findClosestFile(tsFileDir, 'tsconfig.json');
     const tsNodeOptions: SpawnTsFileOptions['tsNodeOptions'] = {
       '--transpileOnly': true,
+      // @ts-ignore
+      '--swc': true,
     };
     if (fs.existsSync(tsConfigPathsRegister)) {
       tsNodeOptions['-r'] = tsConfigPathsRegister;

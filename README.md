@@ -1,6 +1,6 @@
 ## Intro
 
-This is a busybox for frequently used stable tools that can run globally.
+This is a busybox for frequently used stable tools that can be run as a global bin command.
 
 ## Dir bin and src/commander
 
@@ -42,5 +42,10 @@ forever start /share/nvm/versions/node/v18.18.0/bin/ts-node -r /share/code/node/
 
 **Dir bin, src/commander**
 
-
 For command `runTsExport`, two node process will be created for one bin command, it will cost may resource. You can run `runTsExport -d` first and run the command output again as second step.
+
+## Notice
+
+**About --swc of runTsExport**
+
+--swc can speed up logic of runTsExport from 5s to 2s, but should install depended packages: `npm install -g @swc/core @swc/helpers`

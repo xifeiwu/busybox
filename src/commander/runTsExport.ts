@@ -3,6 +3,7 @@ import path from 'path';
 import readline from 'readline';
 import {Command} from 'commander';
 import {logColorful} from '../service/external';
+import {goOnOrNot} from '../../modules/lib/node';
 
 const RUN_ALL = '_all';
 
@@ -78,6 +79,17 @@ async function getFunctionName(funcNameList: string[], funcName?: string) {
       );
       result = label;
     }
+  }
+  if (
+    !(await goOnOrNot({
+      style: {
+        color: 'red',
+      },
+      tips: [`run ${result}?`],
+      defaultValue: true,
+    }))
+  ) {
+    throw new Error(`Manually Interrupt`);
   }
   return result;
 }
