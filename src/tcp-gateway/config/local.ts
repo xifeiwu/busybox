@@ -12,6 +12,7 @@ TCP_GATEWAY_CONFIG.mwConfig.socksConfig[5].proxyConfigList = [
     matches: [
       /google/,
       /medium.com/,
+      /nodejs.org/,
       /npmjs.com/,
       /reddit.com/,
       /quora.com/,

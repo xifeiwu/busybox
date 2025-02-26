@@ -11,6 +11,7 @@ export {
   isPlainObject,
   intWord,
   isObject,
+  toNormalizedUrlProps,
   Env,
 } from '../../modules/lib/fe';
 export {
@@ -55,4 +56,6 @@ export {
   defaultMwConfig,
   TCP_GATEWAY_CONFIG,
   serializeTcpGatewayConfig,
+  calNetSpeed,
+  echoDataOverTcp,
 } from '../../modules/lib/net';

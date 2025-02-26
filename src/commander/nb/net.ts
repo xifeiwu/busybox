@@ -1,5 +1,12 @@
 import {Command} from 'commander';
-import {isPortOpen, getLocalIpAddress, logColorful, toUrlProps} from '@src/service/external';
+import {
+  isPortOpen,
+  getLocalIpAddress,
+  logColorful,
+  toNormalizedUrlProps,
+  calNetSpeed,
+  echoDataOverTcp,
+} from '@src/service/external';
 
 export function appendNetCommand(program: Command) {
   program.command('port-check <host> [port]').action(async (host, port, args, command) => {
@@ -16,7 +23,15 @@ export function appendNetCommand(program: Command) {
     logColorful({}, localIp);
   });
   program.command('parse-href <href>').action(async href => {
-    const urlProps = toUrlProps(href);
+    const urlProps = toNormalizedUrlProps(href);
     logColorful({}, urlProps);
   });
+  program.command('net-quality <origin>').action(async origin => {
+    calNetSpeed({origin, type: 'upload'}, ({speed}) => {
+      logColorful({color: 'red'}, speed);
+    });
+  });
+  // program.command('echo <origin> <data>').action(async (origin, data) => {
+  //   echoDataOverTcp({origin}, data);
+  // });
 }
