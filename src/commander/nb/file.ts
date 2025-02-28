@@ -1,7 +1,7 @@
 import {Command} from 'commander';
 import path from 'path';
 import {
-  intWord,
+  intToWord,
   getFileInfoTree,
   logColorful,
   flatChildren,
@@ -69,7 +69,7 @@ export function appendFileCommand(program: Command) {
       });
       const finalStr = fileSizeList
         .map(({relativePath, stat, children}) => {
-          return `${relativePath}${Array.isArray(children) ? '/' : ''}: ${intWord(stat.size)}`;
+          return `${relativePath}${Array.isArray(children) ? '/' : ''}: ${intToWord(stat.size)}`;
         })
         .join('\n');
       logColorful({color: 'black'}, finalStr);

@@ -9,7 +9,7 @@ export {
   isNumber,
   prettyCurlCommand,
   isPlainObject,
-  intWord,
+  intToWord,
   isObject,
   toNormalizedUrlProps,
   Env,
