@@ -56,6 +56,7 @@ export {
   defaultMwConfig,
   TCP_GATEWAY_CONFIG,
   serializeTcpGatewayConfig,
-  calNetSpeed,
   echoDataOverTcp,
+  getDownloadSpeed,
+  getUploadSpeed,
 } from '../../modules/lib/net';

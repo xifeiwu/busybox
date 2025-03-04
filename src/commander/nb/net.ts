@@ -4,8 +4,8 @@ import {
   getLocalIpAddress,
   logColorful,
   toNormalizedUrlProps,
-  calNetSpeed,
   echoDataOverTcp,
+  getDownloadSpeed,
 } from '@src/service/external';
 
 export function appendNetCommand(program: Command) {
@@ -26,12 +26,12 @@ export function appendNetCommand(program: Command) {
     const urlProps = toNormalizedUrlProps(href);
     logColorful({}, urlProps);
   });
-  program.command('net-quality <origin>').action(async origin => {
-    calNetSpeed({origin, type: 'upload'}, ({speed}) => {
-      logColorful({color: 'red'}, speed);
+  program.command('net-speed <origin>').action(async origin => {
+    const speedInfo = await getDownloadSpeed(origin, {
+      intervalCb(info) {
+        logColorful({color: 'green'}, info);
+      },
     });
+    logColorful({color: 'red'}, speedInfo);
   });
-  // program.command('echo <origin> <data>').action(async (origin, data) => {
-  //   echoDataOverTcp({origin}, data);
-  // });
 }
