@@ -33,7 +33,7 @@ export function selectOption<T extends {label: string}>(
   const {tip = 'please select', defaultIndex = 0} = option ? option : {};
   const optionStr = options
     .map((it, index) => {
-      return `${index}. ${String(it.label ? it.label : it)}`;
+      return `${index}. ${String(it.label ? it.label : '-')}`;
     })
     .concat(`${tip}(default index is ${defaultIndex}): `)
     .join('\n');
@@ -43,7 +43,16 @@ export function selectOption<T extends {label: string}>(
   });
   return new Promise((res, rej) => {
     interact.question(optionStr, answer => {
+      /** 1. Treat it as index of list */
       let index = parseInt(answer);
+      /** 2. Treat it as label of option */
+      if (Number.isNaN(index)) {
+        const i = options.findIndex(it => it.label === answer);
+        if (i !== -1) {
+          index = i;
+        }
+      }
+      /** 3. user 0 as default value */
       if (Number.isNaN(index)) {
         index = defaultIndex;
       }

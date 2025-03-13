@@ -1,4 +1,4 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env ts-node --swc
 import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
@@ -43,7 +43,7 @@ program
     const tsConfigPathsRegister = path.resolve(NVM_BIN, '../lib/node_modules/tsconfig-paths/register.js');
     const tsConfigJson = findClosestFile(tsFileDir, 'tsconfig.json');
     const tsNodeOptions: SpawnTsFileOptions['tsNodeOptions'] = {
-      '--transpileOnly': true,
+      // '--transpileOnly': true,
       '--swc': true,
     };
     if (fs.existsSync(tsConfigPathsRegister)) {
