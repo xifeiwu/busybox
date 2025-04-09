@@ -1,3 +1,4 @@
+import {makeSureDirExist} from '@modules/lib/node';
 import {exec} from 'child_process';
 import fs from 'fs';
 import path from 'path';
@@ -33,7 +34,9 @@ function getFullConfigPath(name: string) {
   return path.resolve(configDir, name);
 }
 type Site = 'redisMaster' | 'redisReplica' | 'sentinel26379' | 'sentinel26380' | 'sentinel26381';
-export function generateConfig() {
+export function prepareConfig() {
+  makeSureDirExist(configDir, {isDir: true});
+  makeSureDirExist(dataDir, {isDir: true});
   const pathToConfigFile: {
     [key in Site]: {
       name: string;
@@ -67,7 +70,7 @@ export function generateConfig() {
   return result;
 }
 export async function start() {
-  const configFile = generateConfig();
+  const configFile = prepareConfig();
   const masterServer = exec([redisServerBin, configFile['redisMaster']].join(' '));
   const replicaServer = exec([redisServerBin, configFile['redisReplica']].join(' '));
   const sentinel26379 = exec([redisSentinelBin, configFile['sentinel26379']].join(' '));
