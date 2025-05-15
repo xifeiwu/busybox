@@ -6,7 +6,7 @@ import {
   toNormalizedUrlProps,
   echoDataOverTcp,
   getDownloadSpeed,
-} from '@src/service/external';
+} from '../../service/external';
 
 export function appendNetCommand(program: Command) {
   program.command('port-check <host> [port]').action(async (host, port, args, command) => {
