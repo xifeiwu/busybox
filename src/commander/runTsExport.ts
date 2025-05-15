@@ -68,7 +68,8 @@ export function selectOption<T extends {label: string}>(
 
 async function getFunctionName(funcNameList: string[], funcName?: string) {
   if (!Array.isArray(funcNameList) || funcNameList.length === 0) {
-    throw new Error(`funcNameList not exist or is empty array`);
+    logColorful({color: 'yellow'}, `Not found exported function`);
+    return;
   }
   const allFuncNames = [...funcNameList, RUN_ALL];
   let result = funcName;

@@ -43,6 +43,13 @@ export {
   startSocketServer,
   getDefaultTlsConfig,
   getDefaultHttpsConfig,
+  getProcessInfo,
+  getProcessInfoByPort,
+  ProcessFilter,
+  getFilterFunc,
+  ProcessInfoFilterFunc,
+  killProcessByPid,
+  ProcessInfo,
 } from '../../modules/lib/node';
 export {
   KoaConfig,

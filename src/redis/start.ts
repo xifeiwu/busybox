@@ -34,7 +34,7 @@ function getFullConfigPath(name: string) {
   return path.resolve(configDir, name);
 }
 type Site = 'redisMaster' | 'redisReplica' | 'sentinel26379' | 'sentinel26380' | 'sentinel26381';
-export function prepareConfig() {
+function prepareConfig() {
   makeSureDirExist(configDir, {isDir: true});
   makeSureDirExist(dataDir, {isDir: true});
   const pathToConfigFile: {
