@@ -29,7 +29,7 @@ function appendShebangLine(command: CommandName) {
   const firstLine = ['#!/usr/bin/env ts-node', ...tsParams].join(' ');
   const scriptContent = fs.readFileSync(daemonScriptPath);
   const lines = scriptContent.toString().split('\n');
-  if (lines[0].startsWith('#!/usr/bin/env')) {
+  if (lines[0].startsWith('#!')) {
     lines[0] = firstLine;
   } else {
     lines.unshift(firstLine);
@@ -38,12 +38,39 @@ function appendShebangLine(command: CommandName) {
   fs.chmodSync(daemonScriptPath, '755');
 }
 
-function preHandleComand(command: CommandName) {
+function preHandleComand() {
   for (const command of ['daemon', 'nb'] as CommandName[]) {
     appendShebangLine(command);
   }
 }
 
+function preHandleCommand2() {
+  const daemonScriptPath = path.resolve(BASE_DIR, commandToLink['nb']);
+  const tsParams = getTsParams(daemonScriptPath, {
+    tsNodeOptions: {
+      '--swc': true,
+    },
+  });
+  const bashCmd = ['ts-node', ...tsParams, `"$@"`].join(' ');
+  const wrapperContent = ['#!/bin/sh', 'echo ' + bashCmd, bashCmd];
+  const wrapperFilePath = path.join(BASE_DIR, 'ts-wrapper.sh');
+  fs.writeFileSync(wrapperFilePath, wrapperContent.join('\n'));
+  fs.chmodSync(wrapperFilePath, '755');
+
+  for (const command of ['daemon', 'nb'] as CommandName[]) {
+    const daemonScriptPath = path.resolve(BASE_DIR, commandToLink[command]);
+    const firstLine = `#!${wrapperFilePath}`;
+    const scriptContent = fs.readFileSync(daemonScriptPath);
+    const lines = scriptContent.toString().split('\n');
+    if (lines[0].startsWith('#!')) {
+      lines[0] = firstLine;
+    } else {
+      lines.unshift(firstLine);
+    }
+    fs.writeFileSync(daemonScriptPath, lines.join('\n'));
+    fs.chmodSync(daemonScriptPath, '755');
+  }
+}
 function isLinkFileExist(filePath) {
   try {
     if (fs.lstatSync(filePath)) {
@@ -99,7 +126,8 @@ program.argument('[targetDir] dir to locate the bin').action(async binDir => {
   if (!fs.existsSync(binDir)) {
     fs.mkdirSync(binDir, {recursive: true});
   }
-  preHandleComand(binDir);
+  // preHandleComand();
+  preHandleCommand2();
   linkFile(binDir);
 });
 
