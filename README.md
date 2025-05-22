@@ -2,6 +2,15 @@
 
 This is a busybox for frequently used stable tools that can be run as a global bin command.
 
+## How run bin command
+
+When run .ts file on ts-node, some params, include `-r ${projectPath}/node_modules/tsconfig-paths/register.js`, `--project ${projectPath}tsconfig.json`, are must be provided to ts-node, so if we want run a .ts file as bin command, we must provide these params to ts-node in shebang line.
+The thing is these ts-node params depends on the location of this project, so they should be generated dynamically as this project may be cloned to different place of different platform.
+Centos not support pass param on shebang line, the solution is add ts-node command in a shell script, and use the shell script as shebang line of .ts bin command.
+
+Commander in `bin` dir is a warpper of logic on `src/commander`, and run files of `src/commander` as child process with params found by some logic.
+
+
 ## How to generate bin command
 
 run ./bin/0-generate-bin.ts target-bin-dir
@@ -10,10 +19,9 @@ run ./bin/0-generate-bin.ts target-bin-dir
 
 append target-bin-dir to global env PATH
 
-## Dir bin and src/commander
+**run on child process by spawn**
 
-As .ts code should run on ts-node with several params, such as `-r ./node_modules/tsconfig-paths/register.js`, `--project tsconfig.json`, so .ts file can't run as a seperate bin commander.
-Commander in `bin` dir is a warpper of logic on `src/commander`, and run files of `src/commander` as child process with params found by some logic.
+****
 
 ## The way of run commander
 

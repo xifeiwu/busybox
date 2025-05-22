@@ -2,7 +2,7 @@
 import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
-import {getTsParams, goOnOrNot, logColorful, makeSureDirExist} from '../modules/lib/node';
+import {getTsParams, goOnOrNot, logColorful} from '../modules/lib/node';
 
 const BASE_DIR = __dirname;
 
@@ -18,7 +18,7 @@ const commandToLink = {
   'tcp-gateway': 'tcp-gateway.ts',
   'syncup-gitmodules': 'syncup-gitmodules.ts',
 };
-const commandToCreate = {
+const commandToUpdate = {
   /** node tools */
   nb: 'nb.ts',
   /** start daemon for child process */
@@ -64,18 +64,19 @@ function copyCommand(binDir: string) {
   });
   const bashCmd = ['ts-node', ...tsParams, `"$@"`].join(' ');
   const runnerContent = ['#!/bin/sh', 'echo ' + bashCmd, bashCmd];
-  const runnerFilePath = path.join(binDir, 'run-on-ts-node.sh');
+  const runnerFilePath = path.join(BASE_DIR, 'run-on-ts-node.sh');
   fs.writeFileSync(runnerFilePath, runnerContent.join('\n'));
   fs.chmodSync(runnerFilePath, '755');
   logColorful({color: 'green'}, `Created File: ${runnerFilePath}`);
 
-  for (const [command, basename] of Object.entries(commandToCreate)) {
-    const scriptContent = fs.readFileSync(path.resolve(BASE_DIR, basename));
-    const binFilePath = path.resolve(binDir, command);
-    if (isLinkFileExist(binFilePath)) {
-      fs.unlinkSync(binFilePath);
-      logColorful({}, `Unlink file: ${binFilePath}`);
-    }
+  for (const [command, basename] of Object.entries(commandToUpdate)) {
+    const scriptFilePath = path.resolve(BASE_DIR, basename);
+    const scriptContent = fs.readFileSync(scriptFilePath);
+    // const binFilePath = path.resolve(binDir, command);
+    // if (isLinkFileExist(binFilePath)) {
+    //   fs.unlinkSync(binFilePath);
+    //   logColorful({}, `Unlink file: ${binFilePath}`);
+    // }
     const firstLine = `#!${runnerFilePath}`;
     const lines = scriptContent.toString().split('\n');
     if (lines[0].startsWith('#!')) {
@@ -83,9 +84,9 @@ function copyCommand(binDir: string) {
     } else {
       lines.unshift(firstLine);
     }
-    fs.writeFileSync(binFilePath, lines.join('\n'));
-    fs.chmodSync(binFilePath, '755');
-    logColorful({color: 'green'}, `Created File: ${binFilePath}`);
+    fs.writeFileSync(scriptFilePath, lines.join('\n'));
+    fs.chmodSync(scriptFilePath, '755');
+    logColorful({color: 'green'}, `Updated File: ${scriptFilePath}`);
   }
 }
 
@@ -99,7 +100,7 @@ function isLinkFileExist(filePath) {
   }
 }
 function linkCommand(binDir: string) {
-  for (const [binName, scriptName] of Object.entries(commandToLink)) {
+  for (const [binName, scriptName] of Object.entries({...commandToLink, ...commandToUpdate})) {
     // link can't be overrided, so remove it first
     const linkFile = path.resolve(binDir, binName);
     if (isLinkFileExist(linkFile)) {

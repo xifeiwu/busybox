@@ -1,4 +1,4 @@
-#!/usr/bin/env ts-node
+#!/Users/wuxifei/code/node/tool/busybox/bin/run-on-ts-node.sh
 import {Command} from 'commander';
 import {ping, info, start, restart, stop} from '../src/daemon';
 import {logColorful} from '../src/service/external';
