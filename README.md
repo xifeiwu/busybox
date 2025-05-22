@@ -2,6 +2,14 @@
 
 This is a busybox for frequently used stable tools that can be run as a global bin command.
 
+## How to generate bin command
+
+run ./bin/0-generate-bin.ts target-bin-dir
+
+0-generate-bin.ts will create or link an existing command
+
+append target-bin-dir to global env PATH
+
 ## Dir bin and src/commander
 
 As .ts code should run on ts-node with several params, such as `-r ./node_modules/tsconfig-paths/register.js`, `--project tsconfig.json`, so .ts file can't run as a seperate bin commander.

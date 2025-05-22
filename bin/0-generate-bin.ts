@@ -2,21 +2,29 @@
 import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
-import {convertToBuffer, getTsParams, goOnOrNot, logColorful, makeSureDirExist} from '../modules/lib/node';
+import {getTsParams, goOnOrNot, logColorful, makeSureDirExist} from '../modules/lib/node';
 
 const BASE_DIR = __dirname;
 
 const commandToLink = {
+  /** run exported functions from .ts file */
   runTsExport: 'runTsExport.ts',
   runJsExport: 'runJsExport.js',
+  /** run target file on ts-node */
   runOnTsNode: 'runOnTsNode.ts',
-  nb: 'nb.ts',
   'login-to-server': 'login-to-server.ts',
   'http-server': 'http-server.ts',
+  /** start tcp gateway and service behind tcp gateway */
   'tcp-gateway': 'tcp-gateway.ts',
-  daemon: 'daemon.ts',
   'syncup-gitmodules': 'syncup-gitmodules.ts',
 };
+const commandToCreate = {
+  /** node tools */
+  nb: 'nb.ts',
+  /** start daemon for child process */
+  daemon: 'daemon.ts',
+};
+
 type CommandName = keyof typeof commandToLink;
 
 function appendShebangLine(command: CommandName) {
@@ -39,38 +47,48 @@ function appendShebangLine(command: CommandName) {
 }
 
 function preHandleComand() {
-  for (const command of ['daemon', 'nb'] as CommandName[]) {
-    appendShebangLine(command);
+  for (const command of ['daemon', 'nb']) {
+    appendShebangLine(command as CommandName);
   }
 }
 
-function preHandleCommand2() {
-  const daemonScriptPath = path.resolve(BASE_DIR, commandToLink['nb']);
-  const tsParams = getTsParams(daemonScriptPath, {
+function copyCommand(binDir: string) {
+  /**
+   * create run-on-ts-node.sh, and run .ts file by run-on-ts-node.sh
+   * To solve the issue, on some platform(such as centos), shebangline not support very well
+   */
+  const tsParams = getTsParams(__filename, {
     tsNodeOptions: {
       '--swc': true,
     },
   });
   const bashCmd = ['ts-node', ...tsParams, `"$@"`].join(' ');
-  const wrapperContent = ['#!/bin/sh', 'echo ' + bashCmd, bashCmd];
-  const wrapperFilePath = path.join(BASE_DIR, 'ts-wrapper.sh');
-  fs.writeFileSync(wrapperFilePath, wrapperContent.join('\n'));
-  fs.chmodSync(wrapperFilePath, '755');
+  const runnerContent = ['#!/bin/sh', 'echo ' + bashCmd, bashCmd];
+  const runnerFilePath = path.join(binDir, 'run-on-ts-node.sh');
+  fs.writeFileSync(runnerFilePath, runnerContent.join('\n'));
+  fs.chmodSync(runnerFilePath, '755');
+  logColorful({color: 'green'}, `Created File: ${runnerFilePath}`);
 
-  for (const command of ['daemon', 'nb'] as CommandName[]) {
-    const daemonScriptPath = path.resolve(BASE_DIR, commandToLink[command]);
-    const firstLine = `#!${wrapperFilePath}`;
-    const scriptContent = fs.readFileSync(daemonScriptPath);
+  for (const [command, basename] of Object.entries(commandToCreate)) {
+    const scriptContent = fs.readFileSync(path.resolve(BASE_DIR, basename));
+    const binFilePath = path.resolve(binDir, command);
+    if (isLinkFileExist(binFilePath)) {
+      fs.unlinkSync(binFilePath);
+      logColorful({}, `Unlink file: ${binFilePath}`);
+    }
+    const firstLine = `#!${runnerFilePath}`;
     const lines = scriptContent.toString().split('\n');
     if (lines[0].startsWith('#!')) {
       lines[0] = firstLine;
     } else {
       lines.unshift(firstLine);
     }
-    fs.writeFileSync(daemonScriptPath, lines.join('\n'));
-    fs.chmodSync(daemonScriptPath, '755');
+    fs.writeFileSync(binFilePath, lines.join('\n'));
+    fs.chmodSync(binFilePath, '755');
+    logColorful({color: 'green'}, `Created File: ${binFilePath}`);
   }
 }
+
 function isLinkFileExist(filePath) {
   try {
     if (fs.lstatSync(filePath)) {
@@ -80,13 +98,13 @@ function isLinkFileExist(filePath) {
     return false;
   }
 }
-function linkFile(binDir: string) {
+function linkCommand(binDir: string) {
   for (const [binName, scriptName] of Object.entries(commandToLink)) {
     // link can't be overrided, so remove it first
     const linkFile = path.resolve(binDir, binName);
     if (isLinkFileExist(linkFile)) {
       fs.unlinkSync(linkFile);
-      console.log(`Remove: ${linkFile}`);
+      logColorful({}, `Unlink file: ${linkFile}`);
     }
     if (!scriptName) {
       continue;
@@ -98,9 +116,9 @@ function linkFile(binDir: string) {
     }
     const relativePath = path.relative(path.dirname(linkFile), targetFile);
     fs.symlinkSync(relativePath, linkFile);
-    console.log(`Created Link: ${linkFile} -> ${targetFile}`);
+    logColorful({color: 'green'}, `Created Link: ${linkFile} -> ${targetFile}`);
   }
-  console.log(`export PATH=${binDir}:$PATH`);
+  logColorful({color: 'red'}, `export PATH=${binDir}:$PATH`);
 }
 
 const program = new Command();
@@ -109,8 +127,6 @@ program.argument('[targetDir] dir to locate the bin').action(async binDir => {
     const {HOME} = process.env;
     binDir = path.resolve(HOME, 'code/bin');
   }
-  // console.log(`will create link under dir ${binDir}`);
-  logColorful({color: 'red'}, ``);
   if (
     !(await goOnOrNot({
       tips: [`Will create command to dir: ${binDir}`],
@@ -126,9 +142,9 @@ program.argument('[targetDir] dir to locate the bin').action(async binDir => {
   if (!fs.existsSync(binDir)) {
     fs.mkdirSync(binDir, {recursive: true});
   }
-  // preHandleComand();
-  preHandleCommand2();
-  linkFile(binDir);
+
+  copyCommand(binDir);
+  linkCommand(binDir);
 });
 
 program.parse(process.argv);
