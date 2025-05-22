@@ -6,6 +6,9 @@ import {Command} from 'commander';
 import {logColorful} from '@src/service/external';
 import {serializeTcpGatewayInfo, startTcpGatewayByOptions} from '@src/tcp-gateway';
 
+/**
+ * Should take care about NODE_ENV, as config of tcp service depends on config get by env
+ */
 const program = new Command();
 program
   .argument('[staticDir]', 'static dir')

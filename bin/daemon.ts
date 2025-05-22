@@ -1,4 +1,4 @@
-#!/usr/bin/env ts-node -r /Users/wuxifei/code/node/tool/busybox/node_modules/tsconfig-paths/register.js --project /Users/wuxifei/code/node/tool/busybox/tsconfig.json --swc
+#!/usr/bin/env ts-node
 import {Command} from 'commander';
 import {ping, info, start, restart, stop} from '../src/daemon';
 import {logColorful} from '../src/service/external';
