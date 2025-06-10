@@ -1,5 +1,7 @@
 ## Intro
 
+This is the actual logic for commander daemon
+
 Manage child process by daemon process
 
 ## Structure

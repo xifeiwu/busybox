@@ -10,7 +10,7 @@ import {
 } from '../modules/lib/node';
 
 /**
- * NOTICE: the params used by Command should be the same as params used in ../src/commander/runTsExport.ts
+ * NOTICE: the params used by Command should be the same as params used in ../src/command/runTsExport.ts
  */
 const program = new Command();
 program.name('runTsExport').description('utility for process handling');
@@ -52,7 +52,7 @@ program
     if (fs.existsSync(tsConfigJson)) {
       tsNodeOptions['--project'] = tsConfigJson;
     }
-    const mainScript = path.resolve(__dirname, '../src/commander/runTsExport.ts');
+    const mainScript = path.resolve(__dirname, '../src/command/runTsExport.ts');
     if (dryRun) {
       const {command, args} = getSpawnConfigByScriptPath(mainScript, {params: [tsFileToRun]});
       console.log(`${command} ${args.join(' ')}`);
