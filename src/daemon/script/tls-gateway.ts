@@ -11,6 +11,7 @@ function route(requestInfo?: HttpRequestInfo) {
 }
 
 /**
+ * @deprecated
  * NOTICE: not stable
  * @param config
  */

@@ -1,7 +1,7 @@
 #!/Users/wuxifei/code/node/tool/busybox/bin/run-on-ts-node.sh
 import {Command} from 'commander';
-import {ping, info, start, restart, stop} from '../src/daemon';
-import {logColorful} from '../src/service/external';
+import {ping, info, start, restart, stop, startInDetachedMode} from '../src/daemon';
+import {logColorful, serializeSpawnResponse} from '../src/service/external';
 
 const program = new Command();
 program.name('daemon').description('daemon child process');
@@ -27,6 +27,15 @@ program
     const result = await start(id);
     logColorful({}, result);
   });
+
+program
+  .command('start-detach [id]')
+  .description('start daemon or child process managed by daemon')
+  .action(async id => {
+    const spawnInfo = await startInDetachedMode(id);
+    logColorful({}, serializeSpawnResponse(spawnInfo));
+  });
+
 program
   .command('restart [id]')
   .description('restart child process managed by daemon')

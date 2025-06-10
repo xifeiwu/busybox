@@ -50,6 +50,8 @@ export {
   ProcessInfoFilterFunc,
   killProcessByPid,
   ProcessInfo,
+  spawnAndTryIpc,
+  serializeSpawnResponse,
 } from '../../modules/lib/node';
 export {
   KoaConfig,

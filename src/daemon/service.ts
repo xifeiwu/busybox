@@ -5,7 +5,8 @@ import {
   startDetachedDaemon,
   SocketClientToDaemon,
   Daemon,
-} from '@src/service/external';
+  spawnAndTryIpc,
+} from '../service/external';
 import {debugServer, tlsGateway, tcpGateway} from './config';
 
 export const cpManagerConfigMap = [debugServer, tlsGateway, tcpGateway].reduce<{
@@ -70,6 +71,18 @@ export async function start(id?: string) {
     return result;
   }
 }
+
+export async function startInDetachedMode(id?: string) {
+  id = await getId(id);
+  const {spawnConfig} = cpManagerConfigMap[id];
+  const spawnInfo = await spawnAndTryIpc(spawnConfig);
+
+  const {responseFromCp, childProcess} = spawnInfo;
+  childProcess.disconnect && childProcess.disconnect();
+  childProcess.unref();
+  return spawnInfo;
+}
+
 export async function restart(id?: string) {
   id = await getId(id);
   const cpManagerConfig = cpManagerConfigMap[id];
