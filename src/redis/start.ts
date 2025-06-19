@@ -1,5 +1,8 @@
-import {makeSureDirExist} from '@modules/lib/node';
-import {exec} from 'child_process';
+/**
+ * install redis on local before run this script: brew install redis
+ */
+import {logColorful, makeSureDirExist} from '@modules/lib/node';
+import {exec, execSync} from 'child_process';
 import fs from 'fs';
 import path from 'path';
 const redisServerBin = `/opt/homebrew/opt/redis/bin/redis-server`;
@@ -69,13 +72,18 @@ function prepareConfig() {
   }, {} as {[key in Site]: string});
   return result;
 }
+
+function logCmdAndExec(command: string) {
+  logColorful({color: 'red'}, command);
+  return exec(command);
+}
 export async function start() {
   const configFile = prepareConfig();
-  const masterServer = exec([redisServerBin, configFile['redisMaster']].join(' '));
-  const replicaServer = exec([redisServerBin, configFile['redisReplica']].join(' '));
-  const sentinel26379 = exec([redisSentinelBin, configFile['sentinel26379']].join(' '));
-  const sentinel26380 = exec([redisSentinelBin, configFile['sentinel26380']].join(' '));
-  const sentinel26381 = exec([redisSentinelBin, configFile['sentinel26381']].join(' '));
+  const masterServer = logCmdAndExec([redisServerBin, configFile['redisMaster']].join(' '));
+  const replicaServer = logCmdAndExec([redisServerBin, configFile['redisReplica']].join(' '));
+  const sentinel26379 = logCmdAndExec([redisSentinelBin, configFile['sentinel26379']].join(' '));
+  const sentinel26380 = logCmdAndExec([redisSentinelBin, configFile['sentinel26380']].join(' '));
+  const sentinel26381 = logCmdAndExec([redisSentinelBin, configFile['sentinel26381']].join(' '));
   for (const cp of [masterServer, replicaServer, sentinel26379, sentinel26380, sentinel26381]) {
     cp.stdout.pipe(process.stdout);
     cp.stderr.pipe(process.stderr);
