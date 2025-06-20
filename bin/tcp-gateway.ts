@@ -1,18 +1,28 @@
-#!/usr/bin/env ts-node
+/**
+ * A basic server contains frequently used function
+ */
 import path from 'path';
-import {spawnTsFile} from '../modules/lib/node';
+import {Command} from 'commander';
+import {logColorful} from '@src/service/external';
+import {serializeTcpGatewayInfo, startTcpGatewayByOptions} from '@src/tcp-gateway';
 
-async function start() {
-  const argv = process.argv;
-  process.stdin.setRawMode(false);
-  const childProcess = spawnTsFile(path.resolve(__dirname, '../src/command/tcp-gateway.ts'), {
-    printCommand: true,
-    params: argv.length > 2 ? argv.slice(2) : [],
-    spawnOptions: {stdio: [0, 1, 2]},
+/**
+ * Should take care about NODE_ENV, as config of tcp service depends on config get by env
+ */
+const program = new Command();
+program
+  .argument('[staticDir]', 'static dir')
+  .option('-e, --env <env>', 'env to run this command: local | elif')
+  .option('-p, --port <port>', 'the port used for http server')
+  .option('-u, --upload-dir <upload>', 'dir to locate upload files')
+  .action(async (staticDir, options) => {
+    const {env = process.env.NODE_ENV ?? 'local', uploadDir, port: tcpPort} = options;
+    const info = await startTcpGatewayByOptions({
+      env,
+      staticDir: staticDir ? path.resolve(process.cwd(), staticDir) : undefined,
+      uploadDir,
+      port: tcpPort,
+    });
+    logColorful({}, serializeTcpGatewayInfo(info));
   });
-  childProcess.on('exit', () => {
-    process.stdin.setRawMode(true);
-  });
-}
-
-start();
+program.parse(process.argv);

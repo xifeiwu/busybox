@@ -6,8 +6,9 @@ This is a busybox for frequently used stable tools that can be run as a global b
 
 ## Basic thoughts
 
-When run .ts file on ts-node, some params, include `-r ${projectPath}/node_modules/tsconfig-paths/register.js`, `--project ${projectPath}tsconfig.json`, are must be provided to ts-node, so if we want run a .ts file as bin command, we must provide these params to ts-node in shebang line.
+When run .ts file on ts-node, some params, include `-r ${projectPath}/node_modules/tsconfig-paths/register.js`, `--project ${projectPath}tsconfig.json`, are must to have for ts-node runtime, so if we want run a .ts file as bin command, we must provide these params to ts-node in shebang line.
 The thing is these ts-node params depends on the location of this project, so they should be generated dynamically as this project may be cloned to different place of different platform.
+
 Centos not support pass param on shebang line, the solution is add ts-node command in a shell script, and use the shell script as shebang line of .ts bin command.
 
 Commands in `bin` dir is a warpper of logic located on `src/command`, and run files of `src/command` as child process with params found by some logic. The benefit of this way is we can add test case for file in `src/command`, to debug or run actual logic of command.

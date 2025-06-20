@@ -2,11 +2,15 @@
 import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
-import {getTsParams, goOnOrNot, logColorful} from '../modules/lib/node';
+import {getTsParams, goOnOrNot, logColorful, makeSureDirExistForFile} from '../modules/lib/node';
 
 const BASE_DIR = __dirname;
+const DIST_DIR = path.join(__dirname, 'dist');
 
-const commandToLink = {
+/**
+ * Command can run directly
+ */
+const commonCommand = {
   /** run exported functions from .ts file */
   runTsExport: 'runTsExport.ts',
   runJsExport: 'runJsExport.js',
@@ -14,48 +18,28 @@ const commandToLink = {
   runOnTsNode: 'runOnTsNode.ts',
   'login-to-server': 'login-to-server.ts',
   'http-server': 'http-server.ts',
-  /** start tcp gateway and service behind tcp gateway */
-  'tcp-gateway': 'tcp-gateway.ts',
   'syncup-gitmodules': 'syncup-gitmodules.ts',
 };
+/**
+ * Command related with file locate and distro os reside on
+ */
 const commandToUpdate = {
   /** node tools */
   nb: 'nb.ts',
   /** start daemon for child process */
   daemon: 'daemon.ts',
+  /** start tcp gateway and service behind tcp gateway */
+  'tcp-gateway': 'tcp-gateway.ts',
 };
 
-type CommandName = keyof typeof commandToLink;
-
-function appendShebangLine(command: CommandName) {
-  const daemonScriptPath = path.resolve(BASE_DIR, commandToLink[command]);
-  const tsParams = getTsParams(daemonScriptPath, {
-    tsNodeOptions: {
-      '--swc': true,
-    },
-  });
-  const firstLine = ['#!/usr/bin/env ts-node', ...tsParams].join(' ');
-  const scriptContent = fs.readFileSync(daemonScriptPath);
-  const lines = scriptContent.toString().split('\n');
-  if (lines[0].startsWith('#!')) {
-    lines[0] = firstLine;
-  } else {
-    lines.unshift(firstLine);
-  }
-  fs.writeFileSync(daemonScriptPath, lines.join('\n'));
-  fs.chmodSync(daemonScriptPath, '755');
-}
-
-function preHandleComand() {
-  for (const command of ['daemon', 'nb']) {
-    appendShebangLine(command as CommandName);
-  }
-}
-
-function copyCommand(binDir: string) {
+/**
+ * For some command, it's content is based on it's locate and platform os reside on
+ * So it's content is regenerated here
+ */
+function generateCommand(binDir: string) {
   /**
-   * create run-on-ts-node.sh, and run .ts file by run-on-ts-node.sh
-   * To solve the issue, on some platform(such as centos), shebangline not support very well
+   * shebangline not support very well on every platform, such as centos not support param in shebangline line
+   * create run-on-ts-node.sh, use run-on-ts-node.sh as shebangline command for .ts command
    */
   const tsParams = getTsParams(__filename, {
     tsNodeOptions: {
@@ -64,19 +48,15 @@ function copyCommand(binDir: string) {
   });
   const bashCmd = ['ts-node', ...tsParams, `"$@"`].join(' ');
   const runnerContent = ['#!/bin/sh', 'echo ' + bashCmd, bashCmd];
-  const runnerFilePath = path.join(BASE_DIR, 'run-on-ts-node.sh');
+  const runnerFilePath = path.join(DIST_DIR, 'run-on-ts-node.sh');
+  makeSureDirExistForFile(runnerFilePath);
   fs.writeFileSync(runnerFilePath, runnerContent.join('\n'));
   fs.chmodSync(runnerFilePath, '755');
   logColorful({color: 'green'}, `Created File: ${runnerFilePath}`);
 
-  for (const [command, basename] of Object.entries(commandToUpdate)) {
-    const scriptFilePath = path.resolve(BASE_DIR, basename);
+  for (const [, basename] of Object.entries(commandToUpdate)) {
+    const scriptFilePath = path.join(BASE_DIR, basename);
     const scriptContent = fs.readFileSync(scriptFilePath);
-    // const binFilePath = path.resolve(binDir, command);
-    // if (isLinkFileExist(binFilePath)) {
-    //   fs.unlinkSync(binFilePath);
-    //   logColorful({}, `Unlink file: ${binFilePath}`);
-    // }
     const firstLine = `#!${runnerFilePath}`;
     const lines = scriptContent.toString().split('\n');
     if (lines[0].startsWith('#!')) {
@@ -84,8 +64,9 @@ function copyCommand(binDir: string) {
     } else {
       lines.unshift(firstLine);
     }
-    fs.writeFileSync(scriptFilePath, lines.join('\n'));
-    fs.chmodSync(scriptFilePath, '755');
+    const outputFilePath = path.join(DIST_DIR, basename);
+    fs.writeFileSync(outputFilePath, lines.join('\n'));
+    fs.chmodSync(outputFilePath, '755');
     logColorful({color: 'green'}, `Updated File: ${scriptFilePath}`);
   }
 }
@@ -100,24 +81,28 @@ function isLinkFileExist(filePath) {
   }
 }
 function linkCommand(binDir: string) {
-  for (const [binName, scriptName] of Object.entries({...commandToLink, ...commandToUpdate})) {
+  const binNametoFullpath: Record<string, string> = {};
+  for (const [binName, scriptName] of Object.entries(commonCommand)) {
+    binNametoFullpath[binName] = path.join(BASE_DIR, scriptName);
+  }
+  for (const [binName, scriptName] of Object.entries(commandToUpdate)) {
+    binNametoFullpath[binName] = path.join(DIST_DIR, scriptName);
+  }
+
+  for (const [binName, fullPath] of Object.entries(binNametoFullpath)) {
     // link can't be overrided, so remove it first
     const linkFile = path.resolve(binDir, binName);
     if (isLinkFileExist(linkFile)) {
       fs.unlinkSync(linkFile);
       logColorful({}, `Unlink file: ${linkFile}`);
     }
-    if (!scriptName) {
+    if (!fs.existsSync(fullPath)) {
+      console.error(`File not exist: ${fullPath}`);
       continue;
     }
-    const targetFile = path.resolve(BASE_DIR, scriptName);
-    if (!fs.existsSync(targetFile)) {
-      console.error(`File not exist: ${targetFile}`);
-      continue;
-    }
-    const relativePath = path.relative(path.dirname(linkFile), targetFile);
+    const relativePath = path.relative(path.dirname(linkFile), fullPath);
     fs.symlinkSync(relativePath, linkFile);
-    logColorful({color: 'green'}, `Created Link: ${linkFile} -> ${targetFile}`);
+    logColorful({color: 'green'}, `Created Link: ${linkFile} -> ${fullPath}`);
   }
   logColorful({color: 'red'}, `export PATH=${binDir}:$PATH`);
 }
@@ -144,7 +129,7 @@ program.argument('[targetDir] dir to locate the bin').action(async binDir => {
     fs.mkdirSync(binDir, {recursive: true});
   }
 
-  copyCommand(binDir);
+  generateCommand(binDir);
   linkCommand(binDir);
 });
 
