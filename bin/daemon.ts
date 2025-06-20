@@ -1,7 +1,6 @@
-#!/Users/wuxifei/code/node/tool/busybox/bin/run-on-ts-node.sh
 import {Command} from 'commander';
-import {ping, info, start, restart, stop, startInDetachedMode} from '../src/daemon';
-import {logColorful, serializeSpawnResponse} from '../src/service/external';
+import {ping, info, start, restart, stop, startInDetachedMode} from '@src/daemon';
+import {logColorful, serializeSpawnResponse} from '@src/service/external';
 
 const program = new Command();
 program.name('daemon').description('daemon child process');

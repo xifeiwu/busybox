@@ -5,7 +5,7 @@ import {
   appendNetCommand,
   appendProcessCommand,
   appendOtherCommand,
-} from '../src/command/nb';
+} from '@src/command/nb';
 
 const program = new Command();
 program
