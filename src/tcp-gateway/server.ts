@@ -6,6 +6,7 @@ import {
   KoaShortCutConfig,
   Env,
   serializeTcpGatewayConfig,
+  closePortIfInUse,
 } from '@src/service/external';
 import {TcpGateWayOptions} from '@src/types';
 import {tcpGatewayConfigByEnv} from './config';
@@ -19,7 +20,15 @@ process.on('uncaughtException', function (err) {
   console.log(err.stack);
 });
 export async function startTcpGatewayByOptions(options?: TcpGateWayOptions) {
-  const {env = process.env.NODE_ENV ?? Env.local, uploadDir, port: tcpPort, staticDir} = options ?? {};
+  const {env = process.env.NODE_ENV ?? Env.local, uploadDir, staticDir, port} = options ?? {};
+  let tcpPort = parseInt(port as string, 10);
+  /** Must to use the port is it's not undefined */
+  if (!Number.isNaN(tcpPort)) {
+    if (!(await closePortIfInUse(tcpPort))) {
+      throw new Error(`port ${tcpPort} is in use`);
+    }
+  }
+
   const tcpGatewayConfig = tcpGatewayConfigByEnv[env as Env];
   if (!tcpGatewayConfig) {
     throw new Error(`Not found config for env: ${env}`);
@@ -32,11 +41,11 @@ export async function startTcpGatewayByOptions(options?: TcpGateWayOptions) {
   if (koa) {
     koa.shortCut = koaShortCutConfig;
   }
-  if (tcpPort !== undefined) {
+  if (Number.isInteger(tcpPort)) {
     tcpServerConfig.port = tcpPort;
   }
-  const {host, port, server, koaServerInfo} = await startCustomizedTcpGateway(tcpGatewayConfig);
-  return {host, port, server, tcpGatewayConfig, koaServerInfo};
+  const {host, port: finalPort, server, koaServerInfo} = await startCustomizedTcpGateway(tcpGatewayConfig);
+  return {host, port: finalPort, server, tcpGatewayConfig, koaServerInfo};
 }
 
 export function serializeTcpGatewayInfo(info: Awaited<ReturnType<typeof startTcpGatewayByOptions>>) {
