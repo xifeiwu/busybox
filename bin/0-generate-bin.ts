@@ -36,7 +36,7 @@ const commandToUpdate = {
  * For some command, it's content is based on it's locate and platform os reside on
  * So it's content is regenerated here
  */
-function generateCommand(binDir: string) {
+function generateCommand() {
   /**
    * shebangline not support very well on every platform, such as centos not support param in shebangline line
    * create run-on-ts-node.sh, use run-on-ts-node.sh as shebangline command for .ts command
@@ -108,29 +108,39 @@ function linkCommand(binDir: string) {
 }
 
 const program = new Command();
-program.argument('[targetDir] dir to locate the bin').action(async binDir => {
-  if (!binDir) {
-    const {HOME} = process.env;
-    binDir = path.resolve(HOME, 'code/bin');
-  }
-  if (
-    !(await goOnOrNot({
-      tips: [`Will create command to dir: ${binDir}`],
-      defaultValue: true,
-      style: {
-        color: 'red',
-      },
-    }))
-  ) {
-    throw new Error(`Manually Interupt`);
-  }
+program
+  .command('generate')
+  .description('generate bin command')
+  .action(async () => {
+    generateCommand();
+  });
 
-  if (!fs.existsSync(binDir)) {
-    fs.mkdirSync(binDir, {recursive: true});
-  }
+program
+  .command('link [binDir]')
+  .description('generate and link bin command')
+  .action(async binDir => {
+    if (!binDir) {
+      const {HOME} = process.env;
+      binDir = path.resolve(HOME, 'code/bin');
+    }
+    if (
+      !(await goOnOrNot({
+        tips: [`Will create command to dir: ${binDir}`],
+        defaultValue: true,
+        style: {
+          color: 'red',
+        },
+      }))
+    ) {
+      throw new Error(`Manually Interupt`);
+    }
 
-  generateCommand(binDir);
-  linkCommand(binDir);
-});
+    if (!fs.existsSync(binDir)) {
+      fs.mkdirSync(binDir, {recursive: true});
+    }
+
+    generateCommand();
+    linkCommand(binDir);
+  });
 
 program.parse(process.argv);
