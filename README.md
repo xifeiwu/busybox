@@ -1,6 +1,52 @@
 # Intro
 
-This is a busybox for frequently used stable tools that can be run as a global bin command.
+This project is a wrapper for some useful and frequently-used loigc, based on common modules(located in modules dir). It focus on can-run, implementation should be archived in modules layer.
+
+## How to run
+
+1. Run .ts file directly using `runTsExport` or `runOnTsNode`, in vscode's Debug mode or terminal.
+2. Run by an excuteable file(bin command) which located in bin dir
+3. Run as a background service managed by daemon logic on locate or remote
+
+## Folder Structure
+
+1. Each feature can have it's directory if the logic is complex, say tcp-gateway, and can expose interface for bin command and daemon if needed.
+2. For the logic need to expose by command, there should be a file with the same name as bin command to archive detail logic, the bin command in bin dir is just a commander wrapper.
+3. For the logic to as background service managed by daemon, there should be a daemon script in daemon dir.
+
+.
+├── README.md
+├── bin
+│   ├── 0-generate-bin.ts
+│   ├── daemon.ts
+│   ├── nb.ts
+│   ├── runOnTsNode.ts
+│   ├── runTsExport.ts
+│   ├── tcp-gateway.ts
+│   └── ...
+├── src
+│   ├── command
+│   │   ├── http-server.ts
+│   │   ├── nb
+│   │   ├── runTsExport.ts
+│   │   ├── tcp-gateway.test.ts
+│   │   └── tcp-gateway.ts
+│   ├── daemon
+│   ├── redis
+│   ├── service
+│   ├── tcp-gateway
+│   └── types
+├── modules
+│   └── lib
+│       ├── db
+│       ├── fe
+│       ├── net
+│       ├── node
+│       └── utils
+├── node_modules
+│   ├── commander -> .pnpm/registry.npmmirror.com+commander@11.1.0/node_modules/commander
+│   └── ...
+└── tsconfig.json
 
 # About bin command
 
