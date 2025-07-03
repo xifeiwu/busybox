@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
-import {logColorful, goOnOrNot, selectOption, isNumber} from '../service/external';
+import {logColorful, goOnOrNot, selectOption, isNumber} from '@src/service/external';
 
 const RUN_ALL_EXPORTED_FUNCTIONS = '_all';
 
@@ -58,7 +58,7 @@ async function getFunctionToRun(funcNameList: string[], funcName?: string) {
   ) {
     throw new Error(`Manually Interrupt`);
   }
-  return funcName
+  return funcName;
 }
 
 const TAG = 'OUT_OF_FUNCTION';

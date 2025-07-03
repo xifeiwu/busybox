@@ -52,7 +52,7 @@ This project is a wrapper for some useful and frequently-used loigc, based on co
 
 ## Some Rules
 
-When run .ts file on ts-node, some params, include `-r ${projectPath}/node_modules/tsconfig-paths/register.js`, `--project ${projectPath}tsconfig.json`, are must to have for ts-node runtime, so if we want run a .ts file as bin command, we must provide these params to ts-node in shebang line. The thing is these ts-node params depends on the location of this project, so they should be generated dynamically as this project may be cloned to different place of different platform.
+When run .ts file on ts-node, some params, include `-r ${projectPath}/node_modules/tsconfig-paths/register.js`, `--project ${projectPath}tsconfig.json`, are must to have for ts-node runtime, so if we want run a .ts file as bin command, we must provide these params to ts-node runtime in shebang line. The thing is these ts-node params depends on the location of this project, so they should be generated dynamically as this project may be run on different platform.
 
 The shebang line for bin command is not support very well in every platform, e.g. Centos not support pass param in shebang line.
 

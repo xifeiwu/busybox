@@ -34,4 +34,3 @@ childProcess.on('exit', function (code, signal) {
 //     cb && cb();
 //   }
 // });
-"POST /api/echo HTTP/1.1\r\ncontent-type: application/json\r\nhost: 0.0.0.0:3001\r\nConnection: close\r\nTransfer-Encoding: chunked\r\n\r\n"
