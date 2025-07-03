@@ -13,7 +13,7 @@ export {
   isObject,
   toNormalizedUrlProps,
   Env,
-} from '../../modules/lib/fe';
+} from '../../modules/lib/fe/common';
 export {
   checkPort as isPortOpen,
   logColorful,
@@ -54,6 +54,10 @@ export {
   serializeSpawnResponse,
   closePortIfInUse,
   goOnOrNot,
+  findClosestFile,
+  getSpawnConfigByScriptPath,
+  spawnTsFile,
+  SpawnFileOptions,
 } from '../../modules/lib/node';
 export {
   KoaConfig,

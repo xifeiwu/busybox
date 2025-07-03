@@ -1,12 +1,10 @@
 #!/usr/bin/env ts-node
 import fs from 'fs';
 import path from 'path';
-import {
-  findClosestFile,
-  getSpawnConfigByScriptPath,
-  spawnTsFile,
-  SpawnTsFileOptions,
-} from '../modules/lib/node';
+import {logColorful} from '../modules/lib/node/log';
+import {TsNodeOptions} from '../modules/lib/node/types';
+import {getSpawnConfigByScriptPath, spawnScript} from '../modules/lib/node/child-process/spawn';
+import {findClosestFile} from '../modules/lib/node/fs/find';
 
 const runTsInChildProcess = async (options?: {dryRun?: boolean}) => {
   const {dryRun} = options ?? {};
@@ -30,7 +28,7 @@ const runTsInChildProcess = async (options?: {dryRun?: boolean}) => {
   }
   const tsConfigPathsRegister = path.resolve(NVM_BIN, '../lib/node_modules/tsconfig-paths/register.js');
   const tsConfigJson = findClosestFile(tsFileDir, 'tsconfig.json');
-  const tsNodeOptions: SpawnTsFileOptions['tsNodeOptions'] = {
+  const tsNodeOptions: TsNodeOptions = {
     // '--transpileOnly': true,
     '--swc': true,
   };
@@ -47,14 +45,18 @@ const runTsInChildProcess = async (options?: {dryRun?: boolean}) => {
     return;
   }
   process.stdin.setRawMode(false);
-  const childProcess = spawnTsFile(mainScript, {
-    tsNodeOptions,
-    printCommand: true,
+  const {childProcess, wholeScript} = spawnScript<TsNodeOptions>(mainScript, {
+    runtimeOptions: tsNodeOptions,
     params,
     spawnOptions: {stdio: [0, 1, 2]},
   });
+
   childProcess.on('spawn', () => {
-    console.log(`pid of main/child process: ${process.pid}/${childProcess.pid}`);
+    logColorful(
+      {color: 'yellow'},
+      `pid of main/child process: ${process.pid}/${childProcess.pid}`,
+      wholeScript
+    );
   });
   childProcess.on('exit', () => {
     // console.log('exit child process');

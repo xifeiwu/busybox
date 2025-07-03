@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
 import {
-  getTsParams,
+  getTsNodeParams,
   goOnOrNot,
   logColorful,
   makeSureDirExistForFile,
@@ -24,6 +24,7 @@ const commonCommand = {
   'login-to-server': 'login-to-server.ts',
   'http-server': 'http-server.ts',
   'syncup-gitmodules': 'syncup-gitmodules.ts',
+  runTsExport: 'runTsExport.ts',
 };
 /**
  * Command related with file locate and distro os reside on
@@ -35,7 +36,6 @@ const commandToUpdate = {
   daemon: 'daemon.ts',
   /** start tcp gateway and service behind tcp gateway */
   'tcp-gateway': 'tcp-gateway.ts',
-  runTsExport: 'runTsExport.ts',
 };
 
 type ShebangType = 'shell' | 'ts-node';
@@ -61,8 +61,8 @@ async function getShebangType(shebangType?: ShebangType) {
 async function generateFinalCommand(shebangType?: ShebangType) {
   shebangType = await getShebangType(shebangType);
   // -r /Users/wuxifei/code/node/tool/busybox/node_modules/tsconfig-paths/register.js --project /Users/wuxifei/code/node/tool/busybox/tsconfig.json --swc
-  const tsParams = getTsParams(__filename, {
-    tsNodeOptions: {
+  const tsParams = getTsNodeParams(__filename, {
+    runtimeOptions: {
       '--swc': true,
     },
   });

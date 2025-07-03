@@ -3,10 +3,11 @@ import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
 import {
-  SpawnTsFileOptions,
   findClosestFile,
-  spawnTsFile,
+  spawnScript,
   getSpawnConfigByScriptPath,
+  logColorful,
+  TsNodeOptions,
 } from '../modules/lib/node';
 
 const program = new Command();
@@ -37,7 +38,7 @@ program
     }
     const tsConfigPathsRegister = path.resolve(NVM_BIN, '../lib/node_modules/tsconfig-paths/register.js');
     const tsConfigJson = findClosestFile(tsFileDir, 'tsconfig.json');
-    const tsNodeOptions: SpawnTsFileOptions['tsNodeOptions'] = {
+    const tsNodeOptions: TsNodeOptions = {
       '--transpileOnly': true,
     };
     if (fs.existsSync(tsConfigPathsRegister)) {
@@ -54,14 +55,17 @@ program
     // const tsConfigPathsRegister = path.resolve(NVM_BIN, '../lib/node_modules/tsconfig-paths/register.js');
     // const tsConfigJson = findClosestFile(tsFileDir, 'tsconfig.json');
     process.stdin.setRawMode(false);
-    const childProcess = spawnTsFile(tsFileToRun, {
-      tsNodeOptions,
-      printCommand: true,
+    const {childProcess, wholeScript} = spawnScript<TsNodeOptions>(tsFileToRun, {
+      runtimeOptions: tsNodeOptions,
       params,
       spawnOptions: {stdio: ['pipe', 1, 2]},
     });
     childProcess.on('spawn', () => {
-      console.log(`pid of main/child process: ${process.pid}/${childProcess.pid}`);
+      logColorful(
+        {color: 'yellow'},
+        `pid of main/child process: ${process.pid}/${childProcess.pid}`,
+        wholeScript
+      );
     });
     process.stdin.pipe(childProcess.stdin);
     process.stdin.on('data', chunk => {
