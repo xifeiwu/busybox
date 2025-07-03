@@ -1,11 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import readline from 'readline';
 import {Command} from 'commander';
-import {logColorful} from '../service/external';
-import {goOnOrNot} from '../../modules/lib/node';
+import {logColorful, goOnOrNot, selectOption, isNumber} from '../service/external';
 
-const RUN_ALL = '_all';
+const RUN_ALL_EXPORTED_FUNCTIONS = '_all';
 
 function isObject(val: any) {
   return val !== null && typeof val === 'object';
@@ -23,85 +21,44 @@ function isAsyncFunction(val: any) {
   return toStr === '[object AsyncFunction]';
 }
 
-export function selectOption<T extends {label: string}>(
-  options: T[],
-  option?: {
-    tip?: string;
-    defaultIndex?: number;
-  }
-): Promise<T> {
-  const {tip = 'please select', defaultIndex = 0} = option ? option : {};
-  const optionStr = options
-    .map((it, index) => {
-      return `${index}. ${String(it.label ? it.label : '-')}`;
-    })
-    .concat(`${tip}(default index is ${defaultIndex}): `)
-    .join('\n');
-  const interact = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-  return new Promise((res, rej) => {
-    interact.question(optionStr, answer => {
-      /** 1. Treat it as index of list */
-      let index = parseInt(answer);
-      /** 2. Treat it as label of option */
-      if (Number.isNaN(index)) {
-        const i = options.findIndex(it => it.label === answer);
-        if (i !== -1) {
-          index = i;
-        }
-      }
-      /** 3. user 0 as default value */
-      if (Number.isNaN(index)) {
-        index = defaultIndex;
-      }
-      if (!options[index]) {
-        rej(`index ${index} does not existed in options`);
-      } else {
-        res(options[index]);
-      }
-      interact.close();
-    });
-  });
-}
-
-async function getFunctionName(funcNameList: string[], funcName?: string) {
+/**
+ * If funcNameList.length is
+ */
+async function getFunctionToRun(funcNameList: string[], funcName?: string) {
   if (!Array.isArray(funcNameList) || funcNameList.length === 0) {
-    logColorful({color: 'yellow'}, `Not found exported function`);
+    logColorful({color: 'red'}, `funcNameList length is zero`);
     return;
   }
-  const allFuncNames = [...funcNameList, RUN_ALL];
-  let result = funcName;
-  if (!funcName || !allFuncNames.includes(funcName)) {
-    if (funcNameList.length === 1) {
-      result = funcNameList[0];
-    } else {
-      const {label} = await selectOption(
-        allFuncNames.map(it => {
-          return {
-            label: it,
-          };
-        }),
-        {
-          tip: 'please select function name',
-        }
-      );
-      result = label;
-      if (
-        !(await goOnOrNot({
-          style: {
-            color: 'red',
-          },
-          tips: [`run ${result}?`],
-          defaultValue: true,
-        }))
-      ) {
-        throw new Error(`Manually Interrupt`);
-      }
-    }
+  const allFuncNames = [...funcNameList, RUN_ALL_EXPORTED_FUNCTIONS];
+  if (allFuncNames.includes(funcName)) {
+    return funcName;
   }
-  return result;
+  if (funcNameList.length === 1) {
+    return funcNameList[0];
+  }
+
+  const {label, answer} = await selectOption(
+    allFuncNames.map(it => {
+      return {
+        label: it,
+      };
+    })
+  );
+  funcName = label;
+  /** Double confirm if function name is selected by option index */
+  if (
+    isNumber(answer) &&
+    !(await goOnOrNot({
+      style: {
+        color: 'red',
+      },
+      tips: [`run function ${funcName}?`],
+      defaultValue: true,
+    }))
+  ) {
+    throw new Error(`Manually Interrupt`);
+  }
+  return funcName
 }
 
 const TAG = 'OUT_OF_FUNCTION';
@@ -123,7 +80,7 @@ async function handleClass(Module: {new (): any; prototype: any}, functionAndPar
     .filter(it => !it.startsWith('_'))
     .filter(it => ['constructor'].indexOf(it) === -1);
   const [funcName_, ...params] = functionAndParams;
-  const funcName = await getFunctionName(functionList, funcName_);
+  const funcName = await getFunctionToRun(functionList, funcName_);
   const target = new Module();
   const func = target[funcName].bind(target);
   return await runFunction(func, params);
@@ -148,10 +105,14 @@ program
       let result: any = undefined;
       if (isObject(Module)) {
         // 通过module.exports.chain = function() {}导出模块
-        const functionList = Object.keys(Module).filter(name => isFunction(Module[name]));
-        funcName = await getFunctionName(functionList, funcName);
-        if (all || funcName === RUN_ALL) {
-          for (const it of functionList) {
+        const funcNameList = Object.keys(Module).filter(name => isFunction(Module[name]));
+        if (!Array.isArray(funcNameList) || funcNameList.length === 0) {
+          logColorful({color: 'red'}, `No function is exported from file ${fullPath}`);
+          return;
+        }
+        funcName = await getFunctionToRun(funcNameList, funcName);
+        if (all || funcName === RUN_ALL_EXPORTED_FUNCTIONS) {
+          for (const it of funcNameList) {
             logColorful({color: 'yellow'}, `Running function: ${it}`);
             const func = Module[it];
             result = await runFunction(func, funcParams);

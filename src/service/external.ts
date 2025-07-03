@@ -53,6 +53,7 @@ export {
   spawnAndTryIpc,
   serializeSpawnResponse,
   closePortIfInUse,
+  goOnOrNot,
 } from '../../modules/lib/node';
 export {
   KoaConfig,
