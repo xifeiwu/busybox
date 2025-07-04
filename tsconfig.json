@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": ".",
+    "outDir": "./dist",
     "target": "ES2022",
     "module": "commonjs",
     "experimentalDecorators": true,
@@ -8,7 +8,7 @@
     "noUnusedLocals": false,
     "esModuleInterop": true,
     "strict": false,
-    "sourceMap": true,
+    "sourceMap": false,
     "baseUrl": ".",
     "paths": {
       "@modules/*": ["modules/*"],
