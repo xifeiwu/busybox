@@ -1,12 +1,12 @@
 # Intro
 
-This project is a wrapper for some useful and frequently-used loigc, based on common modules(located in modules dir). It focus on can-run, implementation should be archived in modules layer.
+This project is a wrapper for some useful and frequently-used loigc, based on common modules(located in modules dir). It focus on can-run, major implementation should be archived in modules layer.
 
 ## How to run
 
 1. Run .ts file directly using `runTsExport` or `runOnTsNode`, in vscode's Debug mode or terminal.
-2. Run by an excuteable file(bin command) which located in bin dir
-3. Run as a background service managed by daemon logic on locate or remote
+2. Run by an excuteable file(bin command) using commander format params.
+3. Run in a child process as a background service managed by daemon logic
 
 ## Folder Structure
 
@@ -50,13 +50,13 @@ This project is a wrapper for some useful and frequently-used loigc, based on co
 
 # About bin command
 
-## Some Rules
+## Some Rules For Running On ts-node
 
-When run .ts file on ts-node, some params, include `-r ${projectPath}/node_modules/tsconfig-paths/register.js`, `--project ${projectPath}tsconfig.json`, are must to have for ts-node runtime, so if we want run a .ts file as bin command, we must provide these params to ts-node runtime in shebang line. The thing is these ts-node params depends on the location of this project, so they should be generated dynamically as this project may be run on different platform.
+ts-node can't run .ts file if no tsconfig.json is found for the file
+
+For some cases, some params, say `-r ${projectPath}/node_modules/tsconfig-paths/register.js`, `--project ${projectPath}tsconfig.json`, are needed for ts-node runtime, so if we want run a .ts file as bin command, we need provide these params to ts-node runtime in shebang line. The thing is these ts-node params depends on the location of this project, so they should be generated dynamically as this project may be run on different platform.
 
 The shebang line for bin command is not support very well in every platform, e.g. Centos not support pass param in shebang line.
-
-The actual logic is implemented in corresponding file in dir src/command, one benefit is command file become more simple, another benefit is easy to debug actual logic for tracking issue. Command just provide a way of running command logic from terminal, and collect params by user input.
 
 ## Change log
 
@@ -72,13 +72,7 @@ run ./bin/0-generate-bin.ts target-bin-dir
 
 append `target-bin-dir` to global env PATH
 
-## How to run command logic
-
-1. After run `./bin/0-generate-bin.ts` and append `target-bin-dir` to env PATH, we can run by bin command directly from terminal
-2. Run actual logic on `runOnTsNode`, like this: `runOnTsNode src/command/http-server.ts`
-3. As actual logic are located in dir `src/command`, we can add test case for function, and run it by command `runTsExport`
-
-## runTsExport as command for vscode debug
+## Use runTsExport as command for vscode debug
 
 For the case of vscode `can not found path of runtimeExecutable on launch.json`:
 Append `alias runTsExport='${HOME}/code/bin/runTsExport'` to `.zshrc`, start vscode from the project dirctory by running command `code .`.

@@ -53,7 +53,7 @@ const runTsInChildProcess = async (options?: {dryRun?: boolean}) => {
 
   childProcess.on('spawn', () => {
     logColorful(
-      {color: 'yellow'},
+      {color: 'magenta'},
       `pid of main/child process: ${process.pid}/${childProcess.pid}`,
       wholeScript
     );
