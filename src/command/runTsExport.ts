@@ -1,25 +1,26 @@
 import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
-import {logColorful, goOnOrNot, selectOption, isNumber} from '../service/external';
+import {logColorful, goOnOrNot, selectOption, isNumber, isObject, isFunction} from '../service/external';
+import {isAsyncFunction} from 'util/types';
 
 const RUN_ALL_EXPORTED_FUNCTIONS = '_all';
 
-function isObject(val: any) {
-  return val !== null && typeof val === 'object';
-}
+// function isObject(val: any) {
+//   return val !== null && typeof val === 'object';
+// }
 
-function isFunction(val: any) {
-  const toString = Object.prototype.toString;
-  const toStr = toString.call(val);
-  return toStr === '[object Function]' || toStr === '[object AsyncFunction]';
-}
+// function isFunction(val: any) {
+//   const toString = Object.prototype.toString;
+//   const toStr = toString.call(val);
+//   return toStr === '[object Function]' || toStr === '[object AsyncFunction]';
+// }
 
-function isAsyncFunction(val: any) {
-  const toString = Object.prototype.toString;
-  const toStr = toString.call(val);
-  return toStr === '[object AsyncFunction]';
-}
+// function isAsyncFunction(val: any) {
+//   const toString = Object.prototype.toString;
+//   const toStr = toString.call(val);
+//   return toStr === '[object AsyncFunction]';
+// }
 
 /**
  * If funcNameList.length is

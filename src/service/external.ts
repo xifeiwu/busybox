@@ -13,6 +13,7 @@ export {
   isObject,
   toNormalizedUrlProps,
   Env,
+  isFunction,
 } from '../../modules/lib/fe/common';
 export {
   checkPort as isPortOpen,
