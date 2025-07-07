@@ -17,8 +17,6 @@ const DIST_DIR = path.join(__dirname, 'dist');
  * Command can run directly
  */
 const commonCommand = {
-  /** run exported functions from .ts file */
-  runJsExport: 'runJsExport.js',
   /** run target file on ts-node */
   runOnTsNode: 'runOnTsNode.ts',
   'login-to-server': 'login-to-server.ts',
