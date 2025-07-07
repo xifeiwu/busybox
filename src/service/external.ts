@@ -63,6 +63,7 @@ export {
   SpawnFileOptions,
   logCmdAndexecSync,
   isDirExistForFile,
+  getDir,
 } from '../../modules/lib/node';
 export {
   KoaConfig,
