@@ -6,29 +6,12 @@ import {isAsyncFunction} from 'util/types';
 
 const RUN_ALL_EXPORTED_FUNCTIONS = '_all';
 
-// function isObject(val: any) {
-//   return val !== null && typeof val === 'object';
-// }
-
-// function isFunction(val: any) {
-//   const toString = Object.prototype.toString;
-//   const toStr = toString.call(val);
-//   return toStr === '[object Function]' || toStr === '[object AsyncFunction]';
-// }
-
-// function isAsyncFunction(val: any) {
-//   const toString = Object.prototype.toString;
-//   const toStr = toString.call(val);
-//   return toStr === '[object AsyncFunction]';
-// }
-
 /**
  * If funcNameList.length is
  */
 async function getFunctionToRun(funcNameList: string[], funcName?: string) {
   if (!Array.isArray(funcNameList) || funcNameList.length === 0) {
-    logColorful({color: 'red'}, `funcNameList length is zero`);
-    return;
+    throw new Error(`funcNameList length is zero`);
   }
   const allFuncNames = [...funcNameList, RUN_ALL_EXPORTED_FUNCTIONS];
   if (allFuncNames.includes(funcName)) {

@@ -52,7 +52,7 @@ This project is a wrapper for some useful and frequently-used loigc, based on co
 
 ## Some Rules For Running On ts-node
 
-ts-node can't run .ts file if no tsconfig.json is found for the file
+ts-node can't run .ts file without tsconfig.json found for the file(but can run .js file directly)
 
 For some cases, some params, say `-r ${projectPath}/node_modules/tsconfig-paths/register.js`, `--project ${projectPath}tsconfig.json`, are needed for ts-node runtime, so if we want run a .ts file as bin command, we need provide these params to ts-node runtime in shebang line. The thing is these ts-node params depends on the location of this project, so they should be generated dynamically as this project may be run on different platform.
 

@@ -14,6 +14,8 @@ export {
   toNormalizedUrlProps,
   Env,
   isFunction,
+  formatDate,
+  toLocalISOString
 } from '../../modules/lib/fe/common';
 export {
   checkPort as isPortOpen,
@@ -59,6 +61,8 @@ export {
   getSpawnConfigByScriptPath,
   spawnTsFile,
   SpawnFileOptions,
+  logCmdAndexecSync,
+  isDirExistForFile,
 } from '../../modules/lib/node';
 export {
   KoaConfig,
