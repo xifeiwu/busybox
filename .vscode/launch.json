@@ -17,6 +17,18 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "ts-node",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "runtimeExecutable": "ts-node",
+      "args": ["${relativeFile}"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceRoot}",
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Run On TsNode",
       "skipFiles": [
         "<node_internals>/**"
