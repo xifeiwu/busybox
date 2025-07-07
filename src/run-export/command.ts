@@ -1,8 +1,7 @@
 import path from 'path';
 import {Command} from 'commander';
 import {logColorful} from '../../modules/lib/node/log';
-
-import {runScriptExportInCP} from './run-export-in-cp';
+import {runScriptExportInCP} from './run-script-export-in-cp';
 
 const program = new Command();
 program.name('runTsExport').description('utility for process handling');

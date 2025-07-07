@@ -25,6 +25,8 @@ export async function runScriptExportInCP(targetScript: string, options?: RunScr
     '-r': null,
     '--project': null,
   };
+  const mainScript = tryUseJsFile(path.join(__dirname, 'cp-script.ts'));
+  /** spawnConfig for targetScript, funcName, funcParams are passed by infoToCp*/
   const spawnConfig = getSpawnAndTryIpcConfigByScriptPath<RunScriptExportConfig>(targetScript, {
     runtimeOptions: targetIsTsFile ? tsNodeOptions : {},
     infoToCp: {
@@ -36,7 +38,6 @@ export async function runScriptExportInCP(targetScript: string, options?: RunScr
     maxWaitTime4Ipc: 30,
   });
   const {command, args} = spawnConfig;
-  const mainScript = tryUseJsFile(path.join(__dirname, 'cp-script.ts'));
   /**
    * targetScript     mainScript        runtime
    * .ts              .ts               ts-node
@@ -45,9 +46,12 @@ export async function runScriptExportInCP(targetScript: string, options?: RunScr
    * .js              .js               node
    */
   const finalCommand = getFilePathInfo(mainScript).extname === '.ts' ? 'ts-node' : command;
-  const finalArgs = [mainScript, ...args];
+  const finalArgs = [...args];
+  finalArgs.splice(args.length - 1, 0, mainScript);
 
-  const wholeScript = `${finalCommand} ${finalArgs.join(' ')}`;
+  const wholeScript = [finalCommand, ...finalArgs, restOptions?.funcName, ...(restOptions?.funcParams ?? [])]
+    .filter(Boolean)
+    .join(' ');
   logColorful({color: 'magenta'}, wholeScript);
   if (dryRun) {
     return;
