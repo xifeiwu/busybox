@@ -1,5 +1,5 @@
 .DS_Store
-bin/dist
+bin
 node_modules/
 src/redis/config
 src/redis/data
