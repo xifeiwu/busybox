@@ -1,15 +1,8 @@
 {
   "name": "busybox",
-  "version": "0.0.1",
+  "version": "0.6.0",
   "description": "serveral frequently used utilities implemented by ts, exposed in format of command.",
   "main": "src/index.ts",
-  "bin": {
-    "runTsExport": "./bin/runTsExport.ts",
-    "nb": "./bin/nb.ts",
-    "nb-process": "./bin/nb-process.ts",
-    "nb-net": "./bin/nb-net.ts",
-    "login-to-server": "./bin/login-to-server.ts"
-  },
   "scripts": {
     "ts-check": "tsc --noEmit",
     "build": "tsc && npx tsc-alias",
