@@ -10,8 +10,14 @@ import {
 import {tryUseJsFile} from '../../modules/lib/node/child-process/service';
 import {RunScriptExportConfig, RunScriptExportInCPOptions} from './types';
 
+const defaultTsNodeOptions: TsNodeOptions = {
+  // '--transpileOnly': true,
+  '--swc': true,
+  '-r': null,
+  '--project': null,
+};
 export async function runScriptExportInCP(targetScript: string, options?: RunScriptExportInCPOptions) {
-  const {dryRun, ...restOptions} = options ?? {};
+  const {dryRun, spawnOptions, tsNodeOptions, funcOptions} = options ?? {};
 
   const {extname} = getFilePathInfo(targetScript);
   if (!['.ts', '.js'].includes(extname)) {
@@ -19,21 +25,12 @@ export async function runScriptExportInCP(targetScript: string, options?: RunScr
   }
   const targetIsTsFile = extname === '.ts';
 
-  const tsNodeOptions: TsNodeOptions = {
-    // '--transpileOnly': true,
-    '--swc': true,
-    '-r': null,
-    '--project': null,
-  };
   const mainScript = tryUseJsFile(path.join(__dirname, 'cp-script.ts'));
   /** spawnConfig for targetScript, funcName, funcParams are passed by infoToCp*/
   const spawnConfig = getSpawnAndTryIpcConfigByScriptPath<RunScriptExportConfig>(targetScript, {
-    runtimeOptions: targetIsTsFile ? tsNodeOptions : {},
+    runtimeOptions: targetIsTsFile ? tsNodeOptions ?? defaultTsNodeOptions : {},
     infoToCp: {
-      config: {
-        scriptPath: targetScript,
-        ...restOptions,
-      },
+      config: [targetScript, funcOptions],
     },
     maxWaitTime4Ipc: 30,
   });
@@ -49,7 +46,7 @@ export async function runScriptExportInCP(targetScript: string, options?: RunScr
   const finalArgs = [...args];
   finalArgs.splice(args.length - 1, 0, mainScript);
 
-  const wholeScript = [finalCommand, ...finalArgs, restOptions?.funcName, ...(restOptions?.funcParams ?? [])]
+  const wholeScript = [finalCommand, ...finalArgs, funcOptions?.funcName, ...(funcOptions?.funcParams ?? [])]
     .filter(Boolean)
     .join(' ');
   logColorful({color: 'magenta'}, wholeScript);
@@ -63,6 +60,7 @@ export async function runScriptExportInCP(targetScript: string, options?: RunScr
     command: finalCommand,
     args: finalArgs,
     spawnOptions: {
+      ...spawnOptions,
       stdio: [0, 1, 2, 'ipc'],
     },
   });

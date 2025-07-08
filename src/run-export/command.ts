@@ -26,9 +26,11 @@ program
     const targetScript = path.resolve(process.cwd(), scriptPath);
     try {
       const responseFromCp = await runScriptExportInCP(targetScript, {
-        funcName,
-        funcParams,
-        runTheOnlyFuncDirectly: true,
+        funcOptions: {
+          funcName,
+          funcParams,
+          runTheOnlyFuncDirectly: true,
+        },
         dryRun,
       });
       logColorful({color: 'black'}, 'responseFromCp:', responseFromCp);

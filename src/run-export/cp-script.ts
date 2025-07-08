@@ -19,7 +19,7 @@ export async function start() {
     });
   }
   const {config} = ipcMessage;
-  const {scriptPath, ...options} = config;
+  const [scriptPath, options] = config;
 
   if (process.connected && process.send) {
     /** Child process will exit by the error EPipe if the error is not catched here */
