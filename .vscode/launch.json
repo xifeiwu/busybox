@@ -10,7 +10,7 @@
       // "program": "runOntsNode",
       "args": ["${relativeFile}"],
       "console": "integratedTerminal",
-      "cwd": "${workspaceRoot}",
+      "cwd": "${workspaceRoot}"
       // "protocol": "inspector",
       // "internalConsoleOptions": "openOnSessionStart"
     },
@@ -18,25 +18,21 @@
       "type": "node",
       "request": "launch",
       "name": "ts-node",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "runtimeExecutable": "ts-node",
       "args": ["${relativeFile}"],
       "console": "integratedTerminal",
-      "cwd": "${workspaceRoot}",
+      "cwd": "${workspaceRoot}"
     },
     {
       "type": "node",
       "request": "launch",
       "name": "Run On TsNode",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "runtimeExecutable": "runTsScript",
       "args": ["${relativeFile}"],
       "console": "integratedTerminal",
-      "cwd": "${workspaceRoot}",
-    },
+      "cwd": "${workspaceRoot}"
+    }
   ]
 }
