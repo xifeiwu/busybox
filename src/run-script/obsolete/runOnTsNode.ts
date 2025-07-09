@@ -8,7 +8,7 @@ import {
   getSpawnConfigByScriptPath,
   logColorful,
   TsNodeOptions,
-} from '../modules/lib/node';
+} from '@modules/lib/node';
 
 const program = new Command();
 program.name('runTsExport').description('utility for process handling');
