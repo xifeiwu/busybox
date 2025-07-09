@@ -1,2 +1,2 @@
 #!/usr/bin/env ts-node
-import '../src/run-export/command'
+import '../src/run-script/run-ts-export'

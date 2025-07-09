@@ -1,7 +1,7 @@
 import path from 'path';
 import {Command} from 'commander';
 import {logColorful} from '../../modules/lib/node/log';
-import {runScriptExportInCP} from './run-script-export-in-cp';
+import {runTsScriptInCP} from '../../modules/lib/node/utils/run-script';
 
 const program = new Command();
 program.name('runTsExport').description('utility for process handling');
@@ -13,7 +13,6 @@ program
   .option('-d, --dry-run', 'show the command without running it. ')
   .action(async (scriptPath, funcName, funcParams, options) => {
     const {all, dryRun} = options;
-
     /**
      * Format of argv:
      * [
@@ -25,8 +24,8 @@ program
      */
     const targetScript = path.resolve(process.cwd(), scriptPath);
     try {
-      const responseFromCp = await runScriptExportInCP(targetScript, {
-        funcOptions: {
+      const responseFromCp = await runTsScriptInCP(targetScript, {
+        runScriptOptions: {
           funcName,
           funcParams,
           runTheOnlyFuncDirectly: true,

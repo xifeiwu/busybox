@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {logColorful, selectOption} from '../service/external';
-import {BIN_TO_FEATURE} from './config';
+import {BIN_TO_COMMAND} from './config';
 import {DIR_PROJECT} from '../service';
 
 function isLinkFileExist(filePath) {
@@ -17,7 +17,7 @@ function isLinkFileExist(filePath) {
 export async function linkBin(linkDir: string) {
   const {label: suffix} = await selectOption(['.ts', '.js'].map(label => ({label})));
 
-  for (const binName of Object.keys(BIN_TO_FEATURE)) {
+  for (const binName of Object.keys(BIN_TO_COMMAND)) {
     // link can't be overrided, so remove it first
     const linkFile = path.resolve(linkDir, binName);
     const binFile = path.join(DIR_PROJECT, 'bin', binName + suffix);

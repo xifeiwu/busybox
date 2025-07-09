@@ -2,9 +2,9 @@ import path from 'path';
 import fs from 'fs';
 import {DIR_PROJECT} from '../service';
 import {logColorful, getDir} from '../service/external';
-import {BIN_TO_FEATURE} from './config';
+import {BIN_TO_COMMAND} from './config';
 
-function generateTsBinContent(binPath: string, cmdPath: string) {
+function generateBinContent(binPath: string, cmdPath: string) {
   if (!fs.existsSync(cmdPath)) {
     throw new Error(`cmdPath not found: ${cmdPath}`);
   }
@@ -24,18 +24,18 @@ function generateTsBinContent(binPath: string, cmdPath: string) {
 }
 
 export async function generateBinFile() {
-  for (const [bin, feature] of Object.entries(BIN_TO_FEATURE)) {
+  for (const [bin, cmdPath] of Object.entries(BIN_TO_COMMAND)) {
     const tsBinPath = path.join(DIR_PROJECT, 'bin', bin + '.ts');
-    const tsCmdPath = path.join(DIR_PROJECT, 'src', feature, 'command.ts');
+    const tsCmdPath = path.join(DIR_PROJECT, 'src', cmdPath + '.ts');
     try {
-      generateTsBinContent(tsBinPath, tsCmdPath);
+      generateBinContent(tsBinPath, tsCmdPath);
     } catch (err) {
       logColorful({color: 'red'}, err.message);
     }
     const jsBinPath = path.join(DIR_PROJECT, 'bin', bin + '.js');
-    const jsCmdPath = path.join(DIR_PROJECT, 'dist', 'src', feature, 'command.js');
+    const jsCmdPath = path.join(DIR_PROJECT, 'dist', 'src', cmdPath + '.js');
     try {
-      generateTsBinContent(jsBinPath, jsCmdPath);
+      generateBinContent(jsBinPath, jsCmdPath);
     } catch (err) {
       logColorful({color: 'red'}, err.message);
     }
