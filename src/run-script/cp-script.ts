@@ -1,4 +1,4 @@
-import {runScriptExport} from '../../modules/lib/node/utils/run-script-export';
+import {runTsScript} from '../../modules/lib/node/utils/run-script';
 import {InfoToCp} from '../../modules/lib/node/types/child_process';
 import {RunScriptExportConfig} from './types';
 import {logColorful} from '../../modules/lib/node/log';
@@ -31,7 +31,7 @@ export async function start() {
   }
 
   try {
-    const result = await runScriptExport(scriptPath, options);
+    const result = await runTsScript(scriptPath, options);
     console.log('');
     console.log(TAG);
     console.log(result);

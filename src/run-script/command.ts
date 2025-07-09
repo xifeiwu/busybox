@@ -30,6 +30,7 @@ program
           funcName,
           funcParams,
           runTheOnlyFuncDirectly: true,
+          selectExportedFunc: true,
         },
         dryRun,
       });
