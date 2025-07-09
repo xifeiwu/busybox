@@ -15,7 +15,7 @@ function isLinkFileExist(filePath) {
 }
 
 export async function linkBin(linkDir: string) {
-  const {label: suffix} = await selectOption(['.ts', '.js'].map(label => ({label})));
+  const {label: suffix} = await selectOption(['.js', '.ts'].map(label => ({label})));
 
   for (const binName of Object.keys(BIN_TO_COMMAND)) {
     // link can't be overrided, so remove it first

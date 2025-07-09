@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
-import {hashData, logColorful, isObject} from '../../service/external';
+import {hashData, logColorful, isObject} from '../service/external';
 
 export function appendOtherCommand(program: Command) {
   program
