@@ -33,23 +33,10 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "runtimeExecutable": "runOntsNode",
+      "runtimeExecutable": "runTsScript",
       "args": ["${relativeFile}"],
       "console": "integratedTerminal",
       "cwd": "${workspaceRoot}",
-    },
-    {
-      "type": "node",
-      "name": "Run JS Export",
-      // "request": "launch",
-      // "runtimeExecutable": "runtsExport",
-      "runtimeExecutable": "runJsExport",
-      // "program": "runOntsNode",
-      "args": ["${relativeFile}"],
-      "console": "integratedTerminal",
-      "cwd": "${workspaceRoot}",
-      // "protocol": "inspector",
-      // "internalConsoleOptions": "openOnSessionStart"
     },
   ]
 }
