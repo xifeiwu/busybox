@@ -3,12 +3,12 @@ import {logColorful} from '../../modules/lib/node/log';
 import {TsNodeOptions} from '../../modules/lib/node/types';
 import {getFilePathInfo} from '../../modules/lib/node/path';
 import {
-  getSpawnAndTryIpcConfigByScriptPath,
+  getSpawnConfigByScriptPath,
   spawnAndTryIpc,
   serializeSpawnResponse,
 } from '../../modules/lib/node/child-process/spawn';
 import {tryUseJsFile} from '../../modules/lib/node/child-process/service';
-import {RunScriptExportConfig, RunScriptExportInCPOptions} from './types';
+import {RunScriptExportInCPOptions} from './types';
 
 const defaultTsNodeOptions: TsNodeOptions = {
   // '--transpileOnly': true,
@@ -26,15 +26,15 @@ export async function runScriptExportInCP(targetScript: string, options?: RunScr
   const targetIsTsFile = extname === '.ts';
 
   const mainScript = tryUseJsFile(path.join(__dirname, 'cp-script.ts'));
-  /** spawnConfig for targetScript, funcName, funcParams are passed by infoToCp*/
-  const spawnConfig = getSpawnAndTryIpcConfigByScriptPath<RunScriptExportConfig>(targetScript, {
+  /**
+   * get command and args by targetScript:
+   * command: ts-node
+   * args: [-r, node/start/feature/node_modules/tsconfig-paths/register.js, --project, node/start/feature/tsconfig.json, --swc, /Users/wuxifei/code/node/start/feature/1-js/object/defineProperty/get-set.ts]
+   */
+  const spawnAndIpcConfig = getSpawnConfigByScriptPath<TsNodeOptions>(targetScript, {
     runtimeOptions: targetIsTsFile ? tsNodeOptions ?? defaultTsNodeOptions : {},
-    infoToCp: {
-      config: [targetScript, funcOptions],
-    },
-    maxWaitTime4Ipc: 30,
   });
-  const {command, args} = spawnConfig;
+  const {command, args} = spawnAndIpcConfig;
   /**
    * targetScript     mainScript        runtime
    * .ts              .ts               ts-node
@@ -56,13 +56,16 @@ export async function runScriptExportInCP(targetScript: string, options?: RunScr
 
   process.stdin.setRawMode(false);
   const response = await spawnAndTryIpc({
-    ...spawnConfig,
     command: finalCommand,
     args: finalArgs,
     spawnOptions: {
       ...spawnOptions,
       stdio: [0, 1, 2, 'ipc'],
     },
+    infoToCp: {
+      config: [targetScript, funcOptions],
+    },
+    maxWaitTime4Ipc: 30,
   });
   const {childProcess} = response;
   logColorful({color: 'magenta'}, `pid of main/child process: ${process.pid}/${childProcess.pid}`);
