@@ -2,59 +2,60 @@
 import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
-import {goOnOrNot, logColorful, syncUpGitRepos, writeGitIgnoreFile} from '../modules/lib/node';
+import {
+  GitRepoInfoTree,
+  goOnOrNot,
+  logColorful,
+  coloringContent,
+  syncUpGitRepos,
+  writeGitIgnoreFile,
+} from '../modules/lib/node';
+
+interface ConfigFileExport {
+  repoInfoTree: GitRepoInfoTree;
+  /** relative path  */
+  repoDir: string;
+}
 
 const program = new Command();
 program.name('syncup gitmodules').description('sync up git modules by config');
 program
-  .argument('[jsonFile]', 'path to ts file to run')
-  .option('-h, --host-dir <hostDir>', 'host dir of project')
-  .option('-r, --repo-dir <repoDir>', 'the dir to locate submodules')
-  .action(async (jsonFilePath: string, options) => {
+  .argument('[gitmoduleConfigFile]', 'path to ts file to run')
+  .action(async (gitmoduleConfigFile: string) => {
     const cwd = process.cwd();
-    let {hostDir, repoDir} = options;
-    // logColorful({}, `Params passed:`, {jsonFilePath, options});
-    const fileNames = [jsonFilePath, 'gitmodules.ts', 'gitmodules.js', 'gitmodules.json'].filter(Boolean);
-    jsonFilePath = fileNames.map(p => path.resolve(cwd, p)).find(it => fs.existsSync(it));
-    if (!jsonFilePath) {
-      throw new Error(`jsonFilePath not exist: ${jsonFilePath}`);
+    const fileNames = [gitmoduleConfigFile, 'gitmodules.ts', 'gitmodules.js', 'gitmodules.json'].filter(
+      Boolean
+    );
+    gitmoduleConfigFile = fileNames.map(p => path.resolve(cwd, p)).find(it => fs.existsSync(it));
+    if (!gitmoduleConfigFile) {
+      throw new Error(
+        `Not found git modules config file in current work dir: ['gitmodules.ts', 'gitmodules.js', 'gitmodules.json']`
+      );
     }
-    let repoInfo = require(jsonFilePath);
-    /**
-     * For the case export default in .ts file
-     * module.exports = {} will not not go this case
-     */
-    if (repoInfo.default) {
-      repoInfo = repoInfo.default;
+    const {repoInfoTree, repoDir} = require(gitmoduleConfigFile) as ConfigFileExport;
+    const hostDir = cwd;
+    for (const dir of [hostDir, repoDir]) {
+      if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) {
+        throw new Error(`dir not exist: ${dir}`);
+      }
     }
-    // logColorful({}, `will use repo info`, repoInfo);
-    if (!hostDir) {
-      hostDir = cwd;
-    }
-    hostDir = path.resolve(cwd, hostDir);
-    if (!fs.existsSync(hostDir) || !fs.statSync(hostDir).isDirectory()) {
-      throw new Error(`hostDir not exist or is not a dir.`);
-    }
-    /** value of repoDir should be a relative path */
-    if (!repoDir) {
-      repoDir = 'vendor';
-    }
-    logColorful({color: 'yellow'}, `Config file will be used:`, jsonFilePath, `params for syncUpGitRepos:`, {
-      hostDir,
-      repoDir,
-    });
     if (
       !(await goOnOrNot({
+        tips: [
+          'Please confirm config:',
+          coloringContent({}, {configFile: gitmoduleConfigFile, hostDir, repoDir}),
+        ],
         defaultValue: true,
+        style: {color: 'black'},
       }))
     ) {
       return;
     }
-    await syncUpGitRepos(repoInfo, {
+    await syncUpGitRepos(repoInfoTree, {
       hostDir,
       repoDir,
     });
-    writeGitIgnoreFile(repoInfo, {
+    writeGitIgnoreFile(repoInfoTree, {
       hostDir,
       repoDir,
     });
