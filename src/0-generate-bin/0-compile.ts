@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {DIR_JS_DIST, DIR_PROJECT} from '../service';
+import {DIR_DIST, DIR_PROJECT} from '../service';
 import {logCmdAndexecSync, goOnOrNot, isDirExistForFile, getDir} from '../service/external';
 import {BIN_TO_COMMAND, writeDistVersion} from './service';
 
@@ -17,7 +17,7 @@ function copyConfigFileToDist() {
   for (const [folder, fileNameList] of Object.entries(keyFilesByDir)) {
     for (const fileName of fileNameList) {
       const relativePath = path.join(folder, fileName);
-      const targetFullPath = path.join(DIR_JS_DIST, relativePath);
+      const targetFullPath = path.join(DIR_DIST, relativePath);
       if (isDirExistForFile(targetFullPath)) {
         fs.copyFileSync(path.join(DIR_PROJECT, relativePath), targetFullPath);
       }
@@ -25,7 +25,7 @@ function copyConfigFileToDist() {
   }
 }
 function installNodeModulesForDistProject() {
-  process.chdir(DIR_JS_DIST);
+  process.chdir(DIR_DIST);
   logCmdAndexecSync('pnpm install');
 }
 
@@ -57,7 +57,7 @@ export async function generateBinFile() {
     fs.chmodSync(binPath, '755');
   };
 
-  const distBinDir = path.join(DIR_JS_DIST, 'bin');
+  const distBinDir = path.join(DIR_DIST, 'bin');
   if (!fs.existsSync(distBinDir)) {
     fs.mkdirSync(distBinDir, {recursive: true});
   }
@@ -72,13 +72,13 @@ export async function generateBinFile() {
     /** generate bin file that run .js command on host project */
     generateContent(
       path.join(DIR_PROJECT, 'bin', bin + '.js'),
-      path.join(DIR_JS_DIST, 'src', cmdFile + '.js'),
+      path.join(DIR_DIST, 'src', cmdFile + '.js'),
       runtime
     );
     /** generate bin file that run .js command on dist project */
     generateContent(
-      path.join(DIR_JS_DIST, 'bin', bin + '.js'),
-      path.join(DIR_JS_DIST, 'src', cmdFile + '.js'),
+      path.join(DIR_DIST, 'bin', bin + '.js'),
+      path.join(DIR_DIST, 'src', cmdFile + '.js'),
       runtime
     );
   }
@@ -92,7 +92,7 @@ export async function compile() {
   });
   /** rm dist dir if install node_modules */
   if (installNodeModules) {
-    fs.rmSync(DIR_JS_DIST, {recursive: true});
+    fs.rmSync(DIR_DIST, {recursive: true});
   }
   logCmdAndexecSync('npm run build');
   copyConfigFileToDist();
