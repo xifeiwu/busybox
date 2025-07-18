@@ -64,6 +64,7 @@ export {
   logCmdAndexecSync,
   isDirExistForFile,
   getDir,
+  getFilePathInfo,
 } from '../../modules/lib/node';
 export {
   KoaConfig,

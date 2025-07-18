@@ -6,6 +6,8 @@ import {toLocalISOString} from '../service/external';
 interface CmdInfo {
   filePath: string;
   runtime?: 'node' | 'ts-node';
+  // Support link to global bin dir or not, as some command is not ready to be used as global bin command.
+  noLink?: boolean;
 }
 
 export const DIST_VERSION_FILE = path.join(DIR_JS_DIST, 'version.txt');
@@ -25,6 +27,10 @@ export function getDistVersion() {
  * Not add extname of command, as the extname can be .ts or .js
  */
 export const BIN_TO_COMMAND: Record<string, CmdInfo> = {
+  'generate-bin': {
+    filePath: '0-generate-bin/command',
+    noLink: true,
+  },
   nb: {filePath: 'mini-tools/command'},
   runTsExport: {filePath: 'run-script/run-ts-export'},
   runTsScript: {filePath: 'run-script/run-ts-script'},
