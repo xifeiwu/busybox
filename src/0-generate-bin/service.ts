@@ -32,6 +32,7 @@ export const BIN_TO_COMMAND: Record<string, CmdInfo> = {
     noLink: true,
   },
   nb: {filePath: 'mini-tools/command'},
+  'login-to-server': {filePath: 'command/login-to-server'},
   runTsExport: {filePath: 'run-script/run-ts-export'},
   runTsScript: {filePath: 'run-script/run-ts-script'},
   'syncup-gitmodules': {
