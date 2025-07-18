@@ -17,9 +17,9 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "ts-node",
+      "name": "Run Ts Script",
       "skipFiles": ["<node_internals>/**"],
-      "runtimeExecutable": "ts-node",
+      "runtimeExecutable": "runTsScript",
       "args": ["${relativeFile}"],
       "console": "integratedTerminal",
       "cwd": "${workspaceRoot}"
@@ -27,9 +27,9 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Run On TsNode",
+      "name": "ts-node",
       "skipFiles": ["<node_internals>/**"],
-      "runtimeExecutable": "runTsScript",
+      "runtimeExecutable": "ts-node",
       "args": ["${relativeFile}"],
       "console": "integratedTerminal",
       "cwd": "${workspaceRoot}"
