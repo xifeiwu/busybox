@@ -41,7 +41,7 @@ function tarGz() {
     throw new Error(`Can't find dist version, make sure project is compiled`);
   }
   process.chdir(DIR_PROJECT);
-  const gzFile = `busybox-dist.${distVersion}.tar.gz`;
+  const gzFile = `busybox-dist.${distVersion.replaceAll(':', '-')}.tar.gz`;
   logCmdAndexecSync(`tar -zcvf ${gzFile} ./dist`);
   return gzFile;
 }
