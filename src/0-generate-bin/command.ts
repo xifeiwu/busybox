@@ -3,17 +3,19 @@ import path from 'path';
 import {Command} from 'commander';
 import {goOnOrNot} from '../../modules/lib/node/readline';
 import {getFilePathInfo} from '../../modules/lib/node/path';
+import {logCmdAndexecSync} from '../../modules/lib/node/child-process';
+import {logColorful} from '../../modules/lib/node/log';
 import {compile} from './0-compile';
 import {linkBin} from './1-link-bin';
 import {getDistVersion} from './service';
-import {DIR_PROJECT} from '../service';
+import {DIR_DIST, DIR_PROJECT} from '../service';
 
 const runInDist = getFilePathInfo(__filename).extname === '.js';
 /**
  * link bin file to global bin dir.
  * Check if compile action is needed before link bin.
  */
-export async function toLinkBin(linkDir: string, binDir: string) {
+async function toLinkBin(linkDir: string, binDir: string) {
   /**
    * Check whether project is compiled or not, before generate bin file.
    */
@@ -31,6 +33,17 @@ export async function toLinkBin(linkDir: string, binDir: string) {
     }
   }
   await linkBin(linkDir, binDir);
+}
+
+function tarGz() {
+  const distVersion = getDistVersion();
+  if (!distVersion) {
+    throw new Error(`Can't find dist version, make sure project is compiled`);
+  }
+  process.chdir(DIR_PROJECT);
+  const gzFile = `busybox-dist.${distVersion}.tar.gz`;
+  logCmdAndexecSync(`tar -zcvf ${gzFile} ./dist`);
+  return gzFile;
 }
 
 const program = new Command();
@@ -73,5 +86,11 @@ program
       toLinkBin(linkDir, binDir);
     }
   });
-
+program
+  .command('gz')
+  .description('tar and gz dist folder')
+  .action(async () => {
+    const tzFile = tarGz();
+    logColorful({}, tzFile);
+  });
 program.parse(process.argv);

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {DIR_DIST} from '../service';
-import {toLocalISOString} from '../service/external';
+import {formatDate, toLocalISOString} from '../service/external';
 
 interface CmdInfo {
   filePath: string;
@@ -13,7 +13,7 @@ interface CmdInfo {
 export const DIST_VERSION_FILE = path.join(DIR_DIST, 'version.txt');
 
 export function writeDistVersion() {
-  fs.writeFileSync(DIST_VERSION_FILE, toLocalISOString());
+  fs.writeFileSync(DIST_VERSION_FILE, formatDate(new Date(), 'yyyy-MM-ddThh:mm:ss'));
 }
 export function getDistVersion() {
   try {
@@ -38,5 +38,9 @@ export const BIN_TO_COMMAND: Record<string, CmdInfo> = {
     filePath: 'command/syncup-gitmodules',
     /** It must run on ts-node, as this cmd need to import .ts file */
     runtime: 'ts-node',
+  },
+  'io-transparent': {
+    filePath: 'command/io-transparent',
+    noLink: true,
   },
 };
