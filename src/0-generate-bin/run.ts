@@ -6,28 +6,30 @@ import {goOnOrNot} from '../service/external';
 import {buildJs} from './0-build';
 import {generateBinFile} from './1-generate-bin';
 import {linkBin} from './2-link-bin';
+import {getDistVersion} from './config';
 
-export async function generate() {
-  if (
-    await goOnOrNot({
-      tips: ['build ts or not'],
-      defaultValue: true,
-    })
-  ) {
-    await buildJs();
+export async function toGenerateBinFile() {
+  /**
+   * Check whether project is compiled or not, before generate bin file.
+   */
+  const distVersion = getDistVersion();
+  if (!distVersion) {
+    buildJs();
+  } else {
+    if (
+      await goOnOrNot({
+        tips: [`current dist version is: ${distVersion}`, 'recompile project or not?'],
+        defaultValue: true,
+      })
+    ) {
+      await buildJs();
+    }
   }
-  if (
-    await goOnOrNot({
-      tips: ['generate bin files'],
-      defaultValue: true,
-    })
-  ) {
-    generateBinFile();
-  }
+  generateBinFile();
 }
 
 export async function link(linkDir: string) {
-  await generate();
+  await toGenerateBinFile();
   if (
     await goOnOrNot({
       tips: ['link bin files'],
@@ -37,12 +39,23 @@ export async function link(linkDir: string) {
     linkBin(linkDir);
   }
 }
+
+/**
+ * NOTICE: build, generate-bin must run on host project
+ */
 const program = new Command();
 program
-  .command('generate')
+  .command('build')
+  .description('build .ts file to .js')
+  .action(async () => {
+    await buildJs();
+  });
+
+program
+  .command('generate-bin')
   .description('generate bin command')
   .action(async () => {
-    await generate();
+    await toGenerateBinFile();
   });
 
 program
@@ -68,6 +81,7 @@ program
     if (!fs.existsSync(linkDir)) {
       fs.mkdirSync(linkDir, {recursive: true});
     }
+    /** readline on next tick, to avoid two readline use same input */
     await new Promise(res => process.nextTick(res));
     await link(linkDir);
   });

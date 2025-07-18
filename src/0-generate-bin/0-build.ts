@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import {DIR_JS_DIST, DIR_PROJECT} from '../service';
-import {logCmdAndexecSync, goOnOrNot, isDirExistForFile, toLocalISOString} from '../service/external';
+import {logCmdAndexecSync, goOnOrNot, isDirExistForFile} from '../service/external';
+import {writeDistVersion} from './config';
 
 const keyFilesByDir: Record<string, string[]> = {
   '.': ['package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml'],
@@ -26,10 +27,6 @@ function installNodeModulesInDist() {
   logCmdAndexecSync('pnpm install');
 }
 
-function writeVersionFile() {
-  fs.writeFileSync(path.join(DIR_JS_DIST, 'version.txt'), toLocalISOString());
-}
-
 export async function buildJs() {
   process.chdir(DIR_PROJECT);
   const installNodeModules = await goOnOrNot({
@@ -46,5 +43,5 @@ export async function buildJs() {
   if (installNodeModules) {
     installNodeModulesInDist();
   }
-  writeVersionFile();
+  writeDistVersion();
 }
