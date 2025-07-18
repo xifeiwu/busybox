@@ -1,8 +1,8 @@
 #!/usr/bin/env ts-node
-import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
-import {goOnOrNot, getFilePathInfo} from '../service/external';
+import {goOnOrNot} from '../../modules/lib/node/readline';
+import {getFilePathInfo} from '../../modules/lib/node/path';
 import {compile} from './0-compile';
 import {linkBin} from './1-link-bin';
 import {getDistVersion} from './service';
@@ -19,7 +19,7 @@ export async function toLinkBin(linkDir: string, binDir: string) {
    */
   const distVersion = getDistVersion();
   if (!distVersion) {
-    compile();
+    await compile();
   } else {
     if (
       await goOnOrNot({
@@ -30,7 +30,7 @@ export async function toLinkBin(linkDir: string, binDir: string) {
       await compile();
     }
   }
-  linkBin(linkDir, binDir);
+  await linkBin(linkDir, binDir);
 }
 
 const program = new Command();
@@ -45,7 +45,8 @@ program
   });
 
 program
-  .command('link [linkDir]')
+  .command('run [linkDir]')
+  .alias('link')
   .description('generate and link bin command')
   .action(async linkDir => {
     if (!linkDir) {
