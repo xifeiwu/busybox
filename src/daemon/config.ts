@@ -2,42 +2,10 @@
  * Add child process id to make it easy to find the process even daemon process is die
  */
 import path from 'path';
-import {
-  CP,
-  Daemon,
-  getCpConfigByScriptPath,
-  getScriptFullpath,
-  tryUseJsFile,
-  Env,
-} from '@src/service/external';
+import {CP, Daemon, getCpConfigByScriptPath, tryUseJsFile, Env} from '@src/service/external';
 import {TcpGateWayOptions} from '@src/types';
 
 const maxWaitTime4Ipc = 60;
-
-export function debugServer() {
-  const id = 'debug-server';
-  const config: Daemon.CpManagerConfig = {
-    id,
-    managerConfig: {
-      retry: {
-        maxCount: 3,
-        minInterval: 5000,
-      },
-    },
-    spawnConfig: getCpConfigByScriptPath<CP.DebugServerConfig>(
-      tryUseJsFile(getScriptFullpath('debug-server.ts')),
-      {
-        spawnOptions: {
-          stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
-        },
-        infoToCp: {config: {port: 3800}},
-        maxWaitTime4Ipc,
-        params: [id],
-      }
-    ),
-  };
-  return config;
-}
 
 export function tlsGateway() {
   const id = 'tls-gateway';

@@ -33,7 +33,6 @@ export {
   selectOption,
   getSocketPath,
   SocketClientToDaemon,
-  getScriptFullpath,
   CP,
   tryUseJsFile,
   getLocalIpAddress,

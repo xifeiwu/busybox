@@ -7,9 +7,9 @@ import {
   Daemon,
   spawnAndTryIpc,
 } from '../service/external';
-import {debugServer, tlsGateway, tcpGateway} from './config';
+import {tlsGateway, tcpGateway} from './config';
 
-export const cpManagerConfigMap = [debugServer, tlsGateway, tcpGateway].reduce<{
+export const cpManagerConfigMap = [tlsGateway, tcpGateway].reduce<{
   [key: string]: Daemon.CpManagerConfig;
 }>((sum, func) => {
   const config = func();
