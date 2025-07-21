@@ -4,6 +4,7 @@ import {DIR_DIST} from '../service';
 import {formatDate, toLocalISOString} from '../service/external';
 
 interface CmdInfo {
+  /** relative path to src dir */
   filePath: string;
   runtime?: 'node' | 'ts-node';
   // Support link to global bin dir or not, as some command is not ready to be used as global bin command.
@@ -41,7 +42,8 @@ export const BIN_TO_COMMAND: Record<string, CmdInfo> = {
     runtime: 'ts-node',
   },
   'io-transparent': {
-    filePath: 'command/io-transparent',
+    /** As this file is outside src folder, make sure it's compiled duirng tsc process */
+    filePath: '../modules/lib/node/child-process/cp-script/io-transparent',
     noLink: true,
   },
   'http-server': {
