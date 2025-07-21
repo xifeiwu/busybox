@@ -20,7 +20,6 @@
     "resolveFullPaths": true,
     "verbose": false
   },
-  "include": ["src"],
-  "exclude": ["modules/*"]
+  "include": ["src", "modules/lib/node/child-process/cp-script/*.ts"]
 }
 
