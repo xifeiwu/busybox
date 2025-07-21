@@ -44,4 +44,7 @@ export const BIN_TO_COMMAND: Record<string, CmdInfo> = {
     filePath: 'command/io-transparent',
     noLink: true,
   },
+  'http-server': {
+    filePath: 'command/http-server',
+  },
 };
