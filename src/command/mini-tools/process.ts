@@ -8,7 +8,7 @@ import {
   ProcessInfoFilterFunc,
   killProcessByPid,
   ProcessInfo,
-} from '../service/external';
+} from '../../service/external';
 
 export function appendProcessCommand(program: Command) {
   program

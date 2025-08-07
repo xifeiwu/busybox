@@ -7,7 +7,7 @@ import {
   flatChildren,
   getLineCountMap,
   FileFilter,
-} from '../service/external';
+} from '../../service/external';
 
 export function appendFileCommand(program: Command) {
   program
