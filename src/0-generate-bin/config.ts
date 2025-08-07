@@ -9,10 +9,10 @@ interface CmdInfo {
  * Not add extname of command, as the extname can be .ts or .js
  */
 export const BIN_TO_COMMAND: Record<string, CmdInfo> = {
-  'generate-bin': {
-    filePath: '0-generate-bin/command',
-    noLink: true,
-  },
+  // 'generate-bin': {
+  //   filePath: '0-generate-bin/run',
+  //   noLink: true,
+  // },
   nb: {filePath: 'mini-tools/command'},
   'login-to-server': {filePath: 'command/login-to-server'},
   runTsExport: {filePath: 'run-script/run-ts-export'},
