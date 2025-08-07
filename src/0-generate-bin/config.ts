@@ -13,7 +13,7 @@ export const BIN_TO_COMMAND: Record<string, CmdInfo> = {
   //   filePath: '0-generate-bin/run',
   //   noLink: true,
   // },
-  nb: {filePath: 'command/mini-tools/index'},
+  nb: {filePath: 'command/node-busybox/index'},
   'login-to-server': {filePath: 'command/login-to-server'},
   runTsExport: {filePath: 'run-script/run-ts-export'},
   runTsScript: {filePath: 'run-script/run-ts-script'},
