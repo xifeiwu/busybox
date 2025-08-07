@@ -9,7 +9,8 @@ import {
   FilterItem,
   matchFilters,
 } from '../service/external';
-import {BIN_TO_COMMAND, writeDistVersion} from './service';
+import {writeDistVersion} from './service';
+import {BIN_TO_COMMAND} from './config';
 
 /**
  * Copye some config file to dist, to install node_modules by these config file.

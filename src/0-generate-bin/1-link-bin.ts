@@ -1,8 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {logColorful, selectOption} from '../service/external';
-import {BIN_TO_COMMAND} from './service';
-// import {DIR_PROJECT} from '../service';
+import {BIN_TO_COMMAND} from './config';
 
 function isLinkFileExist(filePath) {
   try {
