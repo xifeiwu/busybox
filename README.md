@@ -1,51 +1,67 @@
 # Intro
 
-This project is a wrapper for some useful and frequently-used loigc, based on common modules(located in modules dir). It focus on can-run, major implementation should be archived in modules layer.
+This project is used to store useful and frequently-used loigc, based on common modules(located in modules dir). It focus on can-run, major logic should be implemented on modules layer.
 
-## How to run
-
-1. Run .ts file directly using `runTsExport` or `runOnTsNode`, in vscode's Debug mode or terminal.
-2. Run by an excuteable file(bin command) using commander format params.
-3. Run in a child process as a background service managed by daemon logic
+Logic can be run in these ways: 
+1. run as command file by runtime, like, ts-node src/command/login-to-server.ts
+2. run as bin file: like, ./src/0-generate-bin/bin.ts, or exposed to shell $PATH and run by name directly
+3. start in a background process, by the logic is implememted in src/1-daemon
 
 ## Folder Structure
 
-1. Each feature can have it's directory if the logic is complex, say tcp-gateway, and can expose interface for bin command and daemon if needed.
-2. For the logic need to expose by command, there should be a file with the same name as bin command to archive detail logic, the bin command in bin dir is just a commander wrapper.
-3. For the logic to as background service managed by daemon, there should be a daemon script in daemon dir.
+1. Features are categotrized by folder of src dir, and can expose three kinds of file: 1. bin file `bin.ts`, 2. command file `command.ts`, 3 script file `script.ts` which will be run as child process. For each kind of file, when there are more files, a folder(bin, command, script) can be created to store them. Small logic can be stored in folder (bin, command, script) of src dir.
+2. The logic in dir `0-generate-bin` can compile this project to .js file, create bin file to dir bin from command file, and link them to shell global $PATH
+3. The logic in dir `1-daemon` is used to start script in child process and manage them.
 
 .
 ├── README.md
-├── bin
-│   ├── 0-generate-bin.ts
-│   ├── daemon.ts
-│   ├── nb.ts
-│   ├── runOnTsNode.ts
-│   ├── runTsExport.ts
-│   ├── tcp-gateway.ts
-│   └── ...
 ├── src
-│   ├── command
-│   │   ├── http-server.ts
-│   │   ├── nb
-│   │   ├── runTsExport.ts
-│   │   ├── tcp-gateway.test.ts
-│   │   └── tcp-gateway.ts
-│   ├── daemon
-│   ├── redis
-│   ├── service
-│   ├── tcp-gateway
-│   └── types
+│   ├── 0-generate-bin
+│   ├── 1-daemon
+│   ├── command
+│   ├── mini-tools
+│   ├── other
+│   ├── redis
+│   ├── run-script
+│   ├── service
+│   ├── tcp-gateway
+│   └── types
+├── dist
+│   ├── bin
+│   ├── modules
+│   ├── node_modules
+│   ├── package.json
+│   ├── pnpm-lock.yaml
+│   ├── pnpm-workspace.yaml
+│   ├── src
+│   └── version.txt
+├── bin
+│   ├── daemon.js
+│   ├── daemon.ts
+│   ├── io-transparent.js
+│   ├── io-transparent.ts
+│   ├── login-to-server.js
+│   ├── login-to-server.ts
+│   ├── nb.js
+│   ├── nb.ts
+│   ├── runTsExport.js
+│   ├── runTsExport.ts
+│   ├── runTsScript.js
+│   ├── runTsScript.ts
+│   ├── syncup-gitmodules.js
+│   ├── syncup-gitmodules.ts
+│   ├── tcp-gateway.js
+│   └── tcp-gateway.ts
 ├── modules
-│   └── lib
-│       ├── db
-│       ├── fe
-│       ├── net
-│       ├── node
-│       └── utils
+│   └── lib
 ├── node_modules
-│   ├── commander -> .pnpm/registry.npmmirror.com+commander@11.1.0/node_modules/commander
-│   └── ...
+│   ├── @types
+│   ├── commander -> .pnpm/registry.npmmirror.com+commander@11.1.0/node_modules/commander
+│   ├── tsc-alias -> .pnpm/tsc-alias@1.8.10/node_modules/tsc-alias
+│   └── tsconfig-paths -> .pnpm/registry.npmmirror.com+tsconfig-paths@4.2.0/node_modules/tsconfig-paths
+├── package.json
+├── pnpm-lock.yaml
+├── pnpm-workspace.yaml
 └── tsconfig.json
 
 # About bin command
