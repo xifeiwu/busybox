@@ -1,14 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
-import {
-  GitRepoInfoTree,
-  goOnOrNot,
-  logColorful,
-  coloringContent,
-  syncUpGitRepos,
-  writeGitIgnoreFile,
-} from '../../modules/lib/node';
+import {GitRepoInfoTree, goOnOrNot, coloringContent} from '../../modules/lib/node';
+import {syncUpGitRepos, writeGitIgnoreFile} from '../../modules/lib/node/utils';
 
 interface ConfigFileExport {
   repoInfoTree: GitRepoInfoTree;

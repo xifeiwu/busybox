@@ -68,8 +68,8 @@ export function appendFileCommand(program: Command) {
         },
       });
       const finalStr = fileSizeList
-        .map(({relativePath, stat, children}) => {
-          return `${relativePath}${Array.isArray(children) ? '/' : ''}: ${intToWord(stat.size)}`;
+        .map(({relativePath, stats, children}) => {
+          return `${relativePath}${Array.isArray(children) ? '/' : ''}: ${intToWord(stats.size)}`;
         })
         .join('\n');
       logColorful({color: 'black'}, finalStr);
