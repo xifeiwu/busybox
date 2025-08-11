@@ -7,7 +7,7 @@ import {logCmdAndexecSync} from '../../modules/lib/node/child-process';
 import {logColorful} from '../../modules/lib/node/log';
 import {compile} from './0-compile';
 import {linkBin} from './1-link-bin';
-import {getDistVersion} from './service';
+import {DEFAULT_BIN_DIR, getDistVersion} from './service';
 import {DIR_DIST, DIR_PROJECT} from '../service';
 
 const runInDist = getFilePathInfo(__filename).extname === '.js';
@@ -63,8 +63,7 @@ program
   .description('generate and link bin command')
   .action(async linkDir => {
     if (!linkDir) {
-      const {HOME} = process.env;
-      linkDir = path.resolve(HOME, 'code/bin');
+      linkDir = DEFAULT_BIN_DIR;
     }
     if (
       !(await goOnOrNot({

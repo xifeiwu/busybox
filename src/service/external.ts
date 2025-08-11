@@ -67,6 +67,7 @@ export {
   isDirExistForFile,
   getDir,
   getFilePathInfo,
+  link,
 } from '../../modules/lib/node';
 export {
   KoaConfig,
