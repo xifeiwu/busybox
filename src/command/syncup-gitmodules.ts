@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
-import {GitRepoInfoTree, goOnOrNot, coloringContent} from '../../modules/lib/node';
+import {goOnOrNot, coloringContent} from '../../modules/lib/node';
 import {syncUpGitRepos, writeGitIgnoreFile} from '../../modules/lib/node/utils';
+import {GitRepoInfoTree} from '../../modules/types/fe/exec/git'
 
 interface ConfigFileExport {
   repoInfoTree: GitRepoInfoTree;
@@ -16,9 +17,14 @@ program
   .argument('[gitmoduleConfigFile]', 'path to ts file to run')
   .action(async (gitmoduleConfigFile: string) => {
     const cwd = process.cwd();
-    const fileNames = [gitmoduleConfigFile, 'gitmodules.ts', 'gitmodules.js', 'gitmodules.json'].filter(
-      Boolean
-    );
+    const fileNames = [
+      gitmoduleConfigFile,
+      'gitmodules.ts',
+      'gitmodules.js',
+      'gitmodules/index.ts',
+      'gitmodules/index.js',
+      'gitmodules.json',
+    ].filter(Boolean);
     gitmoduleConfigFile = fileNames.map(p => path.resolve(cwd, p)).find(it => fs.existsSync(it));
     if (!gitmoduleConfigFile) {
       throw new Error(
