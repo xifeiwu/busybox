@@ -13,3 +13,6 @@
 [submodule "modules/lib/utils"]
 	path = modules/lib/utils
 	url = git@elif.site:node/module/utils.git
+[submodule "modules/types/fe"]
+	path = modules/types/fe
+	url = git@elif.site:fe/module/types.git
