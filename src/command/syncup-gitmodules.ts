@@ -3,7 +3,7 @@ import path from 'path';
 import {Command} from 'commander';
 import {goOnOrNot, coloringContent} from '../../modules/lib/node';
 import {syncUpGitRepos, writeGitIgnoreFile} from '../../modules/lib/node/utils';
-import {GitRepoInfoTree} from '../../modules/types/fe/exec/git'
+import {GitRepoInfoTree} from '../../modules/types/fe/exec/git';
 
 interface ConfigFileExport {
   repoInfoTree: GitRepoInfoTree;
@@ -41,11 +41,12 @@ program
     if (
       !(await goOnOrNot({
         tips: [
-          'Please confirm config:',
-          coloringContent({}, {configFile: gitmoduleConfigFile, hostDir, repoDir}),
+          {
+            content: {configFile: gitmoduleConfigFile, hostDir, repoDir},
+          },
+          'Will run command using config above?',
         ],
         defaultValue: true,
-        style: {color: 'black'},
       }))
     ) {
       return;

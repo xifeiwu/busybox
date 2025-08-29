@@ -13,7 +13,7 @@ export async function linkBin(linkDir: string, binDir: string) {
   const {label: suffix} = await selectOption(
     ['.js', '.ts'].map(label => ({label})),
     {
-      tip: 'Please select the type of bin file to link',
+      tips: ['Please select the type of bin file to link'],
     }
   );
   const binsToLink = Object.entries(BIN_TO_COMMAND)
