@@ -36,7 +36,8 @@ export function appendOtherCommand(program: Command) {
     .command('curl <url>')
     .option('-X <method>', `http method`)
     .option('-H, --header <header...>', 'header')
-    .option('-d, --data <data>', 'data')
+    .option('-b, --cookie <cookie>', 'header')
+    .option('-d, --data --data-raw <data>', 'data')
     .action((url, options) => {
       // logColorful({color: 'red'}, curlCommand);
       // logColorful({color: 'red'}, options);
