@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {logColorful, selectOption, linkFile} from '../service/external';
+import {logColorful, selectOption, linkFile as link} from '../service/external';
 import {BIN_TO_COMMAND} from './config';
 
 export async function linkBin(linkDir: string, binDir: string) {
@@ -23,7 +23,7 @@ export async function linkBin(linkDir: string, binDir: string) {
     // link can't be overrided, so remove it first
     const linkFile = path.resolve(linkDir, binName);
     const binFile = path.join(binDir, binName + suffix);
-    linkFile(binFile, linkFile);
+    link(binFile, linkFile);
     logColorful({color: 'green'}, `Created Link: ${linkFile} -> ${binFile}`);
   }
   logColorful({color: 'red'}, `export PATH=${linkDir}:$PATH`);
