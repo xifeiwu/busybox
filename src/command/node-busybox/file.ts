@@ -8,6 +8,7 @@ import {
   getLineCountMap,
   FileFilter,
 } from '../../service/external';
+import {searchFileInDir} from '@modules/lib/node';
 
 export function appendFileCommand(program: Command) {
   program
@@ -104,23 +105,18 @@ export function appendFileCommand(program: Command) {
     .option('-d, --dir <directory>', 'data to post', '.')
     .option('-m, --max-depth <maxDepth>', 'max dir depth', null)
     .action(async (key, options) => {
-      const reg = new RegExp(key);
+      // const reg = new RegExp(key);
       var {dir, maxDepth} = options;
       dir = path.resolve(dir);
-      console.log(`searching dir: ${dir}`);
-      console.log('');
-      // const fileList = getFileList(dir);
-      const fileInfoTree = getFileInfoTree(dir, {
-        fileFilter({relativePath}) {
-          return reg.test(relativePath);
-        },
-      });
-      const filePathList = flatChildren(fileInfoTree, {includeDir: true}).map(it => it.relativePath);
-      if (filePathList.length === 0) {
-        console.log('not found');
-      } else {
-        console.log(`${filePathList.length} files found:`);
-        filePathList.forEach(it => console.log(it));
-      }
+      logColorful(
+        {},
+        {
+          searchDir: dir,
+          filter: key,
+        }
+      );
+      logColorful({}, '...in searching');
+      const results = searchFileInDir(dir, {filter: key, maxDepth});
+      logColorful({}, 'search results:', results);
     });
 }
