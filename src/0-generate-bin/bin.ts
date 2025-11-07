@@ -47,15 +47,6 @@ function tarGz() {
 }
 
 const program = new Command();
-program
-  .command('compile')
-  .description('compile project to get dist project')
-  .action(async () => {
-    if (runInDist) {
-      throw new Error(`This command not support in dist project`);
-    }
-    await compile();
-  });
 
 program
   .command('run [linkDir]')
@@ -85,6 +76,17 @@ program
       toLinkBin(linkDir, binDir);
     }
   });
+
+program
+  .command('compile')
+  .description('compile project to get dist project')
+  .action(async () => {
+    if (runInDist) {
+      throw new Error(`This command not support in dist project`);
+    }
+    await compile();
+  });
+
 program
   .command('gz')
   .description('tar and gz dist folder')
