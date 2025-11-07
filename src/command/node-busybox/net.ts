@@ -1,3 +1,4 @@
+import dns from 'dns';
 import {Command} from 'commander';
 import {
   isPortOpen,
@@ -16,6 +17,10 @@ export function appendNetCommand(program: Command) {
     console.log(host, port);
     const isOK = await isPortOpen(port, host);
     console.log(`isOK: ${isOK}`);
+  });
+  program.command('dns-lookup <domain>').action(async doman => {
+    const {address} = await dns.promises.lookup(doman);
+    logColorful({color: 'green'}, address);
   });
   program.command('local-ip').action(async (host, port, args, command) => {
     const localIp = getLocalIpAddress();
