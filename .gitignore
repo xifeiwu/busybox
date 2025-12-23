@@ -1,6 +1,7 @@
 .DS_Store
 bin
 dist
+tmp/
 node_modules/
 src/redis/config
 src/redis/data

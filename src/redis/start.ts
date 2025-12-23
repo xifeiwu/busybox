@@ -1,33 +1,34 @@
 /**
  * install redis on local before run this script: brew install redis
  */
-import {logColorful, makeSureDirExist} from '@modules/lib/node';
-import {exec, execSync} from 'child_process';
+import {exec} from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { MASTER_PORT, REPLICA_PORT } from './service';
 const redisServerBin = `/opt/homebrew/opt/redis/bin/redis-server`;
 const redisSentinelBin = `/opt/homebrew/opt/redis/bin/redis-sentinel`;
+import {logColorful, makeSureDirExist} from '../service/external';
 
-const configDir = path.resolve(__dirname, 'config');
-const dataDir = path.resolve(__dirname, 'data');
+const configDir = path.resolve(__dirname, 'tmp/config');
+const dataDir = path.resolve(__dirname, 'tmp');
 
 function getRedisMasterConfig() {
-  return `port 6379
+  return `port ${MASTER_PORT}
 dir ${dataDir}
 protected-mode no
 `;
 }
 function getRedisReplicaConfig() {
-  return `port 6380
+  return `port ${REPLICA_PORT}
 dir ${dataDir}
-replicaof 127.0.0.1 6379
+replicaof 127.0.0.1 ${MASTER_PORT}
 protected-mode no`;
 }
 
 function getSentinelConfig(port) {
   return `port ${port}
 dir ${dataDir}
-sentinel monitor mymaster 127.0.0.1 6379 2
+sentinel monitor mymaster 127.0.0.1 ${MASTER_PORT} 2
 sentinel down-after-milliseconds mymaster 5000
 sentinel failover-timeout mymaster 10000
 sentinel parallel-syncs mymaster 1
@@ -77,6 +78,7 @@ function logCmdAndExec(command: string) {
   logColorful({color: 'red'}, command);
   return exec(command);
 }
+
 export async function start() {
   const configFile = prepareConfig();
   const masterServer = logCmdAndExec([redisServerBin, configFile['redisMaster']].join(' '));
