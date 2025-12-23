@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import {DIR_DIST, DIR_PROJECT} from '../service';
 import {
-  logCmdAndexecSync,
+  execCmdWithOptions,
   goOnOrNot,
   isDirExistForFile,
   getDir,
@@ -57,7 +57,7 @@ function copyConfigFileToDist() {
 }
 function installNodeModulesForDistProject() {
   process.chdir(DIR_DIST);
-  logCmdAndexecSync('pnpm install');
+  execCmdWithOptions('pnpm install');
 }
 
 /**
@@ -65,7 +65,7 @@ function installNodeModulesForDistProject() {
  * 1. Add shebang line
  * 2. require the command file
  */
-export async function generateBinFile() {
+async function generateBinFile() {
   const generateContent = (binPath: string, cmdPath: string, runtime: string) => {
     if (!fs.existsSync(cmdPath)) {
       throw new Error(`cmdPath not found: ${cmdPath}`);
@@ -125,7 +125,7 @@ export async function compile() {
   if (installNodeModules) {
     fs.rmSync(DIR_DIST, {recursive: true});
   }
-  logCmdAndexecSync('npm run build');
+  execCmdWithOptions('npm run build');
   copyConfigFileToDist();
   /** node_modules can only install once if dependencies in package.json is not */
   if (installNodeModules) {

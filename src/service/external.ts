@@ -63,7 +63,7 @@ export {
   getSpawnConfigByScriptPath,
   spawnTsFile,
   SpawnFileOptions,
-  logCmdAndexecSync,
+  execCmdWithOptions,
   isDirExistForFile,
   getDir,
   getFilePathInfo,

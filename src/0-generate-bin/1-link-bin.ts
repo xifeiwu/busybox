@@ -3,17 +3,24 @@ import path from 'path';
 import {logColorful, selectOption, linkFile as link} from '../service/external';
 import {BIN_TO_COMMAND} from './config';
 
-export async function linkBin(linkDir: string, binDir: string) {
+type Suffix = '.js' | '.ts';
+
+export async function linkBin(linkDir: string, binDir: string, options?: {inJsMode?: boolean}) {
+  const {inJsMode} = options ?? {};
   const notExistDir = [linkDir, binDir].find(it => !fs.existsSync(it));
   if (notExistDir) {
     throw new Error(`dir not exist: ${linkDir}`);
   }
-
+  const suffixList: Suffix[] = inJsMode ? ['.js'] : ['.js', '.ts'];
+  const tips = [`Will link command to dir: ${linkDir}`];
+  if (inJsMode !== true) {
+    tips.push('Please select the type of bin file to link');
+  }
   /** select the type of bin file to link: .js or .ts */
   const {label: suffix} = await selectOption(
-    ['.js', '.ts'].map(label => ({label})),
+    suffixList.map(label => ({label})),
     {
-      tips: ['Please select the type of bin file to link'],
+      tips,
     }
   );
   const binsToLink = Object.entries(BIN_TO_COMMAND)

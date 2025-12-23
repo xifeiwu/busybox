@@ -3,36 +3,37 @@ import path from 'path';
 import {Command} from 'commander';
 import {goOnOrNot} from '../../modules/lib/node/readline';
 import {getFilePathInfo} from '../../modules/lib/node/path';
-import {logCmdAndexecSync} from '../../modules/lib/node/child-process';
+import {execCmdWithOptions} from '../../modules/lib/node/child-process';
 import {logColorful} from '../../modules/lib/node/log';
 import {compile} from './0-compile';
 import {linkBin} from './1-link-bin';
 import {DEFAULT_BIN_DIR, getDistVersion} from './service';
 import {DIR_DIST, DIR_PROJECT} from '../service';
 
-const runInDist = getFilePathInfo(__filename).extname === '.js';
 /**
- * link bin file to global bin dir.
- * Check if compile action is needed before link bin.
+ * Whether this file is the original .ts file or .js file in output dist dir
+ * For the case of run this bin in dist:
+ * copy dist.tar.gz to target platform, and link bin file to global PATH
  */
-async function toLinkBin(linkDir: string, binDir: string) {
+const inJsMode = getFilePathInfo(__filename).extname === '.js';
+
+/**
+ * Check if compile is needed
+ */
+async function checkCompile() {
   /**
    * Check whether project is compiled or not, before generate bin file.
    */
   const distVersion = getDistVersion();
-  if (!distVersion) {
+  if (
+    !distVersion ||
+    (await goOnOrNot({
+      tips: [`current dist version is: ${distVersion}`, 'recompile project or not?'],
+      defaultValue: true,
+    }))
+  ) {
     await compile();
-  } else {
-    if (
-      await goOnOrNot({
-        tips: [`current dist version is: ${distVersion}`, 'recompile project or not?'],
-        defaultValue: true,
-      })
-    ) {
-      await compile();
-    }
   }
-  await linkBin(linkDir, binDir);
 }
 
 function tarGz() {
@@ -42,7 +43,7 @@ function tarGz() {
   }
   process.chdir(DIR_PROJECT);
   const gzFile = `busybox-dist.${distVersion.replaceAll(':', '-')}.tar.gz`;
-  logCmdAndexecSync(`tar -zcvf ${gzFile} ./dist`);
+  execCmdWithOptions(`tar -zcvf ${gzFile} ./dist`);
   return gzFile;
 }
 
@@ -56,32 +57,18 @@ program
     if (!linkDir) {
       linkDir = DEFAULT_BIN_DIR;
     }
-    if (
-      !(await goOnOrNot({
-        tips: [`Will link command to dir: ${linkDir}?`],
-        defaultValue: true,
-        style: {
-          color: 'red',
-        },
-      }))
-    ) {
-      throw new Error(`Manually Interupt`);
-    }
     const binDir = path.join(DIR_PROJECT, 'bin');
-    if (runInDist) {
-      linkBin(linkDir, binDir);
-    } else {
-      /** readline on next tick, to avoid two readline use same input */
-      await new Promise(res => process.nextTick(res));
-      toLinkBin(linkDir, binDir);
+    if (!inJsMode) {
+      checkCompile();
     }
+    linkBin(linkDir, binDir, {inJsMode});
   });
 
 program
   .command('compile')
   .description('compile project to get dist project')
   .action(async () => {
-    if (runInDist) {
+    if (inJsMode) {
       throw new Error(`This command not support in dist project`);
     }
     await compile();

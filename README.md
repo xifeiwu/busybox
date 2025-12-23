@@ -1,15 +1,21 @@
 # Intro
 
-This project is used to store useful and frequently-used loigc, based on common modules(located in modules dir). It focus on can-run, major logic should be implemented on modules layer.
+This project is a wrapper of some frequently-used loigc for daily development, based on common modules(located in modules dir). It focus on can-run, major logic should be implemented on modules layer.
 
 Logic can be run in these ways: 
-1. run as command file by runtime, like, ts-node src/command/login-to-server.ts
-2. run as bin file: like, ./src/0-generate-bin/bin.ts, or exposed to shell $PATH and run by name directly
+1. as a script start by runtime, like, ts-node src/command/login-to-server.ts
+2. as bin file: like, ./src/0-generate-bin/bin.ts, or exposed to shell $PATH and run by name directly
 3. start in a background process, by the logic is implememted in src/1-daemon
+
+# Thoughts of generate-bin
+
+It will significantly improve efficiency if the frequently-used logic can be run as a bin command in terminal.
+If run command as .ts file, ts-node will compile all the related .ts files on every startup, it will take long time before real logic started.
+The logic start with a .js bin command is a better solution, in order to go this way, generate-bin will compile the whole project and submodules it used, and create bin command in dir bin, these bin files can be linked to global PAHT by link-bin action.
 
 ## Folder Structure
 
-1. Features are categotrized by folder of src dir, and can expose three kinds of file: 1. bin file `bin.ts`, 2. command file `command.ts`, 3 script file `script.ts` which will be run as child process. For each kind of file, when there are more files, a folder(bin, command, script) can be created to store them. Small logic can be stored in folder (bin, command, script) of src dir.
+1. Features are categotrized by folder under src dir, and can expose three kinds of file: 1. bin file `bin.ts`, 2. command file `command.ts`, 3 script file `script.ts` which will be run as child process. For each kind of file, when there are more files, a folder(bin, command, script) can be created to store them. Small logic can be stored in folder (bin, command, script) of src dir.
 2. The logic in dir `0-generate-bin` can compile this project to .js file, create bin file to dir bin from command file, and link them to shell global $PATH
 3. The logic in dir `1-daemon` is used to start script in child process and manage them.
 

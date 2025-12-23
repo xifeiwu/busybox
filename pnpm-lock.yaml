@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@types/node':
-        specifier: ^20.10.3
-        version: registry.npmmirror.com/@types/node@20.10.3
+        specifier: 22.13.14
+        version: 22.13.14
       commander:
         specifier: ^11.1.0
         version: registry.npmmirror.com/commander@11.1.0
@@ -86,8 +86,8 @@ importers:
   modules/lib/node:
     devDependencies:
       '@types/node':
-        specifier: ^18.14.3
-        version: registry.npmmirror.com/@types/node@18.14.3
+        specifier: 18.14.3
+        version: 18.14.3
 
   modules/lib/utils:
     dependencies:
@@ -133,7 +133,7 @@ importers:
         version: 6.32.1(mysql2@3.5.1)(sqlite3@5.1.6)
       sequelize-typescript:
         specifier: ^2.1.5
-        version: 2.1.5(@types/node@20.10.3)(@types/validator@13.12.2)(reflect-metadata@0.1.13)(sequelize@6.32.1)
+        version: 2.1.5(@types/node@18.14.3)(@types/validator@13.12.2)(reflect-metadata@0.1.13)(sequelize@6.32.1)
       sqlite3:
         specifier: ^5.1.6
         version: 5.1.6
@@ -210,20 +210,20 @@ packages:
   /@types/accepts@1.3.7:
     resolution: {integrity: sha512-Pay9fq2lM2wXPWbteBsRAGiWH2hig4ZE2asK+mm7kUzlxRTfL961rj89I6zV/E3PcIkDqyuBEcMxFT7rccugeQ==}
     dependencies:
-      '@types/node': 20.10.3
+      '@types/node': 18.14.3
     dev: true
 
   /@types/body-parser@1.19.5:
     resolution: {integrity: sha512-fB3Zu92ucau0iQ0JMCFQE7b/dv8Ot07NI3KaZIkIUNXq82k4eBAqUaneXfleGY9JWskeS9y+u0nXMyspcuQrCg==}
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 20.10.3
+      '@types/node': 18.14.3
     dev: true
 
   /@types/connect@3.4.38:
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
     dependencies:
-      '@types/node': 20.10.3
+      '@types/node': 18.14.3
     dev: true
 
   /@types/content-disposition@0.5.8:
@@ -236,7 +236,7 @@ packages:
       '@types/connect': 3.4.38
       '@types/express': 4.17.21
       '@types/keygrip': 1.0.6
-      '@types/node': 20.10.3
+      '@types/node': 18.14.3
     dev: true
 
   /@types/debug@4.1.12:
@@ -247,7 +247,7 @@ packages:
   /@types/express-serve-static-core@4.17.41:
     resolution: {integrity: sha512-OaJ7XLaelTgrvlZD8/aa0vvvxZdUmlCn6MtWeB7TkiKW70BQLc9XEPpDLPdbo52ZhXUCrznlWdCHWxJWtdyajA==}
     dependencies:
-      '@types/node': 20.10.3
+      '@types/node': 18.14.3
       '@types/qs': 6.9.11
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
@@ -303,7 +303,7 @@ packages:
       '@types/http-errors': 2.0.4
       '@types/keygrip': 1.0.6
       '@types/koa-compose': 3.2.8
-      '@types/node': 20.10.3
+      '@types/node': 18.14.3
     dev: true
 
   /@types/mime@1.3.5:
@@ -320,10 +320,11 @@ packages:
   /@types/node@18.14.3:
     resolution: {integrity: sha512-1y36CC5iL5CMyKALzwX9cwwxcWIxvIBe3gzs4GrXWXEQ8klQnCZ2U/WDGiNrXHmQcUhnaun17XG9TEIDlGj2RA==}
 
-  /@types/node@20.10.3:
-    resolution: {integrity: sha512-XJavIpZqiXID5Yxnxv3RUDKTN5b81ddNC3ecsA0SoFXz/QU8OGBwZGMomiq0zw+uuqbL/krztv/DINAQ/EV4gg==}
+  /@types/node@22.13.14:
+    resolution: {integrity: sha512-Zs/Ollc1SJ8nKUAgc7ivOEdIBM8JAKgrqqUYi2J997JuKO7/tpQC+WCetQ1sypiKCQWHdvdg9wBNpUPEWZae7w==}
     dependencies:
-      undici-types: 5.26.5
+      undici-types: 6.20.0
+    dev: false
 
   /@types/qs@6.9.11:
     resolution: {integrity: sha512-oGk0gmhnEJK4Yyk+oI7EfXsLayXatCWPHary1MtcmbAifkobT9cM9yutG/hZKIseOU0MqbIwQ/u2nn/Gb+ltuQ==}
@@ -337,7 +338,7 @@ packages:
     resolution: {integrity: sha512-x2EM6TJOybec7c52BX0ZspPodMsQUd5L6PRwOunVyVUhXiBSKf3AezDL8Dgvgt5o0UfKNfuA0eMLr2wLT4AiBA==}
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 20.10.3
+      '@types/node': 18.14.3
     dev: true
 
   /@types/serve-static@1.15.5:
@@ -345,7 +346,7 @@ packages:
     dependencies:
       '@types/http-errors': 2.0.4
       '@types/mime': 3.0.4
-      '@types/node': 20.10.3
+      '@types/node': 18.14.3
     dev: true
 
   /@types/validator@13.12.2:
@@ -354,7 +355,7 @@ packages:
   /@types/ws@8.5.6:
     resolution: {integrity: sha512-8B5EO9jLVCy+B58PLHvLDuOD8DRVMgQzq8d55SjLCOn9kqGyqOvy27exVaTio1q1nX5zLu8/6N0n2ThSxOM6tg==}
     dependencies:
-      '@types/node': 20.10.3
+      '@types/node': 18.14.3
     dev: false
 
   /abbrev@1.1.1:
@@ -1554,23 +1555,6 @@ packages:
       glob: 7.2.0
       reflect-metadata: 0.1.13
       sequelize: 6.32.1(mysql2@3.5.1)(sqlite3@5.1.6)
-    dev: false
-
-  /sequelize-typescript@2.1.5(@types/node@20.10.3)(@types/validator@13.12.2)(reflect-metadata@0.1.13)(sequelize@6.32.1):
-    resolution: {integrity: sha512-x1CNODct8gJyfZPwEZBU5uVGNwgJI2Fda913ZxD5ZtCSRyTDPBTS/0uXciF+MlCpyqjpmoCAPtudQWzw579bzA==}
-    engines: {node: '>=10.0.0'}
-    peerDependencies:
-      '@types/node': '*'
-      '@types/validator': '*'
-      reflect-metadata: '*'
-      sequelize: '>=6.20.1'
-    dependencies:
-      '@types/node': 20.10.3
-      '@types/validator': 13.12.2
-      glob: 7.2.0
-      reflect-metadata: 0.1.13
-      sequelize: 6.32.1(mysql2@3.5.1)(sqlite3@5.1.6)
-    dev: true
 
   /sequelize@6.32.1(mysql2@3.5.1)(sqlite3@5.1.6):
     resolution: {integrity: sha512-3Iv0jruv57Y0YvcxQW7BE56O7DC1BojcfIrqh6my+IQwde+9u/YnuYHzK+8kmZLhLvaziRT1eWu38nh9yVwn/g==}
@@ -1786,8 +1770,9 @@ packages:
       mime-types: 2.1.35
     dev: false
 
-  /undici-types@5.26.5:
-    resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
+  /undici-types@6.20.0:
+    resolution: {integrity: sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg==}
+    dev: false
 
   /unique-filename@1.1.1:
     resolution: {integrity: sha512-Vmp0jIp2ln35UTXuryvjzkjGdRyf9b2lTXuSYUiPmzRcl3FDtYqAwOnTJkAngD9SWhnoJzDbTKwaOrZ+STtxNQ==}
@@ -1846,7 +1831,7 @@ packages:
   /wkx@0.5.0:
     resolution: {integrity: sha512-Xng/d4Ichh8uN4l0FToV/258EjMGU9MGcA0HV2d9B/ZpZB3lqQm7nkOdZdm5GhKtLLhAE7PiVQwN4eN+2YJJUg==}
     dependencies:
-      '@types/node': 20.10.3
+      '@types/node': 18.14.3
 
   /wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
@@ -1878,7 +1863,7 @@ packages:
     version: 1.19.5
     dependencies:
       '@types/connect': registry.npmmirror.com/@types/connect@3.4.38
-      '@types/node': 20.10.3
+      '@types/node': 18.14.3
     dev: true
 
   registry.npmmirror.com/@types/connect@3.4.38:
@@ -1886,7 +1871,7 @@ packages:
     name: '@types/connect'
     version: 3.4.38
     dependencies:
-      '@types/node': 20.10.3
+      '@types/node': 18.14.3
     dev: true
 
   registry.npmmirror.com/@types/cookies@0.7.10:
@@ -1897,7 +1882,7 @@ packages:
       '@types/connect': registry.npmmirror.com/@types/connect@3.4.38
       '@types/express': registry.npmmirror.com/@types/express@4.17.21
       '@types/keygrip': registry.npmmirror.com/@types/keygrip@1.0.6
-      '@types/node': 20.10.3
+      '@types/node': 18.14.3
     dev: true
 
   registry.npmmirror.com/@types/express-serve-static-core@4.17.41:
@@ -1905,7 +1890,7 @@ packages:
     name: '@types/express-serve-static-core'
     version: 4.17.41
     dependencies:
-      '@types/node': 20.10.3
+      '@types/node': 18.14.3
       '@types/qs': registry.npmmirror.com/@types/qs@6.9.11
       '@types/range-parser': registry.npmmirror.com/@types/range-parser@1.2.7
       '@types/send': registry.npmmirror.com/@types/send@0.17.4
@@ -1957,20 +1942,6 @@ packages:
     version: 3.0.4
     dev: true
 
-  registry.npmmirror.com/@types/node@18.14.3:
-    resolution: {integrity: sha512-1y36CC5iL5CMyKALzwX9cwwxcWIxvIBe3gzs4GrXWXEQ8klQnCZ2U/WDGiNrXHmQcUhnaun17XG9TEIDlGj2RA==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/@types/node/-/node-18.14.3.tgz}
-    name: '@types/node'
-    version: 18.14.3
-    dev: true
-
-  registry.npmmirror.com/@types/node@20.10.3:
-    resolution: {integrity: sha512-XJavIpZqiXID5Yxnxv3RUDKTN5b81ddNC3ecsA0SoFXz/QU8OGBwZGMomiq0zw+uuqbL/krztv/DINAQ/EV4gg==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/@types/node/-/node-20.10.3.tgz}
-    name: '@types/node'
-    version: 20.10.3
-    dependencies:
-      undici-types: registry.npmmirror.com/undici-types@5.26.5
-    dev: false
-
   registry.npmmirror.com/@types/qs@6.9.11:
     resolution: {integrity: sha512-oGk0gmhnEJK4Yyk+oI7EfXsLayXatCWPHary1MtcmbAifkobT9cM9yutG/hZKIseOU0MqbIwQ/u2nn/Gb+ltuQ==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/@types/qs/-/qs-6.9.11.tgz}
     name: '@types/qs'
@@ -1989,7 +1960,7 @@ packages:
     version: 0.17.4
     dependencies:
       '@types/mime': registry.npmmirror.com/@types/mime@1.3.5
-      '@types/node': 20.10.3
+      '@types/node': 18.14.3
     dev: true
 
   registry.npmmirror.com/@types/serve-static@1.15.5:
@@ -1999,7 +1970,7 @@ packages:
     dependencies:
       '@types/http-errors': 2.0.4
       '@types/mime': registry.npmmirror.com/@types/mime@3.0.4
-      '@types/node': 20.10.3
+      '@types/node': 18.14.3
     dev: true
 
   registry.npmmirror.com/@types/ws@8.5.6:
@@ -2007,7 +1978,7 @@ packages:
     name: '@types/ws'
     version: 8.5.6
     dependencies:
-      '@types/node': 20.10.3
+      '@types/node': 18.14.3
     dev: false
 
   registry.npmmirror.com/async-validator@4.2.5:
@@ -2300,12 +2271,6 @@ packages:
       json5: registry.npmmirror.com/json5@2.2.3
       minimist: registry.npmmirror.com/minimist@1.2.8
       strip-bom: registry.npmmirror.com/strip-bom@3.0.0
-    dev: false
-
-  registry.npmmirror.com/undici-types@5.26.5:
-    resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/undici-types/-/undici-types-5.26.5.tgz}
-    name: undici-types
-    version: 5.26.5
     dev: false
 
   registry.npmmirror.com/uuid@8.3.2:
