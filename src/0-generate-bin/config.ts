@@ -13,21 +13,21 @@ export const BIN_TO_COMMAND: Record<string, CmdInfo> = {
   //   filePath: '0-generate-bin/run',
   //   noLink: true,
   // },
-  nb: {filePath: 'command/node-busybox/index'},
-  'login-to-server': {filePath: 'command/login-to-server'},
-  runTsExport: {filePath: 'run-script/run-ts-export'},
-  runTsScript: {filePath: 'run-script/run-ts-script'},
+  nb: {filePath: 'src/command/node-busybox/index'},
+  'login-to-server': {filePath: 'src/command/login-to-server'},
+  runTsExport: {filePath: 'src/run-script/run-ts-export'},
+  runTsScript: {filePath: 'src/run-script/run-ts-script'},
   'syncup-gitmodules': {
-    filePath: 'command/syncup-gitmodules',
+    filePath: 'src/command/syncup-gitmodules',
     /** It must run on ts-node, as this cmd need to import .ts file */
     runtime: 'ts-node',
   },
   'io-transparent': {
     /** As this file is outside src folder, make sure it's compiled duirng tsc process */
-    filePath: '../modules/lib/node/child-process/cp-script/io-transparent',
+    filePath: 'modules/lib/node/child-process/cp-script/io-transparent',
     noLink: true,
   },
   'http-server': {
-    filePath: 'command/http-server',
+    filePath: 'src/command/http-server',
   },
 };

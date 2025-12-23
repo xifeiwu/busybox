@@ -16,3 +16,9 @@ export function getDistVersion() {
     /** Ignore */
   }
 }
+
+export type ProjectMode = 'ts' | 'js';
+
+export interface GenerateOptions {
+  projectMode?: ProjectMode;
+}

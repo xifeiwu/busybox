@@ -1,21 +1,20 @@
-#!/usr/bin/env ts-node
-import path from 'path';
+#!/usr/bin/env ts-node --transpile-only
 import {Command} from 'commander';
 import {goOnOrNot} from '../../modules/lib/node/readline';
 import {getFilePathInfo} from '../../modules/lib/node/path';
 import {execCmdWithOptions} from '../../modules/lib/node/child-process';
 import {logColorful} from '../../modules/lib/node/log';
 import {compile} from './0-compile';
-import {linkBin} from './1-link-bin';
-import {DEFAULT_BIN_DIR, getDistVersion} from './service';
-import {DIR_DIST, DIR_PROJECT} from '../service';
+import {generateBinFile, linkBin} from './1-link-bin';
+import {DEFAULT_BIN_DIR, getDistVersion, ProjectMode} from './service';
+import {DIR_PROJECT} from '../service';
 
 /**
  * Whether this file is the original .ts file or .js file in output dist dir
  * For the case of run this bin in dist:
  * copy dist.tar.gz to target platform, and link bin file to global PATH
  */
-const inJsMode = getFilePathInfo(__filename).extname === '.js';
+const projectMode = getFilePathInfo(__filename).extname.slice(1) as ProjectMode;
 
 /**
  * Check if compile is needed
@@ -50,25 +49,25 @@ function tarGz() {
 const program = new Command();
 
 program
-  .command('run [linkDir]')
+  .command('all [linkDir]')
   .alias('link')
   .description('generate and link bin command')
   .action(async linkDir => {
+    if (projectMode === 'ts') {
+      await checkCompile();
+    }
     if (!linkDir) {
       linkDir = DEFAULT_BIN_DIR;
     }
-    const binDir = path.join(DIR_PROJECT, 'bin');
-    if (!inJsMode) {
-      checkCompile();
-    }
-    linkBin(linkDir, binDir, {inJsMode});
+    await generateBinFile({projectMode});
+    await linkBin(linkDir, {projectMode});
   });
 
 program
   .command('compile')
   .description('compile project to get dist project')
   .action(async () => {
-    if (inJsMode) {
+    if (projectMode === 'js') {
       throw new Error(`This command not support in dist project`);
     }
     await compile();
@@ -78,6 +77,9 @@ program
   .command('gz')
   .description('tar and gz dist folder')
   .action(async () => {
+    if (projectMode === 'js') {
+      throw new Error(`This command not support in dist project`);
+    }
     const tzFile = tarGz();
     logColorful({}, tzFile);
   });

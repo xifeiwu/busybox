@@ -5,12 +5,11 @@ import {
   execCmdWithOptions,
   goOnOrNot,
   isDirExistForFile,
-  getDir,
   FilterItem,
   matchFilters,
+  logColorful,
 } from '../service/external';
 import {writeDistVersion} from './service';
-import {BIN_TO_COMMAND} from './config';
 
 /**
  * Copye some config file to dist, to install node_modules by these config file.
@@ -60,63 +59,9 @@ function installNodeModulesForDistProject() {
   execCmdWithOptions('pnpm install');
 }
 
-/**
- * Generate bin file that can run directly by file itself by adding two lines:
- * 1. Add shebang line
- * 2. require the command file
- */
-async function generateBinFile() {
-  const generateContent = (binPath: string, cmdPath: string, runtime: string) => {
-    if (!fs.existsSync(cmdPath)) {
-      throw new Error(`cmdPath not found: ${cmdPath}`);
-    }
-    let relativePath = path.relative(getDir(binPath), cmdPath);
-    const isTsFile = relativePath.endsWith('.ts');
-
-    /** Not need .ts suffix when import file */
-    if (isTsFile) {
-      relativePath = relativePath.substring(0, relativePath.length - 3);
-    }
-    const finalRunTime = runtime ?? (isTsFile ? 'ts-node' : 'node');
-    const content = [
-      `#!/usr/bin/env ${finalRunTime}`,
-      `require('${relativePath}')`,
-      // isTsFile ? `import '${relativePath}'` : `require('${relativePath}')`,
-      '',
-    ].join('\n');
-    fs.writeFileSync(binPath, content);
-    fs.chmodSync(binPath, '755');
-  };
-
-  const distBinDir = path.join(DIR_DIST, 'bin');
-  if (!fs.existsSync(distBinDir)) {
-    fs.mkdirSync(distBinDir, {recursive: true});
-  }
-  for (const [bin, cmdInfo] of Object.entries(BIN_TO_COMMAND)) {
-    const {filePath: cmdFile, runtime} = cmdInfo;
-    /** generate bin file that run .ts command on host project*/
-    generateContent(
-      path.join(DIR_PROJECT, 'bin', bin + '.ts'),
-      path.join(DIR_PROJECT, 'src', cmdFile + '.ts'),
-      runtime
-    );
-    /** generate bin file that run .js command on host project */
-    generateContent(
-      path.join(DIR_PROJECT, 'bin', bin + '.js'),
-      path.join(DIR_DIST, 'src', cmdFile + '.js'),
-      runtime
-    );
-    /** generate bin file that run .js command on dist project */
-    generateContent(
-      path.join(DIR_DIST, 'bin', bin + '.js'),
-      path.join(DIR_DIST, 'src', cmdFile + '.js'),
-      runtime
-    );
-  }
-}
-
 export async function compile() {
   process.chdir(DIR_PROJECT);
+  logColorful({color: 'yellow'}, `start compile...`);
   const installNodeModules = await goOnOrNot({
     tips: ['install node_modules?'],
     defaultValue: false,
@@ -132,5 +77,5 @@ export async function compile() {
     installNodeModulesForDistProject();
   }
   writeDistVersion();
-  generateBinFile();
+  logColorful({color: 'yellow'}, `compile done`);
 }
