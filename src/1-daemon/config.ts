@@ -2,12 +2,12 @@
  * Add child process id to make it easy to find the process even daemon process is die
  */
 import path from 'path';
-import {Daemon, tryUseJsFile, Env, getSpawnConfigByScript, CP} from '../service/external';
+import {CpManagerConfig, tryUseJsFile, Env, getSpawnConfigByScript, CP} from '../service/external';
 import {TcpGateWayOptions} from '../types';
 
 const maxWaitTime4Ipc = 60;
 
-const defaultSpawnConfig: Partial<Daemon.CpManagerConfig> = {
+const defaultSpawnConfig: Partial<CpManagerConfig> = {
   managerConfig: {
     retry: {
       maxCount: 3,
@@ -18,7 +18,7 @@ const defaultSpawnConfig: Partial<Daemon.CpManagerConfig> = {
 
 export function debugServer() {
   const id = 'customized-server';
-  const config: Daemon.CpManagerConfig = {
+  const config: CpManagerConfig = {
     id,
     spawnConfig: getSpawnConfigByScript<CP.DebugServerConfig>(tryUseJsFile(__filename), {
       spawnOptions: {
@@ -36,7 +36,7 @@ export function debugServer() {
 
 export function tlsGateway() {
   const id = 'tls-gateway';
-  const config: Daemon.CpManagerConfig = {
+  const config: CpManagerConfig = {
     id,
     managerConfig: {
       retry: {
@@ -59,7 +59,7 @@ export function tlsGateway() {
 
 export function tcpGateway() {
   const id = 'tcp-gateway';
-  const config: Daemon.CpManagerConfig = {
+  const config: CpManagerConfig = {
     id,
     managerConfig: {
       retry: {

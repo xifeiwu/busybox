@@ -4,13 +4,13 @@ import {
   selectOption,
   startDetachedDaemon,
   SocketClientToDaemon,
-  Daemon,
+  CpManagerConfig,
   spawnAndTryIpc,
 } from '../service/external';
 import {tlsGateway, tcpGateway, debugServer} from './config';
 
 export const cpManagerConfigMap = [debugServer, tlsGateway, tcpGateway].reduce<{
-  [key: string]: Daemon.CpManagerConfig;
+  [key: string]: CpManagerConfig;
 }>((sum, func) => {
   const config = func();
   return {

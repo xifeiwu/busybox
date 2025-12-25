@@ -26,13 +26,10 @@ export {
   uploadDirOnHome,
   TcpServerConfig,
   SocksServerConfigPerVersion,
-  Daemon,
   getSpawnConfigByScript,
   InfoToCp,
-  startDetachedDaemon,
   selectOption,
   getSocketPath,
-  SocketClientToDaemon,
   CP,
   tryUseJsFile,
   getLocalIpAddress,
@@ -71,6 +68,7 @@ export {
   linkFile,
   makeSureDirExist,
 } from '../../modules/lib/node';
+export {startDetachedDaemon, SocketClientToDaemon, CpManagerConfig} from '../../modules/lib/node/lib/daemon';
 export {
   KoaConfig,
   startKoaServer,
