@@ -85,7 +85,7 @@ export async function linkBin(linkDir: string, options?: GenerateOptions) {
   for (const binName of binsToLink) {
     // link can't be overrided, so remove it first
     const linkFile = path.resolve(linkDir, binName);
-    const binFile = path.join(projectBinDir, binName + suffix);
+    const binFile = path.join(binDir, binName + suffix);
     link(binFile, linkFile);
     logColorful({color: 'green'}, `Created Link: ${linkFile} -> ${binFile}`);
   }
