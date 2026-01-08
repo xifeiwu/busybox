@@ -18,19 +18,22 @@ export const BIN_TO_COMMAND: Record<string, CmdInfo> = {
     filePath: 'src/tcp-gateway/command',
   },
   'login-to-server': {filePath: 'src/1-command/login-to-server'},
-  runTsExport: {filePath: 'src/run-script/run-ts-export'},
-  runTsScript: {filePath: 'src/run-script/run-ts-script'},
+  runTsExport: {filePath: 'src/1-command/run-ts-export'},
+  runTsScript: {filePath: 'src/1-command/run-ts-script'},
   'syncup-gitmodules': {
     filePath: 'src/1-command/syncup-gitmodules',
     /** It must run on ts-node, as this cmd need to import .ts file */
     runtime: 'ts-node',
   },
-  'io-transparent': {
-    /** As this file is outside src folder, make sure it's compiled duirng tsc process */
-    filePath: 'modules/lib/node/child-process/cp-script/io-transparent',
-    noLink: true,
-  },
   'http-server': {
     filePath: 'src/1-command/http-server',
+  },
+  'io-transparent': {
+    /**
+     * As this file is outside src folder, make sure it's compiled duirng tsc process
+     * by add it path in include part of tsconfig.json
+     */
+    filePath: 'modules/lib/node/utils/cp-script/io-transparent',
+    noLink: true,
   },
 };

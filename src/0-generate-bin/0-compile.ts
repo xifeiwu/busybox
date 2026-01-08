@@ -9,7 +9,7 @@ import {
   matchFilters,
   logColorful,
 } from '../service/external';
-import {writeDistVersion} from './service';
+import {backupDist, getDistVersion, writeDistVersion} from './service';
 
 /**
  * Copye some config file to dist, to install node_modules by these config file.
@@ -59,21 +59,47 @@ function installNodeModulesForDistProject() {
   execCmdWithOptions('pnpm install');
 }
 
-export async function compile() {
+export async function compile(options?: {
+  /** backup before compile to avoid stble logic override by unstable logic */
+  backupBeforeCompile?: boolean;
+  cleanupDistDir?: boolean;
+  installNodeModules?: boolean;
+}) {
   process.chdir(DIR_PROJECT);
-  logColorful({color: 'yellow'}, `start compile...`);
-  const installNodeModules = await goOnOrNot({
-    tips: ['install node_modules?'],
-    defaultValue: false,
-  });
-  /** rm dist dir if install node_modules */
-  if (installNodeModules) {
+  const distVersion = getDistVersion();
+  const backupBeforeCompile =
+    options?.backupBeforeCompile ??
+    (distVersion &&
+      (await goOnOrNot({
+        tips: [`Do you want to backup dist with version ${distVersion}?`],
+        defaultValue: false,
+      })));
+  if (backupBeforeCompile) {
+    backupDist();
+  }
+  const cleanupDistDir =
+    options?.cleanupDistDir ??
+    (await goOnOrNot({
+      tips: [`Do you clean up dist dir before compile?`],
+      defaultValue: false,
+    }));
+  if (cleanupDistDir) {
     fs.rmSync(DIR_DIST, {recursive: true});
   }
+  logColorful({color: 'yellow'}, `start compile...`);
   execCmdWithOptions('npm run build');
   copyConfigFileToDist();
+  /** Should install node_modules when cleanupDistDir is true */
+  const installNodeModules =
+    options?.installNodeModules ??
+    (cleanupDistDir ||
+      (await goOnOrNot({
+        tips: ['install node_modules?'],
+        defaultValue: false,
+      })));
   /** node_modules can only install once if dependencies in package.json is not */
   if (installNodeModules) {
+    logColorful({color: 'yellow'}, `start installNodeModules...`);
     installNodeModulesForDistProject();
   }
   writeDistVersion();

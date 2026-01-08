@@ -2,8 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import {logColorful, selectOption, linkFile as link, getDir} from '../service/external';
 import {BIN_TO_COMMAND} from './config';
-import {GenerateOptions} from './service';
+import {DEFAULT_BIN_DIR, GenerateOptions} from './service';
 import {DIR_DIST} from '../service';
+import {makeSureDirExistForFile} from '../../modules/lib/node/path';
 
 const PROJECT_DIR_RELATIVE_PATH = path.join(__dirname, '../../');
 
@@ -25,6 +26,7 @@ function genContentOfBinFile(binPath: string, cmdPath: string, runtime: string) 
     // isTsFile ? `import '${relativePath}'` : `require('${relativePath}')`,
     '',
   ].join('\n');
+  makeSureDirExistForFile(binPath);
   fs.writeFileSync(binPath, content);
   fs.chmodSync(binPath, '755');
 }
@@ -60,7 +62,8 @@ export async function generateBinFile(options?: GenerateOptions) {
   }
 }
 
-export async function linkBin(linkDir: string, options?: GenerateOptions) {
+export async function linkBin(linkDir?: string, options?: GenerateOptions) {
+  linkDir = linkDir ?? DEFAULT_BIN_DIR;
   const {projectMode = 'ts'} = options ?? {};
   const projectBinDir = path.join(PROJECT_DIR_RELATIVE_PATH, 'bin');
   const jsBinDir = projectMode === 'ts' ? path.join(DIR_DIST, 'bin') : undefined;
