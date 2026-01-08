@@ -23,9 +23,8 @@ The logic start with a .js bin command is a better solution, in order to go this
 ├── README.md
 ├── src
 │   ├── 0-generate-bin
-│   ├── 1-daemon
-│   ├── command
-│   ├── mini-tools
+│   ├── 1-command
+│   ├── 2-daemon
 │   ├── other
 │   ├── redis
 │   ├── run-script
