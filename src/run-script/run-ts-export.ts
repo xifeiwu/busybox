@@ -1,7 +1,7 @@
 import path from 'path';
 import {Command} from 'commander';
 import {logColorful} from '../../modules/lib/node/log';
-import {runTsScriptInCP} from '../../modules/lib/node/utils/run-script';
+import {runScriptInCP} from '../../modules/lib/node/utils/run-script';
 
 const program = new Command();
 program.name('runTsExport').description('utility for process handling');
@@ -9,10 +9,14 @@ program
   .argument('<scriptPath>', 'path to ts file to run')
   .argument('[funcName]', 'name of function')
   .argument('[funcParams...]', 'params passed to the function')
+  .option(
+    '--pre-script <preScript>',
+    'run this script before run main script, to do some pre logic, such as set env'
+  )
   .option('-a, --all', 'run all exported function')
   .option('-d, --dry-run', 'show the command without running it. ')
   .action(async (scriptPath, funcName, funcParams, options) => {
-    const {all, dryRun} = options;
+    const {all, dryRun, preScript} = options;
     /**
      * Format of argv:
      * [
@@ -24,14 +28,16 @@ program
      */
     const targetScript = path.resolve(process.cwd(), scriptPath);
     try {
-      const responseFromCp = await runTsScriptInCP(targetScript, {
-        runScriptOptions: {
+      const responseFromCp = await runScriptInCP({
+        dryRun,
+        preScript,
+        targetScript,
+        runTargetScriptOptions: {
           funcName,
           funcParams,
           runTheOnlyFuncDirectly: true,
-          selectExportedFunc: true,
+          runExportedFunc: true,
         },
-        dryRun,
       });
       logColorful({color: 'black'}, 'responseFromCp:', responseFromCp);
     } catch (err) {

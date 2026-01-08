@@ -1,7 +1,7 @@
 import path from 'path';
 import {Command} from 'commander';
 import {logColorful} from '../../modules/lib/node/log';
-import {runTsScriptInCP} from '../../modules/lib/node/utils/run-script';
+import {runScriptInCP} from '../../modules/lib/node/utils/run-script';
 
 const program = new Command();
 program.name('runTsExport').description('utility for process handling');
@@ -21,9 +21,10 @@ program
      */
     const targetScript = path.resolve(process.cwd(), scriptPath);
     try {
-      const responseFromCp = await runTsScriptInCP(targetScript, {
-        runScriptOptions: {
-          selectExportedFunc: false,
+      const responseFromCp = await runScriptInCP({
+        targetScript,
+        runTargetScriptOptions: {
+          runExportedFunc: false,
         },
         dryRun,
       });
