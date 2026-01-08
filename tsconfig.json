@@ -13,13 +13,12 @@
     "baseUrl": ".",
     "paths": {
       "@modules/*": ["modules/*"],
-      "@src/*": ["src/*"],
-    },
+      "@src/*": ["src/*"]
+    }
   },
   "tsc-alias": {
     "resolveFullPaths": true,
     "verbose": false
   },
-  "include": ["src", "modules/lib/node/child-process/cp-script/*.ts"]
+  "include": ["src", "modules/lib/node/utils/cp-script/**/*.ts", "modules/lib/node/utils/run-script/**/*.ts"]
 }
-
