@@ -7,12 +7,6 @@ Logic can be run in these ways:
 2. as bin file: like, ./src/0-generate-bin/bin.ts, or exposed to shell $PATH and run by name directly
 3. start in a background process, by the logic is implememted in src/1-daemon
 
-# Thoughts of generate-bin
-
-It will significantly improve efficiency if the frequently-used logic can be run as a bin command in terminal.
-If run command as .ts file, ts-node will compile all the related .ts files on every startup, it will take long time before real logic started.
-The logic start with a .js bin command is a better solution, in order to go this way, generate-bin will compile the whole project and submodules it used, and create bin command in dir bin, these bin files can be linked to global PAHT by link-bin action.
-
 ## Folder Structure
 
 1. Features are categotrized by folder under src dir, and can expose three kinds of file: 1. bin file `bin.ts`, 2. command file `command.ts`, 3 script file `script.ts` which will be run as child process. For each kind of file, when there are more files, a folder(bin, command, script) can be created to store them. Small logic can be stored in folder (bin, command, script) of src dir.
@@ -69,6 +63,13 @@ The logic start with a .js bin command is a better solution, in order to go this
 ├── pnpm-workspace.yaml
 └── tsconfig.json
 
+
+# Thoughts of generate-bin
+
+It will significantly improve efficiency if the frequently-used logic can be run as a bin command in terminal.
+If run command as .ts file, ts-node will compile all the related .ts files on every startup, it will take long time before real logic started.
+The logic start with a .js bin command is a better solution, in order to go this way, generate-bin will compile the whole project and submodules it used, and create bin command in dir bin, these bin files can be linked to global PAHT by link-bin action.
+
 # About bin command
 
 ## Some Rules For Running On ts-node
@@ -84,14 +85,6 @@ The shebang line for bin command is not support very well in every platform, e.g
 1. Actual command logic is located in src/command file, bin/command is just a script to spawn it's related file in src/command, it will append accurate param for command script. @deprecated as it will start more threads.
 
 1. Use the shell script as shebang line for .ts bin command, for more compatible.
-
-## Generation of bin command
-
-run ./bin/0-generate-bin.ts target-bin-dir
-
-0-generate-bin.ts will link an existing command to link file in `target-bin-dir`
-
-append `target-bin-dir` to global env PATH
 
 ## Use runTsExport as command for vscode debug
 
