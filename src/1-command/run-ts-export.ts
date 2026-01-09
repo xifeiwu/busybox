@@ -5,9 +5,20 @@ import {logColorful} from '../../modules/lib/node/log';
 import {runScriptInCP} from '../../modules/lib/node/utils/run-script';
 import {RunScriptInCPOptions} from '../../modules/lib/node/types/utils';
 
-export const handler = async (scriptPath, funcName, funcParams, options) => {
-  const {dryRun, configFile} = options;
-  let spawnConfig: Partial<RunScriptInCPOptions> = {};
+/**
+ * Some restriction of config file
+ * 1. config file should use commonjs grammar, as bin logic may run on node runtime
+ * 2. should export config in the way module.exports.config = ..
+ * Content format of config file:
+ * module.exports.config = {
+ *  preScript: path.join(__dirname, 'init-env.ts'),
+ *  runtimeOptions: {
+ *    '--swc': undefined,
+ *    '--transpileOnly': true,
+ *  },
+ * };
+ */
+function parseConfigFile(configFile?: string) {
   // const c: Partial<RunScriptInCPOptions> = {
   //   preScript: '',
   //   runtimeOptions: {
@@ -15,14 +26,29 @@ export const handler = async (scriptPath, funcName, funcParams, options) => {
   //     '--transpileOnly': true,
   //   },
   // };
+  let spawnConfig: Partial<RunScriptInCPOptions> = {};
+  if (configFile === undefined) {
+    return spawnConfig;
+  }
   if (fs.existsSync(configFile)) {
     try {
       const info = require(configFile);
-      spawnConfig = info?.config;
+      if (info?.config === undefined) {
+        throw new Error(`config variable is not exported from config file`);
+      }
+      spawnConfig = info.config;
     } catch (err) {
       logColorful({color: 'red'}, err);
     }
+  } else {
+    throw new Error(`config file provide not exist: ${configFile}`);
   }
+  return spawnConfig;
+}
+
+export const handler = async (scriptPath, funcName, funcParams, options) => {
+  const {dryRun, configFile} = options;
+  let spawnConfig: Partial<RunScriptInCPOptions> = parseConfigFile(configFile);
   /**
    * Format of argv:
    * [
@@ -61,6 +87,6 @@ program
   .argument('[funcName]', 'name of function')
   .argument('[funcParams...]', 'params passed to the function')
   .option('-d, --dry-run', 'show the command without running it. ')
-  .option('--config <configFile>', 'config file for RunScriptInCPOptions')
+  .option('--config-file <configFile>', 'config file for RunScriptInCPOptions')
   .action(handler);
 program.parse(process.argv);
