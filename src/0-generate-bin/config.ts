@@ -36,4 +36,7 @@ export const BIN_TO_COMMAND: Record<string, CmdInfo> = {
     filePath: 'modules/lib/node/utils/cp-script/io-transparent',
     noLink: true,
   },
+  'build-sqlite3': {
+    filePath: 'src/1-command/build-sqlite3'
+  }
 };
