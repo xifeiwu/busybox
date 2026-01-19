@@ -7,10 +7,13 @@ import {handler} from './run-ts-export';
  * 3. start debug
  */
 export async function test() {
-  const projectDir = '/Users/wuxifei/code/conviva/Instant-Filter-Server';
+  // const projectDir = '/Users/wuxifei/code/conviva/Instant-Filter-Server';
+  // const scriptPath = 'assist/modules/conviva/portal-db/tools/dump/index.ts';
+  // const configFile = '/Users/wuxifei/code/conviva/Instant-Filter-Server/assist/bin/run-ts-export-config.js';
+  const projectDir = '/Users/wuxifei/code/node/start/vendor';
+  const scriptPath = 'src/explore/koa-passport/openid/dev-61903620/config/common.ts';
+  const configFile = undefined;
   process.chdir(projectDir);
-  const scriptPath = 'assist/modules/conviva/portal-db/tools/dump/index.ts';
-  const configFile = '/Users/wuxifei/code/conviva/Instant-Filter-Server/assist/bin/run-ts-export-config.js';
   await handler(scriptPath, undefined, undefined, {configFile});
 }
 
