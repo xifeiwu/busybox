@@ -1,0 +1,79 @@
+import fs from 'fs';
+import path from 'path';
+import {Command} from 'commander';
+import {execSync, exec} from 'child_process';
+import {DIR_PROJECT} from '../service/config';
+import {logColorful} from '../../modules/lib/node/log';
+import {goOnOrNot} from '../../modules/lib/node/readline';
+import {getFileList} from '../../modules/lib/node/fs';
+
+function findPrettierBin() {
+  const nodePath = execSync(`which node`).toString().trim();
+  const prettierBinPath = path.join(nodePath, '../../lib/node_modules/prettier/bin/prettier.cjs');
+  if (!fs.existsSync(prettierBinPath)) {
+    throw new Error(`Please install prettier first: npm install -g prettier`);
+  }
+  return prettierBinPath;
+}
+
+async function runPrettier(options: {target: string[]; configPath: string}) {
+  const {target, configPath = path.join(DIR_PROJECT, '.prettierrc')} = options;
+  if (target.some(it => !fs.existsSync(it))) {
+    throw new Error(`target file or dir not found: ${target.join(' ')}`);
+  }
+  const prettierBinPath = findPrettierBin();
+  const command = [prettierBinPath, '--write', target.join(' '), '--config', configPath].join(' ');
+  // logColorful({color: 'yellow'}, command);
+  if (
+    !(await goOnOrNot({
+      tips: [command, `Do you want to run this command?`],
+      defaultValue: true,
+    }))
+  ) {
+    return;
+  }
+
+  const childProcess = exec(command);
+  childProcess.stdout.on('data', data => {
+    console.log(data.toString());
+  });
+  childProcess.stderr.on('data', data => {
+    console.error(data.toString());
+  });
+}
+
+function listChangedFiles(target: string) {
+  const fullTargetPath = path.resolve(process.cwd(), target);
+  if (!fs.existsSync(fullTargetPath)) {
+    throw new Error(`target file or dir not found: ${fullTargetPath}`);
+  }
+  const changedFiles = execSync(`git diff --name-only HEAD`).toString().trim().split('\n');
+  return changedFiles;
+}
+
+const program = new Command();
+program
+  .argument('[target]', 'target file or dir to format')
+  .option('-c, --config <config>', 'env to run this command: local | elif')
+  .action(async (target, options) => {
+    const {config} = options;
+    if (target === undefined) {
+      const changedFiles = listChangedFiles('.');
+      runPrettier({target: changedFiles, configPath: config});
+      return;
+    }
+    const fullTargetPath = path.resolve(process.cwd(), target);
+    const stat = fs.statSync(fullTargetPath);
+    if (stat.isFile()) {
+      runPrettier({target: [fullTargetPath], configPath: config});
+    } else if (stat.isDirectory()) {
+      const files = getFileList(fullTargetPath, {
+        includeDir: true,
+        fileFilter: pathInfo => !pathInfo.basename.endsWith('.md'),
+      });
+      runPrettier({target: files, configPath: config});
+    } else {
+      throw new Error(`target is not a file or dir: ${fullTargetPath}`);
+    }
+  });
+program.parse(process.argv);

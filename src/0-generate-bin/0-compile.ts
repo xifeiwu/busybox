@@ -30,7 +30,8 @@ function copyConfigFileToDist() {
     fs.writeFileSync(targetPath, jsonStr);
   };
   const keyFilesByDir: Record<string, string[]> = {
-    '.': ['package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml'],
+    /** .prettierrc will be used for bin command prettier */
+    '.': ['package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml', '.prettierrc'],
     'modules/lib/net': ['package.json'],
     'modules/lib/db': ['package.json'],
     'modules/lib/utils': ['package.json'],
