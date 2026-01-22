@@ -1,5 +1,5 @@
-[submodule "modules/lib/fe"]
-	path = modules/lib/fe
+[submodule "modules/lib/js"]
+	path = modules/lib/js
 	url = git@elif.site:fe/module/lib.git
 [submodule "modules/lib/node"]
 	path = modules/lib/node
@@ -13,6 +13,6 @@
 [submodule "modules/lib/utils"]
 	path = modules/lib/utils
 	url = git@elif.site:node/module/utils.git
-[submodule "modules/types/fe"]
-	path = modules/types/fe
+[submodule "modules/types/common"]
+	path = modules/types/common
 	url = git@elif.site:fe/module/types.git

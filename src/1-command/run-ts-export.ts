@@ -54,7 +54,7 @@ export const handler = async (scriptPath, funcName, funcParams, options) => {
    * [
    *   '/Users/wuxifei/.nvm/versions/node/v18.12.0/bin/ts-node',
    *   '/Users/wuxifei/code/bin/runTsExport',
-   *   'modules/lib/fe/lib/humanize/test.ts',
+   *   'modules/lib/js/lib/humanize/test.ts',
    *   'testIntword'
    * ]
    */

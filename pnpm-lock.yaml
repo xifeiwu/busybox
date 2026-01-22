@@ -44,7 +44,7 @@ importers:
         specifier: 22.13.14
         version: 22.13.14
 
-  modules/lib/fe: {}
+  modules/lib/js: {}
 
   modules/lib/net:
     dependencies:

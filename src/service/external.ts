@@ -19,7 +19,7 @@ export {
   FilterItem,
   matchFilter,
   matchFilters,
-} from '../../modules/lib/fe/common';
+} from '../../modules/lib/js/common';
 export {
   checkPort as isPortOpen,
   logColorful,
