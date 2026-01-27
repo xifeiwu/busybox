@@ -5,7 +5,7 @@ import {execSync, exec} from 'child_process';
 import {DIR_PROJECT} from '../service/config';
 import {logColorful} from '../../modules/lib/node/log';
 import {goOnOrNot} from '../../modules/lib/node/readline';
-import {getFileList} from '../../modules/lib/node/fs';
+import {findClosestFile, getFileList} from '../../modules/lib/node/fs';
 
 function findPrettierBin() {
   const nodePath = execSync(`which node`).toString().trim();
@@ -51,18 +51,27 @@ function listChangedFiles(target: string) {
   return changedFiles;
 }
 
+function tryFindPrettierrc(target: string) {
+  const config =
+    findClosestFile(target, '.prettierrc') ||
+    findClosestFile(target, '.prettierrc.js') ||
+    path.join(DIR_PROJECT, '.prettierrc');
+  return config;
+}
 const program = new Command();
 program
   .argument('[target]', 'target file or dir to format')
   .option('-c, --config <config>', 'env to run this command: local | elif')
   .action(async (target, options) => {
-    const {config} = options;
+    const fullTargetPath = path.resolve(process.cwd(), target ?? '.');
+    const config = options?.config ?? tryFindPrettierrc(fullTargetPath);
     if (target === undefined) {
-      const changedFiles = listChangedFiles('.');
-      runPrettier({target: changedFiles, configPath: config});
+      const changedFiles = listChangedFiles(fullTargetPath);
+      runPrettier({target: changedFiles.map(it => path.join(fullTargetPath, it)), configPath: config});
       return;
     }
-    const fullTargetPath = path.resolve(process.cwd(), target);
+    if (!config) {
+    }
     const stat = fs.statSync(fullTargetPath);
     if (stat.isFile()) {
       runPrettier({target: [fullTargetPath], configPath: config});
@@ -71,7 +80,7 @@ program
         includeDir: true,
         fileFilter: pathInfo => !pathInfo.basename.endsWith('.md'),
       });
-      runPrettier({target: files, configPath: config});
+      runPrettier({target: files.map(it => path.join(fullTargetPath, it)), configPath: config});
     } else {
       throw new Error(`target is not a file or dir: ${fullTargetPath}`);
     }
