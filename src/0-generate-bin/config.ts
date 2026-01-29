@@ -37,9 +37,9 @@ export const BIN_TO_COMMAND: Record<string, CmdInfo> = {
     noLink: true,
   },
   'build-sqlite3': {
-    filePath: 'src/1-command/build-sqlite3'
+    filePath: 'src/1-command/build-sqlite3',
   },
-  prettier: {
-    filePath: 'src/1-command/prettier',
+  ap: {
+    filePath: 'src/1-command/assist-prettier',
   },
 };

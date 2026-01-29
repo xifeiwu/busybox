@@ -10,7 +10,10 @@ import {findClosestFile, getFileList} from '../../modules/lib/node/fs';
 
 function findPrettierBin() {
   const nodePath = execSync(`which node`).toString().trim();
-  const possiblePaths = [path.join(nodePath, '../prettier'), path.join(nodePath, '../../lib/node_modules/prettier/bin/prettier.cjs')];
+  const possiblePaths = [
+    path.join(nodePath, '../prettier'),
+    path.join(nodePath, '../../lib/node_modules/prettier/bin/prettier.cjs'),
+  ];
   const prettierBinPath = possiblePaths.find(it => fs.existsSync(it));
   if (!prettierBinPath) {
     throw new Error(`Please install prettier first: npm install -g prettier`);
@@ -54,7 +57,9 @@ function getGitChangedFiles(target: string) {
   if (!fs.existsSync(fullTargetPath)) {
     throw new Error(`target file or dir not found: ${fullTargetPath}`);
   }
-  const changedFiles = execSync(`git diff --name-only HEAD`).toString().trim().split('\n');
+  const changedFiles = ['git ls-files --others  --exclude-standard', `git diff --name-only --diff-filter=d`]
+    .map(it => execSync(it).toString().trim().split('\n'))
+    .flat();
   return changedFiles.filter(it => fileFilter({relativePath: it}));
 }
 
