@@ -57,7 +57,11 @@ function getGitChangedFiles(target: string) {
   if (!fs.existsSync(fullTargetPath)) {
     throw new Error(`target file or dir not found: ${fullTargetPath}`);
   }
-  const changedFiles = ['git ls-files --others  --exclude-standard', `git diff --name-only --diff-filter=d`]
+  const changedFiles = [
+    'git diff --cached  --name-only',
+    `git diff --name-only --diff-filter=d`,
+    'git ls-files --others  --exclude-standard',
+  ]
     .map(it => execSync(it).toString().trim().split('\n'))
     .flat();
   return changedFiles.filter(it => fileFilter({relativePath: it}));
