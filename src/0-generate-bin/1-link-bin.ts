@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {logColorful, selectOption, linkFile as link, getDir} from '../service/external';
+import {logColorful, selectOption, linkFile, getDir} from '../service/external';
 import {BIN_TO_COMMAND} from './config';
 import {DEFAULT_BIN_DIR, GenerateOptions} from './service';
 import {DIR_DIST} from '../service';
@@ -87,10 +87,10 @@ export async function linkBin(linkDir?: string, options?: GenerateOptions) {
     .map(it => it[0]);
   for (const binName of binsToLink) {
     // link can't be overrided, so remove it first
-    const linkFile = path.resolve(linkDir, binName);
-    const binFile = path.join(binDir, binName + suffix);
-    link(binFile, linkFile);
-    logColorful({color: 'green'}, `Created Link: ${linkFile} -> ${binFile}`);
+    const targetFile = path.resolve(linkDir, binName);
+    const sourceFile = path.join(binDir, binName + suffix);
+    linkFile(sourceFile, targetFile);
+    logColorful({color: 'green'}, `Created Link: ${targetFile} -> ${sourceFile}`);
   }
   logColorful({color: 'red'}, `export PATH=${linkDir}:$PATH`);
 }
