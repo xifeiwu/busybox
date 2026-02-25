@@ -10,16 +10,18 @@ export function appendOtherCommand(program: Command) {
     .option('-e, --encode <encode>', `encode['base64' | 'base64url' | 'hex' | 'binary']`, 'hex')
     .action(async (fileOrContent, options) => {
       const {algorithm, encode} = options;
-      // if (!['base64', 'base64url', 'hex', 'binary'].includes(algorithm)) {
-      //   throw new Error(`encode should in ['base64', 'base64url', 'hex', 'binary']`);
-      // }
-      // if (!['base64', 'base64url', 'hex', 'binary'].includes(encode)) {
-      //   throw new Error(`encode should in ['base64', 'base64url', 'hex', 'binary']`);
-      // }
       const filePath = path.resolve(process.cwd(), fileOrContent);
-      const digest = await hashData(fs.createReadStream(filePath), {algorithm, encode});
-      console.log(`${algorithm} ${encode} digest:`);
-      console.log(digest);
+      let type: 'file' | 'string' = 'string';
+      let digest: string;
+      /** if file exists, read file, else treat as content*/
+      if (fs.existsSync(filePath)) {
+        type = 'file';
+        digest = await hashData(fs.createReadStream(filePath), {algorithm, encode});
+      } else {
+        type = 'string';
+        digest = await hashData(fileOrContent, {algorithm, encode});
+      }
+      logColorful({color: 'black'}, `${type} ${algorithm} ${encode} digest:`, digest);
     });
 
   program.command('base64 <fileOrContent>').action(async fileOrContent => {
