@@ -20,7 +20,7 @@ program
   .description('list tables of database')
   .action(async (dbKey, tables) => {
     console.log(dbKey, tables);
-    const sequelize = await getInstanceByShortCutAsync(dbKey);
+    const sequelize = await getInstanceByShortCutAsync({dbKey});
     const tableList = await getDbTableList(sequelize);
     if (tables.length > 0) {
       const notExistTables = tables.filter(it => !tableList.includes(it));
