@@ -53,7 +53,7 @@ async function runPrettier(options: {target: string[]; configPath: string}) {
 
 function fileFilter({relativePath}: {relativePath: string}) {
   const {extname} = getFilePathInfo(relativePath);
-  return ['.js', '.ts', '.jsx', '.tsx', '.md'].includes(extname);
+  return ['.js', '.ts', '.jsx', '.tsx'].includes(extname);
 }
 
 /**
