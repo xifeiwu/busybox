@@ -30,10 +30,9 @@ program
         tables = tables.filter(it => tableList.includes(it));
       }
     }
-
     if (tables.length === 0) {
       const {label} = await selectOption<{label: string}>(
-        tables.map(it => {
+        tableList.map(it => {
           return {
             label: it,
           };
