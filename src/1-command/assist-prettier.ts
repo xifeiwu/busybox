@@ -23,11 +23,15 @@ function findPrettierBin() {
 
 async function runPrettier(options: {target: string[]; configPath: string}) {
   const {target, configPath = path.join(DIR_PROJECT, '.prettierrc')} = options;
-  if (target.some(it => !fs.existsSync(it))) {
-    throw new Error(`target file or dir not found: ${target.join(' ')}`);
+  const existedFiles = target.filter(it => fs.existsSync(it));
+  if (existedFiles.length !== target.length) {
+    logColorful({color: 'red'}, `Ignore ${target.length - existedFiles.length} files as they are not exist`);
+  }
+  if (existedFiles.length === 0) {
+    return;
   }
   const prettierBinPath = findPrettierBin();
-  const command = [prettierBinPath, '--write', '--config', configPath, target.join(' ')].join(' ');
+  const command = [prettierBinPath, '--write', '--config', configPath, existedFiles.join(' ')].join(' ');
   // logColorful({color: 'yellow'}, command);
   if (
     !(await goOnOrNot({
@@ -52,19 +56,28 @@ function fileFilter({relativePath}: {relativePath: string}) {
   return ['.js', '.ts', '.jsx', '.tsx', '.md'].includes(extname);
 }
 
+/**
+ * return full path
+ * @param target
+ * @returns
+ */
 function getGitChangedFiles(target: string) {
   const fullTargetPath = path.resolve(process.cwd(), target);
   if (!fs.existsSync(fullTargetPath)) {
     throw new Error(`target file or dir not found: ${fullTargetPath}`);
   }
   const changedFiles = [
+    /** list file changed in cache */
     'git diff --cached  --name-only',
+    /** list files changed */
     `git diff --name-only --diff-filter=d`,
+    /** list files not traced by git */
     'git ls-files --others  --exclude-standard',
   ]
     .map(it => execSync(it).toString().trim().split('\n'))
     .flat();
-  return changedFiles.filter(it => fileFilter({relativePath: it}));
+  const gitRepoDir = execSync(`git rev-parse --show-toplevel`).toString().replace(/\n$/, '');
+  return changedFiles.filter(it => fileFilter({relativePath: it})).map(it => path.join(gitRepoDir, it));
 }
 
 function tryFindPrettierrc(target: string) {
@@ -83,7 +96,7 @@ program
     const config = options?.config ?? tryFindPrettierrc(fullTargetPath);
     if (target === undefined) {
       const changedFiles = getGitChangedFiles(fullTargetPath);
-      runPrettier({target: changedFiles.map(it => path.join(fullTargetPath, it)), configPath: config});
+      runPrettier({target: changedFiles.map(it => path.resolve(fullTargetPath, it)), configPath: config});
       return;
     }
     const stat = fs.statSync(fullTargetPath);
@@ -94,7 +107,7 @@ program
         includeDir: true,
         fileFilter,
       });
-      runPrettier({target: files.map(it => path.join(fullTargetPath, it)), configPath: config});
+      runPrettier({target: files.map(it => path.resolve(fullTargetPath, it)), configPath: config});
     } else {
       throw new Error(`target is not a file or dir: ${fullTargetPath}`);
     }
