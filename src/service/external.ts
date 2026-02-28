@@ -85,3 +85,5 @@ export {
   getDownloadSpeed,
   getUploadSpeed,
 } from '../../modules/lib/net';
+
+export {dbKeyList} from '../../modules/lib/db';

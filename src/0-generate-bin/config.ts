@@ -42,4 +42,7 @@ export const BIN_TO_COMMAND: Record<string, CmdInfo> = {
   ap: {
     filePath: 'src/1-command/assist-prettier',
   },
+  db: {
+    filePath: 'src/db/command',
+  }
 };

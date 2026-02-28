@@ -8,7 +8,7 @@ import {
   getLineCountMap,
   FileFilter,
 } from '../../service/external';
-import {searchFileInDir} from '@modules/lib/node';
+import {searchFileInDir} from '../../../modules/lib/node/fs/go-through-dir';
 
 export function appendFileCommand(program: Command) {
   program

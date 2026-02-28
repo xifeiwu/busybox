@@ -7,11 +7,14 @@ Logic can be run in these ways:
 2. as bin file: like, ./src/0-generate-bin/bin.ts, or exposed to shell $PATH and run by name directly
 3. start in a background process, by the logic is implememted in src/1-daemon
 
+Try to avoid import file in this way import {getFileList} from '../service/external.ts';, as it will load all files exported from service/extenal.ts during runtime.
+
 ## Folder Structure
 
-1. Features are categotrized by folder under src dir, and can expose three kinds of file: 1. bin file `bin.ts`, 2. command file `command.ts`, 3 script file `script.ts` which will be run as child process. For each kind of file, when there are more files, a folder(bin, command, script) can be created to store them. Small logic can be stored in folder (bin, command, script) of src dir.
+1. Features are categotrized by folder under src dir, and can expose three kinds of file: 1. bin file `bin.ts`, 2. command file `command.ts`, 3. script file `script.ts` which will be run as child process. For each kind of file, when there are more files, a folder(bin, command, script) can be created to store them. Small logic can be stored in folder (bin, command, script) of src dir.
 2. The logic in dir `0-generate-bin` can compile this project to .js file, create bin file to dir bin from command file, and link them to shell global $PATH
 3. The logic in dir `1-daemon` is used to start script in child process and manage them.
+
 
 .
 ├── README.md
