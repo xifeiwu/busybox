@@ -20,8 +20,8 @@ export const BIN_TO_COMMAND: Record<string, CmdInfo> = {
   'login-to-server': {filePath: 'src/1-command/login-to-server'},
   runTsExport: {filePath: 'src/1-command/run-ts-export'},
   runTsScript: {filePath: 'src/1-command/run-ts-script'},
-  'syncup-gitmodules': {
-    filePath: 'src/1-command/syncup-gitmodules',
+  subrepo: {
+    filePath: 'src/1-command/subrepo',
     /** It must run on ts-node, as this cmd need to import .ts file */
     runtime: 'ts-node',
   },

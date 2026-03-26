@@ -50,8 +50,8 @@ Try to avoid import file in this way import {getFileList} from '../service/exter
 │   ├── runTsExport.ts
 │   ├── runTsScript.js
 │   ├── runTsScript.ts
-│   ├── syncup-gitmodules.js
-│   ├── syncup-gitmodules.ts
+│   ├── subrepo.js
+│   ├── subrepo.ts
 │   ├── tcp-gateway.js
 │   └── tcp-gateway.ts
 ├── modules
