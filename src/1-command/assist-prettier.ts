@@ -23,7 +23,15 @@ function findPrettierBin() {
 
 async function runPrettier(options: {target: string[]; configPath: string}) {
   const {target, configPath = path.join(DIR_PROJECT, '.prettierrc')} = options;
-  const existedFiles = target.filter(it => fs.existsSync(it));
+  const pathReg = /[()]/g;
+  const existedFiles = target
+    .filter(it => fs.existsSync(it))
+    .map(it => {
+      if (pathReg.test(it)) {
+        return it.replace(pathReg, m => '\\' + m);
+      }
+      return it;
+    });
   if (existedFiles.length !== target.length) {
     logColorful({color: 'red'}, `Ignore ${target.length - existedFiles.length} files as they are not exist`);
   }
