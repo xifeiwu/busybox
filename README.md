@@ -96,8 +96,9 @@ Append `alias runTsExport='${HOME}/code/bin/runTsExport'` to `.zshrc`, start vsc
 
 ## How to run on production env
 
-1. Some command should run by root user,
+1. Some command should run by root user, run sudo su root
 2. set NODE_ENV=elif by command `export NODE_ENV=elif` on terminal
+3. run script in detached mode: daemon start-detach
 
 **Start by forever on server**
 
