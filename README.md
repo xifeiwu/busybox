@@ -1,117 +1,84 @@
-# Intro
+# Busybox
 
-This project is a wrapper of some frequently-used loigc for daily development, based on common modules(located in modules dir). It focus on can-run, major logic should be implemented on modules layer.
+A TypeScript CLI toolkit that wraps frequently-used logic for daily development, based on common modules (located in `modules/` dir). It focuses on being runnable — major logic should be implemented at the modules layer.
 
-Logic can be run in these ways: 
-1. as a script start by runtime, like, ts-node src/command/login-to-server.ts
-2. as bin file: like, ./src/0-generate-bin/bin.ts, or exposed to shell $PATH and run by name directly
-3. start in a background process, by the logic is implememted in src/1-daemon
 
-Try to avoid import file in this way import {getFileList} from '../service/external.ts';, as it will load all files exported from service/extenal.ts during runtime.
+## Execution Modes
+
+Logic can be run in three ways:
+
+1. As a script started by runtime: `ts-node src/command/login-to-server.ts`
+2. As a bin file: `./src/0-generate-bin/bin.ts`, or exposed to shell `$PATH` and run by name directly
+3. As a background process, managed by `src/2-daemon`
+
+> **Note:** Avoid importing from `src/service/external.ts` directly (e.g. `import {getFileList} from '../service/external.ts'`), as it will eagerly load all exported modules at runtime.
 
 ## Folder Structure
 
-1. Features are categotrized by folder under src dir, and can expose three kinds of file: 1. bin file `bin.ts`, 2. command file `command.ts`, 3. script file `script.ts` which will be run as child process. For each kind of file, when there are more files, a folder(bin, command, script) can be created to store them. Small logic can be stored in folder (bin, command, script) of src dir.
-2. The logic in dir `0-generate-bin` can compile this project to .js file, create bin file to dir bin from command file, and link them to shell global $PATH
-3. The logic in dir `1-daemon` is used to start script in child process and manage them.
+Features are categorized by folder under `src/`, and can expose two kinds of file:
+- `command.ts` — command file
+- `daemon-script.ts` — script run as child process
 
+When there are multiple files of the same kind, a subfolder (`bin/`, `command/`, `script/`) can be created to store them.
 
+For simple command or daemon-script, 
+
+```
 .
-├── README.md
 ├── src
-│   ├── 0-generate-bin
-│   ├── 1-command
-│   ├── 2-daemon
-│   ├── other
-│   ├── redis
-│   ├── run-script
-│   ├── service
-│   ├── tcp-gateway
-│   └── types
-├── dist
-│   ├── bin
-│   ├── modules
-│   ├── node_modules
-│   ├── package.json
-│   ├── pnpm-lock.yaml
-│   ├── pnpm-workspace.yaml
-│   ├── src
-│   └── version.txt
-├── bin
-│   ├── daemon.js
-│   ├── daemon.ts
-│   ├── io-transparent.js
-│   ├── io-transparent.ts
-│   ├── login-to-server.js
-│   ├── login-to-server.ts
-│   ├── nb.js
-│   ├── nb.ts
-│   ├── runTsExport.js
-│   ├── runTsExport.ts
-│   ├── runTsScript.js
-│   ├── runTsScript.ts
-│   ├── subrepo.js
-│   ├── subrepo.ts
-│   ├── tcp-gateway.js
-│   └── tcp-gateway.ts
-├── modules
-│   └── lib
-├── node_modules
-│   ├── @types
-│   ├── commander -> .pnpm/registry.npmmirror.com+commander@11.1.0/node_modules/commander
-│   ├── tsc-alias -> .pnpm/tsc-alias@1.8.10/node_modules/tsc-alias
-│   └── tsconfig-paths -> .pnpm/registry.npmmirror.com+tsconfig-paths@4.2.0/node_modules/tsconfig-paths
+│   ├── 0-generate-bin    # Compile project, create bin files, link to $PATH
+│   ├── 1-command         # Command implementations
+│   ├── 2-daemon          # Start scripts in child process and manage them
+│   ├── db                # Database commands
+│   ├── redis             # Redis integration
+│   ├── service           # Shared services
+│   ├── tcp-gateway       # TCP gateway server
+│   └── types             # Type definitions
+├── bin                   # Generated executable wrappers (.ts and .js)
+├── dist                  # Compiled JavaScript output
+├── modules               # Git submodules (shared libraries)
 ├── package.json
 ├── pnpm-lock.yaml
-├── pnpm-workspace.yaml
 └── tsconfig.json
+```
 
+## Generate-bin
 
-# Thoughts of generate-bin
+Running frequently-used logic as a bin command in the terminal significantly improves efficiency. Running commands as `.ts` files means ts-node compiles all related files on every startup, which is slow. Compiled `.js` bin commands are a better solution.
 
-It will significantly improve efficiency if the frequently-used logic can be run as a bin command in terminal.
-If run command as .ts file, ts-node will compile all the related .ts files on every startup, it will take long time before real logic started.
-The logic start with a .js bin command is a better solution, in order to go this way, generate-bin will compile the whole project and submodules it used, and create bin command in dir bin, these bin files can be linked to global PAHT by link-bin action.
+`generate-bin` compiles the whole project and its submodules, creates bin files in the `bin/` directory, and links them to the global `$PATH` via `link-bin`.
 
-# About bin command
+## Bin Command
 
-## Some Rules For Running On ts-node
+### ts-node Rules
 
-ts-node can't run .ts file without tsconfig.json found for the file(but can run .js file directly)
+- ts-node cannot run `.ts` files without a `tsconfig.json` found for the file (but can run `.js` files directly).
+- Some params are needed for ts-node runtime: `-r ${projectPath}/node_modules/tsconfig-paths/register.js` and `--project ${projectPath}/tsconfig.json`. These depend on the project location, so they are generated dynamically.
+- Shebang lines are not well supported on every platform (e.g. CentOS does not support passing params in shebang lines).
 
-For some cases, some params, say `-r ${projectPath}/node_modules/tsconfig-paths/register.js`, `--project ${projectPath}tsconfig.json`, are needed for ts-node runtime, so if we want run a .ts file as bin command, we need provide these params to ts-node runtime in shebang line. The thing is these ts-node params depends on the location of this project, so they should be generated dynamically as this project may be run on different platform.
+### VSCode Debug with runTsExport
 
-The shebang line for bin command is not support very well in every platform, e.g. Centos not support pass param in shebang line.
+If VSCode reports "cannot find path of runtimeExecutable on launch.json":
 
-## Change log
+Append `alias runTsExport='${HOME}/code/bin/runTsExport'` to `.zshrc`, then start VSCode from the project directory with `code .`.
 
-1. Actual command logic is located in src/command file, bin/command is just a script to spawn it's related file in src/command, it will append accurate param for command script. @deprecated as it will start more threads.
+### Production Environment
 
-1. Use the shell script as shebang line for .ts bin command, for more compatible.
+1. Some commands require root: `sudo su root`
+2. Set environment: `export NODE_ENV=elif`
+3. Run in detached mode: `daemon start-detach`
 
-## Use runTsExport as command for vscode debug
+**Start with forever on server:**
 
-For the case of vscode `can not found path of runtimeExecutable on launch.json`:
-Append `alias runTsExport='${HOME}/code/bin/runTsExport'` to `.zshrc`, start vscode from the project dirctory by running command `code .`.
+```bash
+forever start /share/nvm/versions/node/v18.18.0/bin/ts-node \
+  -r /share/code/node/start/busybox/node_modules/tsconfig-paths/register.js \
+  --project /share/code/node/start/busybox/tsconfig.json \
+  --transpileOnly \
+  /share/code/node/start/busybox/src/command/http-server.ts -p 80
+```
 
-## How to run on production env
+### runTsExport Tips
 
-1. Some command should run by root user, run sudo su root
-2. set NODE_ENV=elif by command `export NODE_ENV=elif` on terminal
-3. run script in detached mode: daemon start-detach
-
-**Start by forever on server**
-
-forever start /share/nvm/versions/node/v18.18.0/bin/ts-node -r /share/code/node/start/busybox/node_modules/tsconfig-paths/register.js --project /share/code/node/start/busybox/tsconfig.json --transpileOnly /share/code/node/start/busybox/src/command/http-server.ts -p 80
-
-## Takeaways
-
-**Dir bin, src/command**
-
-For command `runTsExport`, two node process will be created for one bin command, it will cost may resource. You can run `runTsExport -d` first and run the command output again as second step.
-
-## Notice
-
-**About --swc of runTsExport**
-
---swc can speed up logic of runTsExport from 5s to 2s, but should install depended packages: `npm install -g @swc/core @swc/helpers`
+- Running `runTsExport` creates two Node processes per bin command, which costs more resources. You can run `runTsExport -d` first and then run the output command as a second step.
+- `--swc` speeds up runTsExport from ~5s to ~2s, but requires: `npm install -g @swc/core @swc/helpers`
