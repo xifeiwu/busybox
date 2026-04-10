@@ -7,7 +7,7 @@ import {
   CpManagerConfig,
   spawnAndTryIpc,
 } from '../service/external';
-import {tlsGateway, tcpGateway, debugServer} from './config';
+import {tlsGateway, tcpGateway, debugServer} from '../2-daemon-scripts/config';
 
 export const cpManagerConfigMap = [debugServer, tlsGateway, tcpGateway].reduce<{
   [key: string]: CpManagerConfig;

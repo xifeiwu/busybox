@@ -9,7 +9,7 @@ Logic can be run in three ways:
 
 1. As a script started by runtime: `ts-node src/command/login-to-server.ts`
 2. As a bin file: `./src/0-generate-bin/bin.ts`, or exposed to shell `$PATH` and run by name directly
-3. As a background process, managed by `src/2-daemon`
+3. As a background process, managed by `src/daemon`
 
 > **Note:** Avoid importing from `src/service/external.ts` directly (e.g. `import {getFileList} from '../service/external.ts'`), as it will eagerly load all exported modules at runtime.
 
@@ -21,14 +21,15 @@ Features are categorized by folder under `src/`, and can expose two kinds of fil
 
 When there are multiple files of the same kind, a subfolder (`bin/`, `command/`, `script/`) can be created to store them.
 
-For simple command or daemon-script, 
+For simple command or daemon-script, it's unnecessary to create a new folder to locate them, it can be placed into dir `1-command`/`2-daemon-scripts` directly.
 
 ```
 .
 ├── src
 │   ├── 0-generate-bin    # Compile project, create bin files, link to $PATH
 │   ├── 1-command         # Command implementations
-│   ├── 2-daemon          # Start scripts in child process and manage them
+│   ├── 2-daemon-scripts          # Scripts run as child processes by daemon
+│   ├── daemon              # Daemon feature: manage child processes
 │   ├── db                # Database commands
 │   ├── redis             # Redis integration
 │   ├── service           # Shared services

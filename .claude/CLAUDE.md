@@ -40,7 +40,8 @@ All commands are registered in `src/0-generate-bin/config.ts` via the `BIN_TO_CO
 
 - **`src/0-generate-bin/`** - Build system: compiles TS, generates bin wrappers, links to $PATH
 - **`src/1-command/`** - CLI command implementations using `commander`
-- **`src/2-daemon/`** - Child process/daemon management (start, stop, restart background services)
+- **`src/daemon/`** - Daemon feature: manage child processes (start, stop, restart background services)
+- **`src/2-daemon-scripts/`** - Scripts run as child processes by daemon, and their spawn configs
 - **`src/service/external.ts`** - Re-exports from modules (avoid importing this file directly as it loads everything)
 - **`modules/`** - Git submodules with shared libraries (js, node, net, db, utils, types)
 

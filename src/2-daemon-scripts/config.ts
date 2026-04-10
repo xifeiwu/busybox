@@ -45,7 +45,7 @@ export function tlsGateway() {
       },
     },
     spawnConfig: getSpawnConfigByScript<TcpGateWayOptions>(
-      tryUseJsFile(path.resolve(__dirname, 'script/tls-gateway.ts')),
+      tryUseJsFile(path.resolve(__dirname, 'tls-gateway.ts')),
       {
         spawnOptions: {
           stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
@@ -68,7 +68,7 @@ export function tcpGateway() {
       },
     },
     spawnConfig: getSpawnConfigByScript<TcpGateWayOptions>(
-      tryUseJsFile(path.resolve(__dirname, 'script/tcp-gateway.ts')),
+      tryUseJsFile(path.resolve(__dirname, 'tcp-gateway.ts')),
       {
         spawnOptions: {
           stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
