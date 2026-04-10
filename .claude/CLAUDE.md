@@ -65,6 +65,8 @@ All commands are registered in `src/0-generate-bin/config.ts` via the `BIN_TO_CO
 ## Code Conventions
 
 - Path aliases: `@modules/*` → `modules/*`, `@src/*` → `src/*` (resolved by `tsc-alias` at build)
+- **In command files (`src/1-command/`), use relative paths instead of `@modules`/`@src` aliases**, because bin wrappers run via ts-node without tsconfig path resolution, and `@modules` imports will fail at runtime
+- **Import from the most specific file path possible** (e.g. `../../modules/lib/node/http/server/server` instead of `../../modules/lib/node/http/server`) to avoid loading unnecessary modules at runtime
 - Prettier: single quotes, no bracket spacing, trailing commas (es5), 110 char width, LF line endings
 - Avoid importing from `src/service/external.ts` directly — it eagerly loads all re-exported modules
 - Features are organized by folder under `src/`, exposing files as: `bin.ts`, `command.ts`, or `script.ts` (child process scripts)
