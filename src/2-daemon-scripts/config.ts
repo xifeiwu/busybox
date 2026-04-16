@@ -2,23 +2,21 @@
  * Add child process id to make it easy to find the process even daemon process is die
  */
 import path from 'path';
-import {CpManagerConfig, tryUseJsFile, Env, getSpawnConfigByScript, CP} from '../service/external';
+import {LaunchCpConfig, tryUseJsFile, Env, getSpawnConfigByScript, CP} from '../service/external';
 import {TcpGateWayOptions} from '../types';
 
 const maxWaitTime4Ipc = 60;
 
-const defaultSpawnConfig: Partial<CpManagerConfig> = {
-  managerConfig: {
-    retry: {
-      maxCount: 3,
-      minInterval: 5000,
-    },
+const defaultSpawnConfig: Partial<LaunchCpConfig> = {
+  retry: {
+    maxCount: 3,
+    minInterval: 5000,
   },
 };
 
 export function debugServer() {
   const id = 'customized-server';
-  const config: CpManagerConfig = {
+  const config: LaunchCpConfig = {
     id,
     spawnConfig: getSpawnConfigByScript<CP.DebugServerConfig>(tryUseJsFile(__filename), {
       spawnOptions: {
@@ -36,13 +34,11 @@ export function debugServer() {
 
 export function tlsGateway() {
   const id = 'tls-gateway';
-  const config: CpManagerConfig = {
+  const config: LaunchCpConfig = {
     id,
-    managerConfig: {
-      retry: {
-        maxCount: 3,
-        minInterval: 5000,
-      },
+    retry: {
+      maxCount: 3,
+      minInterval: 5000,
     },
     spawnConfig: getSpawnConfigByScript<TcpGateWayOptions>(
       tryUseJsFile(path.resolve(__dirname, 'tls-gateway.ts')),
@@ -59,13 +55,11 @@ export function tlsGateway() {
 
 export function tcpGateway() {
   const id = 'tcp-gateway';
-  const config: CpManagerConfig = {
+  const config: LaunchCpConfig = {
     id,
-    managerConfig: {
-      retry: {
-        maxCount: 3,
-        minInterval: 5000,
-      },
+    retry: {
+      maxCount: 3,
+      minInterval: 5000,
     },
     spawnConfig: getSpawnConfigByScript<TcpGateWayOptions>(
       tryUseJsFile(path.resolve(__dirname, 'tcp-gateway.ts')),

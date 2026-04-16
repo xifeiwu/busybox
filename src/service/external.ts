@@ -68,7 +68,12 @@ export {
   linkFile,
   makeSureDirExist,
 } from '../../modules/lib/node';
-export {startDetachedDaemon, SocketClientToDaemon, CpManagerConfig} from '../../modules/lib/node/lib/daemon';
+export {
+  startDetachedDaemon,
+  SocketClientToDaemon,
+  LaunchCpConfig,
+  scanAllInfoRecords,
+} from '../../modules/lib/node/lib/process-management';
 export {
   KoaConfig,
   startKoaServer,

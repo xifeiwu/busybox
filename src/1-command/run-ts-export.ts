@@ -54,8 +54,8 @@ export const handler = async (scriptPath, funcName, funcParams, options) => {
    * [
    *   '/Users/wuxifei/.nvm/versions/node/v18.12.0/bin/ts-node',
    *   '/Users/wuxifei/code/bin/runTsExport',
-   *   'modules/lib/js/lib/humanize/test.ts',
-   *   'testIntword'
+   *   'modules/lib/js/lib/humanize/time.test.ts',
+   *   'testDateFormat'
    * ]
    */
   const targetScript = path.resolve(process.cwd(), scriptPath);

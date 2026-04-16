@@ -4,13 +4,13 @@ import {
   selectOption,
   startDetachedDaemon,
   SocketClientToDaemon,
-  CpManagerConfig,
+  LaunchCpConfig,
   spawnAndTryIpc,
 } from '../service/external';
 import {tlsGateway, tcpGateway, debugServer} from '../2-daemon-scripts/config';
 
-export const cpManagerConfigMap = [debugServer, tlsGateway, tcpGateway].reduce<{
-  [key: string]: CpManagerConfig;
+export const cpWrapperConfigMap = [debugServer, tlsGateway, tcpGateway].reduce<{
+  [key: string]: LaunchCpConfig;
 }>((sum, func) => {
   const config = func();
   return {
@@ -21,7 +21,7 @@ export const cpManagerConfigMap = [debugServer, tlsGateway, tcpGateway].reduce<{
 const daemonId = 'busybox-daemon';
 const daemonSocketPath = getSocketPath(daemonId);
 const socketClient = new SocketClientToDaemon({path: daemonSocketPath});
-const idList = [...Object.values(cpManagerConfigMap).map(it => it.id), daemonId];
+const idList = [...Object.values(cpWrapperConfigMap).map(it => it.id), daemonId];
 
 export async function getId(id?: string) {
   if (idList.includes(id)) {
@@ -67,14 +67,14 @@ export async function start(id?: string) {
   if (id === daemonId) {
     return await runDetachedDaemon();
   } else {
-    const result = await socketClient.start(cpManagerConfigMap[id]);
+    const result = await socketClient.start(cpWrapperConfigMap[id]);
     return result;
   }
 }
 
 export async function startInDetachedMode(id?: string) {
   id = await getId(id);
-  const {spawnConfig} = cpManagerConfigMap[id];
+  const {spawnConfig} = cpWrapperConfigMap[id];
   const spawnInfo = await spawnAndTryIpc(spawnConfig);
   const {responseFromCp, childProcess} = spawnInfo;
   childProcess.disconnect && childProcess.disconnect();
@@ -84,15 +84,20 @@ export async function startInDetachedMode(id?: string) {
 
 export async function restart(id?: string) {
   id = await getId(id);
-  const cpManagerConfig = cpManagerConfigMap[id];
-  if (!cpManagerConfig) {
-    throw new Error(`cpManagerConfig is null`);
+  const cpWrapperConfig = cpWrapperConfigMap[id];
+  if (!cpWrapperConfig) {
+    throw new Error(`cpWrapperConfig is null`);
   }
-  const result = await socketClient.restart(cpManagerConfigMap[id]);
+  const result = await socketClient.restart(cpWrapperConfigMap[id]);
   return result;
 }
 export async function stop(id?: string) {
   id = await getId(id);
   const result = await socketClient.stop(id);
+  return result;
+}
+export async function log(id?: string) {
+  id = await getId(id);
+  const result = await socketClient.log(id);
   return result;
 }

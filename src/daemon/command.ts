@@ -1,5 +1,6 @@
+import {spawn} from 'child_process';
 import {Command} from 'commander';
-import {ping, info, start, restart, stop, startInDetachedMode} from './service';
+import {ping, info, start, restart, stop, startInDetachedMode, log} from './service';
 import {logColorful, serializeSpawnResponse} from '../service/external';
 
 const program = new Command();
@@ -49,6 +50,25 @@ program
   .action(async id => {
     const result = await stop(id);
     logColorful({}, result);
+  });
+
+program
+  .command('log [id]')
+  .description('get output logs of child process managed by daemon')
+  .action(async id => {
+    const result = await log(id);
+    const data = (result as any)?.data;
+    if (!data) {
+      logColorful({}, result);
+      return;
+    }
+    if (data.outFile || data.errorFile) {
+      console.log(`Tailing log files: ${data.outFile}, ${data.errorFile}`);
+      const tail = spawn('tail', ['-f', data.outFile, data.errorFile], {stdio: 'inherit'});
+      tail.on('exit', code => process.exit(code ?? 0));
+    } else {
+      logColorful({}, result);
+    }
   });
 
 program.parse(process.argv);
