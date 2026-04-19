@@ -1,5 +1,5 @@
 import fs from 'fs';
-import {logColorful, selectOption, LaunchCpEntry, killProcessByPid} from '../service/external';
+import {logColorful, selectOption, LaunchCpConfig, killProcessByPid} from '../service/external';
 import {isProcessAlive} from '../../modules/lib/node/process/service/kill';
 import {launchCpInDetachedMode} from '../../modules/lib/node/lib/process-manager/launch-cp/detached';
 import {launchCpInMonitoredMode} from '../../modules/lib/node/lib/process-manager/launch-cp/monitored';
@@ -13,10 +13,10 @@ import {DAEMON_ROOT_DIR} from '../../modules/lib/node/lib/process-manager/servic
 import {debugServer, tlsGateway, tcpGateway} from '../2-process/config';
 
 export const cpEntryMap = [debugServer, tlsGateway, tcpGateway].reduce<{
-  [key: string]: LaunchCpEntry;
+  [key: string]: LaunchCpConfig;
 }>((sum, fn) => {
   const entry = fn();
-  return {...sum, [entry.cpConfig.id]: entry};
+  return {...sum, [entry.id]: entry};
 }, {});
 
 const configIdList = Object.keys(cpEntryMap);
@@ -90,8 +90,8 @@ export async function startProcess(id?: string): Promise<void> {
     throw new Error(`No config found for id: ${cpId}`);
   }
   const result = entry.monitorConfig
-    ? await launchCpInMonitoredMode(entry.cpConfig, entry.monitorConfig)
-    : await launchCpInDetachedMode(entry.cpConfig);
+    ? await launchCpInMonitoredMode(entry)
+    : await launchCpInDetachedMode(entry);
   logColorful({}, result);
 }
 

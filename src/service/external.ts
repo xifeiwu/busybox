@@ -68,13 +68,7 @@ export {
   linkFile,
   makeSureDirExist,
 } from '../../modules/lib/node';
-export {
-  LaunchCpConfig,
-  LaunchCpEntry,
-  MonitorConfig,
-  isCpAlive,
-  stopCp,
-} from '../../modules/lib/node/lib/process-manager';
+export {LaunchCpConfig, MonitorConfig, isCpAlive, stopCp} from '../../modules/lib/node/lib/process-manager';
 export {
   KoaConfig,
   startKoaServer,

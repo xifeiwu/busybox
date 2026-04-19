@@ -3,7 +3,7 @@
  */
 import path from 'path';
 import {
-  LaunchCpEntry,
+  LaunchCpConfig,
   tryUseJsFile,
   Env,
   getSpawnConfigByScript,
@@ -20,66 +20,76 @@ const defaultMonitorConfig: MonitorConfig = {
     minInterval: 5000,
   },
 };
+const defaultMaxWaitCpResInSec = 6;
 
-export function debugServer(): LaunchCpEntry {
+export const launchProcConfigMap: Record<string, Omit<LaunchCpConfig, 'id'>> = {
+  'customized-server': {
+    spawnConfig: {
+      scriptPath: path.resolve(
+        __dirname,
+        '../../../modules/lib/node/child-process/cp-script/debug-server.ts'
+      ),
+      infoToCp: {
+        port: 3333,
+      },
+      maxWaitCpResInSec: defaultMaxWaitCpResInSec,
+    },
+  },
+};
+
+export function debugServer(): LaunchCpConfig {
   const id = 'customized-server';
   return {
-    cpConfig: {
-      id,
-      spawnConfig: getSpawnConfigByScript<CP.DebugServerConfig>(tryUseJsFile(__filename), {
+    id,
+    spawnConfig: getSpawnConfigByScript<CP.DebugServerConfig>(tryUseJsFile(__filename), {
+      spawnOptions: {
+        stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
+      },
+      params: [id],
+      infoToCp: {
+        port: 3333,
+      },
+      maxWaitTime4Ipc: 6,
+    }),
+  };
+}
+
+export function tlsGateway(): LaunchCpConfig {
+  const id = 'tls-gateway';
+  return {
+    id,
+    spawnConfig: getSpawnConfigByScript<TcpGateWayOptions>(
+      tryUseJsFile(path.resolve(__dirname, 'tls-gateway.ts')),
+      {
         spawnOptions: {
           stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
         },
         params: [id],
-        infoToCp: {
-          port: 3333,
-        },
-        maxWaitTime4Ipc: 6,
-      }),
-    },
-  };
-}
-
-export function tlsGateway(): LaunchCpEntry {
-  const id = 'tls-gateway';
-  return {
-    cpConfig: {
-      id,
-      spawnConfig: getSpawnConfigByScript<TcpGateWayOptions>(
-        tryUseJsFile(path.resolve(__dirname, 'tls-gateway.ts')),
-        {
-          spawnOptions: {
-            stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
-          },
-          params: [id],
-        }
-      ),
-    },
+      }
+    ),
     monitorConfig: defaultMonitorConfig,
   };
 }
 
-export function tcpGateway(): LaunchCpEntry {
+export function tcpGateway(): LaunchCpConfig {
   const id = 'tcp-gateway';
   return {
-    cpConfig: {
-      id,
-      spawnConfig: getSpawnConfigByScript<TcpGateWayOptions>(
-        tryUseJsFile(path.resolve(__dirname, 'tcp-gateway.ts')),
-        {
-          spawnOptions: {
-            stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
+    id,
+    spawnConfig: getSpawnConfigByScript<TcpGateWayOptions>(
+      tryUseJsFile(path.resolve(__dirname, 'tcp-gateway.ts')),
+      {
+        spawnOptions: {
+          stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
+        },
+        infoToCp: {
+          config: {
+            env: process.env.NODE_ENV ? (process.env.NODE_ENV as Env) : Env.local,
           },
-          infoToCp: {
-            config: {
-              env: process.env.NODE_ENV ? (process.env.NODE_ENV as Env) : Env.local,
-            },
-          },
-          maxWaitTime4Ipc,
-          params: [id],
-        }
-      ),
-    },
+        },
+        maxWaitTime4Ipc,
+        params: [id],
+      }
+    ),
     monitorConfig: defaultMonitorConfig,
   };
 }

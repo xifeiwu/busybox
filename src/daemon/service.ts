@@ -1,5 +1,5 @@
 import fs from 'fs';
-import {logColorful, selectOption, LaunchCpEntry, isCpAlive, stopCp} from '../service/external';
+import {logColorful, selectOption, LaunchCpConfig, isCpAlive, stopCp} from '../service/external';
 import {launchCpInDetachedMode} from '../../modules/lib/node/lib/process-manager/launch-cp/detached';
 import {readProcInfo} from '../../modules/lib/node/lib/process-manager/service';
 import {DAEMON_ROOT_DIR} from '../../modules/lib/node/lib/process-manager/service/external';
@@ -19,15 +19,15 @@ function loadAllCpInfo(): {cpId: string; info: ReturnType<typeof readProcInfo>}[
 }
 
 export const cpWrapperConfigMap = [debugServer, tlsGateway, tcpGateway].reduce<{
-  [key: string]: LaunchCpEntry;
+  [key: string]: LaunchCpConfig;
 }>((sum, func) => {
   const entry = func();
   return {
     ...sum,
-    [entry.cpConfig.id]: entry,
+    [entry.id]: entry,
   };
 }, {});
-const idList = Object.values(cpWrapperConfigMap).map(it => it.cpConfig.id);
+const idList = Object.values(cpWrapperConfigMap).map(it => it.id);
 
 export async function getId(id?: string) {
   if (idList.includes(id)) {
@@ -66,7 +66,7 @@ export async function start(id?: string) {
   if (!entry) {
     throw new Error(`No config found for id: ${id}`);
   }
-  const result = await launchCpInDetachedMode(entry.cpConfig);
+  const result = await launchCpInDetachedMode(entry);
   logColorful({}, result);
   return result;
 }
