@@ -48,7 +48,7 @@ export const BIN_TO_COMMAND: Record<string, CmdInfo> = {
   db: {
     filePath: 'src/db/command',
   },
-  daemon: {
-    filePath: 'src/daemon/command',
-  }
+  pm: {
+    filePath: 'src/process-manager/command',
+  },
 };

@@ -1,13 +1,28 @@
+import fs from 'fs';
 import {
   logColorful,
   selectOption,
   LaunchCpEntry,
-  loadAllCpInfo,
   isCpAlive,
   stopCp,
 } from '../service/external';
 import {launchCpInDetachedMode} from '../../modules/lib/node/lib/process-manager/launch-cp/detached';
-import {tlsGateway, tcpGateway, debugServer} from '../2-daemon-scripts/config';
+import {readProcInfo} from '../../modules/lib/node/lib/process-manager/service';
+import {DAEMON_ROOT_DIR} from '../../modules/lib/node/lib/process-manager/service/external';
+import {tlsGateway, tcpGateway, debugServer} from '../2-process-config/config';
+
+function loadAllCpInfo(): {cpId: string; info: ReturnType<typeof readProcInfo>}[] {
+  if (!fs.existsSync(DAEMON_ROOT_DIR)) {
+    return [];
+  }
+  return fs
+    .readdirSync(DAEMON_ROOT_DIR, {withFileTypes: true})
+    .filter(e => e.isDirectory())
+    .map(e => ({
+      cpId: e.name,
+      info: readProcInfo(e.name),
+    }));
+}
 
 export const cpWrapperConfigMap = [debugServer, tlsGateway, tcpGateway].reduce<{
   [key: string]: LaunchCpEntry;

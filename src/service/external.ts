@@ -72,7 +72,6 @@ export {
   LaunchCpConfig,
   LaunchCpEntry,
   MonitorConfig,
-  loadAllCpInfo,
   isCpAlive,
   stopCp,
 } from '../../modules/lib/node/lib/process-manager';
