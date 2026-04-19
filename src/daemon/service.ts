@@ -1,27 +1,24 @@
 import {
-  getSocketPath,
   logColorful,
   selectOption,
-  startDetachedDaemon,
-  SocketClientToDaemon,
-  LaunchCpConfig,
-  spawnAndTryIpc,
+  LaunchCpEntry,
+  loadAllCpInfo,
+  isCpAlive,
+  stopCp,
 } from '../service/external';
+import {launchCpInDetachedMode} from '../../modules/lib/node/lib/process-manager/launch-cp/detached';
 import {tlsGateway, tcpGateway, debugServer} from '../2-daemon-scripts/config';
 
 export const cpWrapperConfigMap = [debugServer, tlsGateway, tcpGateway].reduce<{
-  [key: string]: LaunchCpConfig;
+  [key: string]: LaunchCpEntry;
 }>((sum, func) => {
-  const config = func();
+  const entry = func();
   return {
     ...sum,
-    [config.id]: config,
+    [entry.cpConfig.id]: entry,
   };
 }, {});
-const daemonId = 'busybox-daemon';
-const daemonSocketPath = getSocketPath(daemonId);
-const socketClient = new SocketClientToDaemon({path: daemonSocketPath});
-const idList = [...Object.values(cpWrapperConfigMap).map(it => it.id), daemonId];
+const idList = Object.values(cpWrapperConfigMap).map(it => it.cpConfig.id);
 
 export async function getId(id?: string) {
   if (idList.includes(id)) {
@@ -38,66 +35,45 @@ export async function getId(id?: string) {
   return selected.id;
 }
 
-export async function runDetachedDaemon() {
-  const spawnResponse = await startDetachedDaemon(
-    {
-      id: daemonId,
-    },
-    {debug: false}
-  );
-  logColorful({}, spawnResponse);
-}
-
-export async function ping() {
-  try {
-    return await socketClient.ping();
-  } catch (err) {
-    logColorful({color: 'red'}, 'ping fail with Error message:', err.message);
-  }
-}
 export async function info(id?: string) {
-  id = await getId(id);
-  logColorful({color: 'red'}, `id: ${id}`);
-  const result = await socketClient.info(id);
-  return result;
-}
-export async function start(id?: string) {
-  logColorful({color: 'yellow'}, `NOTICE: ${daemonId} should be started before any other child process.`);
-  id = await getId(id);
-  if (id === daemonId) {
-    return await runDetachedDaemon();
-  } else {
-    const result = await socketClient.start(cpWrapperConfigMap[id]);
-    return result;
+  if (id) {
+    const allInfo = loadAllCpInfo();
+    const match = allInfo.find(it => it.cpId === id);
+    if (!match?.info) {
+      logColorful({color: 'red'}, `No info found for id: ${id}`);
+      return null;
+    }
+    logColorful({}, match.info);
+    return match.info;
   }
+  const allInfo = loadAllCpInfo();
+  logColorful({}, allInfo);
+  return allInfo;
 }
 
-export async function startInDetachedMode(id?: string) {
+export async function start(id?: string) {
   id = await getId(id);
-  const {spawnConfig} = cpWrapperConfigMap[id];
-  const spawnInfo = await spawnAndTryIpc(spawnConfig);
-  const {responseFromCp, childProcess} = spawnInfo;
-  childProcess.disconnect && childProcess.disconnect();
-  childProcess.unref();
-  return spawnInfo;
+  const entry = cpWrapperConfigMap[id];
+  if (!entry) {
+    throw new Error(`No config found for id: ${id}`);
+  }
+  const result = await launchCpInDetachedMode(entry.cpConfig);
+  logColorful({}, result);
+  return result;
 }
 
 export async function restart(id?: string) {
   id = await getId(id);
-  const cpWrapperConfig = cpWrapperConfigMap[id];
-  if (!cpWrapperConfig) {
-    throw new Error(`cpWrapperConfig is null`);
-  }
-  const result = await socketClient.restart(cpWrapperConfigMap[id]);
-  return result;
+  await stop(id);
+  return await start(id);
 }
+
 export async function stop(id?: string) {
   id = await getId(id);
-  const result = await socketClient.stop(id);
-  return result;
-}
-export async function log(id?: string) {
-  id = await getId(id);
-  const result = await socketClient.log(id);
-  return result;
+  if (!isCpAlive(id)) {
+    logColorful({color: 'yellow'}, `Process ${id} is not running.`);
+    return;
+  }
+  await stopCp(id);
+  logColorful({}, `Process ${id} stopped.`);
 }
