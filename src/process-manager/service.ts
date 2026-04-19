@@ -1,10 +1,5 @@
 import fs from 'fs';
-import {
-  logColorful,
-  selectOption,
-  LaunchCpEntry,
-  killProcessByPid,
-} from '../service/external';
+import {logColorful, selectOption, LaunchCpEntry, killProcessByPid} from '../service/external';
 import {isProcessAlive} from '../../modules/lib/node/process/service/kill';
 import {launchCpInDetachedMode} from '../../modules/lib/node/lib/process-manager/launch-cp/detached';
 import {launchCpInMonitoredMode} from '../../modules/lib/node/lib/process-manager/launch-cp/monitored';
@@ -15,7 +10,7 @@ import {
   tailProcessOutLog,
 } from '../../modules/lib/node/lib/process-manager/service';
 import {DAEMON_ROOT_DIR} from '../../modules/lib/node/lib/process-manager/service/external';
-import {debugServer, tlsGateway, tcpGateway} from '../2-process-config/config';
+import {debugServer, tlsGateway, tcpGateway} from '../2-process/config';
 
 export const cpEntryMap = [debugServer, tlsGateway, tcpGateway].reduce<{
   [key: string]: LaunchCpEntry;
@@ -47,7 +42,7 @@ export async function selectConfigId(id?: string): Promise<string> {
     configIdList.map(x => ({
       label: x,
       id: x,
-    })),
+    }))
   );
   return selected.id;
 }
@@ -67,7 +62,7 @@ export async function selectRunningOrRegisteredId(id?: string): Promise<string> 
     ids.map(x => ({
       label: x,
       id: x,
-    })),
+    }))
   );
   return selected.id;
 }

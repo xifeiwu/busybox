@@ -2,7 +2,14 @@
  * Add child process id to make it easy to find the process even daemon process is die
  */
 import path from 'path';
-import {LaunchCpEntry, tryUseJsFile, Env, getSpawnConfigByScript, CP, MonitorConfig} from '../service/external';
+import {
+  LaunchCpEntry,
+  tryUseJsFile,
+  Env,
+  getSpawnConfigByScript,
+  CP,
+  MonitorConfig,
+} from '../service/external';
 import {TcpGateWayOptions} from '../types';
 
 const maxWaitTime4Ipc = 60;

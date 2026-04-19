@@ -1,15 +1,9 @@
 import fs from 'fs';
-import {
-  logColorful,
-  selectOption,
-  LaunchCpEntry,
-  isCpAlive,
-  stopCp,
-} from '../service/external';
+import {logColorful, selectOption, LaunchCpEntry, isCpAlive, stopCp} from '../service/external';
 import {launchCpInDetachedMode} from '../../modules/lib/node/lib/process-manager/launch-cp/detached';
 import {readProcInfo} from '../../modules/lib/node/lib/process-manager/service';
 import {DAEMON_ROOT_DIR} from '../../modules/lib/node/lib/process-manager/service/external';
-import {tlsGateway, tcpGateway, debugServer} from '../2-process-config/config';
+import {tlsGateway, tcpGateway, debugServer} from '../2-process/config';
 
 function loadAllCpInfo(): {cpId: string; info: ReturnType<typeof readProcInfo>}[] {
   if (!fs.existsSync(DAEMON_ROOT_DIR)) {
