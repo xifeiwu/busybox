@@ -10,16 +10,9 @@ import {
   tailProcessOutLog,
 } from '../../modules/lib/node/lib/process-manager/service';
 import {DAEMON_ROOT_DIR} from '../../modules/lib/node/lib/process-manager/service/external';
-import {debugServer, tlsGateway, tcpGateway} from '../2-process/config';
+import {launchProcConfigList} from '../2-process';
 
-export const cpEntryMap = [debugServer, tlsGateway, tcpGateway].reduce<{
-  [key: string]: LaunchCpConfig;
-}>((sum, fn) => {
-  const entry = fn();
-  return {...sum, [entry.id]: entry};
-}, {});
-
-const configIdList = Object.keys(cpEntryMap);
+const configIdList = Object.keys(launchProcConfigList);
 
 export function listManagedDirIds(): string[] {
   if (!fs.existsSync(DAEMON_ROOT_DIR)) {
@@ -85,7 +78,7 @@ export async function infoProcess(id?: string): Promise<void> {
 
 export async function startProcess(id?: string): Promise<void> {
   const cpId = await selectConfigId(id);
-  const entry = cpEntryMap[cpId];
+  const entry = launchProcConfigList[cpId];
   if (!entry) {
     throw new Error(`No config found for id: ${cpId}`);
   }
@@ -135,6 +128,14 @@ export async function restartProcess(id?: string, clean?: boolean): Promise<void
     logColorful({}, `Removed base folder for ${cpId}.`);
   }
   await startProcess(cpId);
+}
+
+export async function cleanUpProcess(id?: string): Promise<LaunchCpConfig> {
+  const cpId = await selectRunningOrRegisteredId(id);
+  if (isProcessAlive(cpId)) {
+    await killPersistedProcess(cpId);
+  }
+  return launchProcConfigList[cpId];
 }
 
 export async function logProcess(id?: string): Promise<void> {

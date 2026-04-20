@@ -9,10 +9,11 @@ import {
   getSpawnConfigByScript,
   CP,
   MonitorConfig,
+  isNumber,
 } from '../service/external';
 import {TcpGateWayOptions} from '../types';
 
-const maxWaitTime4Ipc = 60;
+// const defaultMaxWaitCpResInSec = 60;
 
 const defaultMonitorConfig: MonitorConfig = {
   retry: {
@@ -32,10 +33,33 @@ export const launchProcConfigMap: Record<string, Omit<LaunchCpConfig, 'id'>> = {
       infoToCp: {
         port: 3333,
       },
-      maxWaitCpResInSec: defaultMaxWaitCpResInSec,
+      // maxWaitCpResInSec: defaultMaxWaitCpResInSec,
     },
   },
 };
+
+export const launchProcConfigList: LaunchCpConfig[] = Object.entries(launchProcConfigMap).map(([id, config]) => {
+  let spawnConfig = {...config.spawnConfig};
+  if (spawnConfig.infoToCp && !isNumber(spawnConfig.maxWaitCpResInSec)) {
+    spawnConfig.maxWaitCpResInSec = defaultMaxWaitCpResInSec;
+  }
+  return {
+    id,
+    spawnConfig,
+    monitorConfig: defaultMonitorConfig,
+  };
+});
+
+// TODO: add to launchProcConfigList
+export const cpEntryMap = [debugServer, tlsGateway, tcpGateway].reduce<{
+  [key: string]: LaunchCpConfig;
+}>((sum, fn) => {
+  const entry = fn();
+  return {...sum, [entry.id]: entry};
+}, {});
+
+const configIdList = Object.keys(cpEntryMap);
+
 
 export function debugServer(): LaunchCpConfig {
   const id = 'customized-server';
@@ -49,7 +73,7 @@ export function debugServer(): LaunchCpConfig {
       infoToCp: {
         port: 3333,
       },
-      maxWaitTime4Ipc: 6,
+      maxWaitCpResInSec: 6,
     }),
   };
 }
@@ -86,7 +110,7 @@ export function tcpGateway(): LaunchCpConfig {
             env: process.env.NODE_ENV ? (process.env.NODE_ENV as Env) : Env.local,
           },
         },
-        maxWaitTime4Ipc,
+        maxWaitCpResInSec: defaultMaxWaitCpResInSec,
         params: [id],
       }
     ),
