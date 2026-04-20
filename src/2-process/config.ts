@@ -28,10 +28,7 @@ const defaultMaxWaitCpResInSec = 6;
 const launchProcConfigMap: Record<string, Omit<LaunchCpConfig, 'id'>> = {
   'customized-server': {
     spawnConfig: {
-      scriptPath: path.resolve(
-        __dirname,
-        '../../../modules/lib/node/child-process/cp-script/debug-server.ts'
-      ),
+      scriptPath: path.resolve(__dirname, '../../modules/lib/node/utils/cp-script/debug-server.ts'),
       infoToCp: {
         port: 3333,
       },
@@ -40,19 +37,20 @@ const launchProcConfigMap: Record<string, Omit<LaunchCpConfig, 'id'>> = {
   },
 };
 
+// will start cp in mointored mode by default
 const launchProcConfigRecord: Record<string, LaunchCpConfig> = Object.fromEntries(
   Object.entries(launchProcConfigMap).map(([id, config]) => {
     let spawnConfig = {...config.spawnConfig};
     if (spawnConfig.infoToCp && !isNumber(spawnConfig.maxWaitCpResInSec)) {
       spawnConfig.maxWaitCpResInSec = defaultMaxWaitCpResInSec;
     }
-    return [id, {id, spawnConfig, monitorConfig: defaultMonitorConfig}];
+    return [id, {id, spawnConfig}];
   })
 );
 
 const configIdList = Object.keys(launchProcConfigRecord);
 
-export async function selectConfigId(id?: string): Promise<LaunchCpConfig> {
+export async function selectConfigById(id?: string): Promise<LaunchCpConfig> {
   if (id && launchProcConfigRecord[id]) {
     return launchProcConfigRecord[id];
   }

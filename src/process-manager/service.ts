@@ -1,30 +1,29 @@
 import fs from 'fs';
-import {selectOption, killProcessByPid} from '../service/external';
-import {isProcessAlive} from '../../modules/lib/node/process/service/kill';
-import {launchCpInDetachedMode} from '../../modules/lib/node/lib/process-manager/launch-cp/detached';
-import {launchCpInMonitoredMode} from '../../modules/lib/node/lib/process-manager/launch-cp/monitored';
 import {
-  getAllProcKeyInfo,
+  listProcKeyInfo,
   readProcInfo,
-  getProcBaseDir,
-  getProcInfoDir,
-  getProcLogDir,
+  startProcess,
+  killProc,
+  restartProcess,
+  removeProcBaseDir,
   tailProcessOutLog,
+  getProcKeyInfo,
 } from '../../modules/lib/node/lib/process-manager/service';
-import {DAEMON_ROOT_DIR} from '../../modules/lib/node/lib/process-manager/service/external';
-import {selectConfigId} from '../2-process';
+import {PROCESS_MANAGER_ROOT_DIR} from '../../modules/lib/node/service/constants';
+import {selectOption} from '../../modules/lib/node/readline';
+import {selectConfigById} from '../2-process';
 
-export function listManagedDirIds(): string[] {
-  if (!fs.existsSync(DAEMON_ROOT_DIR)) {
+function listManagedDirIds(): string[] {
+  if (!fs.existsSync(PROCESS_MANAGER_ROOT_DIR)) {
     return [];
   }
   return fs
-    .readdirSync(DAEMON_ROOT_DIR, {withFileTypes: true})
+    .readdirSync(PROCESS_MANAGER_ROOT_DIR, {withFileTypes: true})
     .filter(e => e.isDirectory())
     .map(e => e.name);
 }
 
-export async function selectRunningOrRegisteredId(id?: string): Promise<string> {
+async function selectRunningOrRegisteredId(id?: string): Promise<string> {
   const ids = listManagedDirIds();
   if (id && ids.includes(id)) {
     return id;
@@ -32,80 +31,51 @@ export async function selectRunningOrRegisteredId(id?: string): Promise<string> 
   if (ids.length === 0) {
     throw new Error('No managed processes found (empty process-manager root).');
   }
-  const selected = await selectOption(
-    ids.map(x => ({
-      label: x,
-      id: x,
-    }))
-  );
+  const selected = await selectOption(ids.map(x => ({label: x, id: x})));
   return selected.id;
 }
 
-export async function listProcessesKeyInfo() {
-  return await getAllProcKeyInfo();
+export async function list() {
+  return await listProcKeyInfo();
 }
-
-export async function infoProcess(id?: string) {
+export async function info(id?: string) {
   const cpId = await selectRunningOrRegisteredId(id);
-  return readProcInfo(cpId);
+  const info = await getProcKeyInfo(cpId);
+  if (!info) {
+    throw new Error(`No info file for process: ${cpId}`);
+  }
+  return {cpId, info};
 }
 
-export async function startProcess(id?: string) {
-  const config = await selectConfigId(id);
-  return config.monitorConfig ? await launchCpInMonitoredMode(config) : await launchCpInDetachedMode(config);
-}
-
-async function killPersistedProcess(cpId: string): Promise<number[]> {
-  const info = readProcInfo(cpId);
-  if (!info) return [];
-  const pids: number[] = [];
-  const mon = info.monitor?.id;
-  const sp = info.spawn?.pid;
-  if (mon != null && sp != null && mon !== sp && isProcessAlive(mon)) {
-    pids.push(mon);
-  }
-  if (sp != null && isProcessAlive(sp)) {
-    pids.push(sp);
-  }
-  if (pids.length > 0) {
-    await killProcessByPid(pids);
-  }
-  return pids;
-}
-
-export async function stopProcess(id?: string, clean?: boolean) {
+export async function detail(id?: string) {
   const cpId = await selectRunningOrRegisteredId(id);
-  const killedPids = await killPersistedProcess(cpId);
-  if (clean) {
-    fs.rmSync(getProcBaseDir(cpId), {recursive: true, force: true});
-  }
+  return {cpId, info: readProcInfo(cpId)};
+}
+
+export async function start(id?: string) {
+  const config = await selectConfigById(id);
+  return {cpId: config.id, result: await startProcess(config)};
+}
+
+export async function stop(id?: string, clean?: boolean) {
+  const cpId = await selectRunningOrRegisteredId(id);
+  const killedPids = await killProc(cpId, {cleanUp: clean});
   return {cpId, killedPids, cleaned: Boolean(clean)};
 }
 
-export async function restartProcess(id?: string, clean?: boolean) {
-  const cpId = await selectRunningOrRegisteredId(id);
-  await killPersistedProcess(cpId);
-  if (clean) {
-    fs.rmSync(getProcBaseDir(cpId), {recursive: true, force: true});
-  }
-  return await startProcess(cpId);
+export async function restart(id?: string, clean?: boolean) {
+  const config = await selectConfigById(id);
+  return {cpId: config.id, result: await restartProcess(config, {cleanUp: clean})};
 }
 
-export async function cleanupProc(id?: string) {
+export async function clean(id?: string) {
   const cpId = await selectRunningOrRegisteredId(id);
-  await killPersistedProcess(cpId);
-  const infoDir = getProcInfoDir(cpId);
-  const logDir = getProcLogDir(cpId);
-  if (fs.existsSync(infoDir)) {
-    fs.rmSync(infoDir, {recursive: true, force: true});
-  }
-  if (fs.existsSync(logDir)) {
-    fs.rmSync(logDir, {recursive: true, force: true});
-  }
+  await removeProcBaseDir(cpId);
   return {cpId};
 }
 
-export async function logProcess(id?: string) {
+export async function log(id?: string) {
   const cpId = await selectRunningOrRegisteredId(id);
   await tailProcessOutLog(cpId);
+  return {cpId};
 }
