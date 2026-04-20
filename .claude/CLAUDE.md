@@ -16,10 +16,10 @@ npm run ts-check          # tsc --noEmit
 npm run build             # tsc && npx tsc-alias
 
 # Full pipeline: compile + generate bin wrappers + link to $PATH
-./bin/generate-bin all
+./bin/build-install all
 
 # Just relink existing bins to $PATH
-./bin/generate-bin link
+./bin/build-install link
 ```
 
 Tests exist as `.test.ts` files alongside source but there is no configured test runner. Run individual tests directly with `ts-node`.
@@ -34,11 +34,11 @@ Commands can run in two ways:
 
 ### Command Registration
 
-All commands are registered in `src/0-generate-bin/config.ts` via the `BIN_TO_COMMAND` map. Each entry maps a bin name to a source file path and optional runtime/link config. The build system (`src/0-generate-bin/1-link-bin.ts`) generates wrapper scripts in `bin/` and symlinks them to `~/.code/bin`.
+All commands are registered in `src/build-install/config.ts` via the `BIN_TO_COMMAND` map. Each entry maps a bin name to a source file path and optional runtime/link config. The build system (`src/build-install/1-link-bin.ts`) generates wrapper scripts in `bin/` and symlinks them to `~/.code/bin`.
 
 ### Source Layout
 
-- **`src/0-generate-bin/`** - Build system: compiles TS, generates bin wrappers, links to $PATH
+- **`src/build-install/`** - Build system: compiles TS, generates bin wrappers, links to $PATH
 - **`src/1-command/`** - CLI command implementations using `commander`
 - **`src/daemon/`** - Daemon feature: manage child processes (start, stop, restart background services)
 - **`src/2-daemon-scripts/`** - Scripts run as child processes by daemon, and their spawn configs
@@ -59,8 +59,8 @@ All commands are registered in `src/0-generate-bin/config.ts` via the `BIN_TO_CO
 ### Adding a New Command
 
 1. Create the command file in `src/1-command/` using `commander` for CLI parsing
-2. Register it in `src/0-generate-bin/config.ts` (`BIN_TO_COMMAND` map)
-3. Run `./bin/generate-bin link` to generate the bin wrapper and symlink
+2. Register it in `src/build-install/config.ts` (`BIN_TO_COMMAND` map)
+3. Run `./bin/build-install link` to generate the bin wrapper and symlink
 
 ## Code Conventions
 

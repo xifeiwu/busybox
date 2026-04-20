@@ -10,8 +10,7 @@ interface CmdInfo {
  */
 export const BIN_TO_COMMAND: Record<string, CmdInfo> = {
   'build-install': {
-    filePath: 'src/0-generate-bin/command',
-    noLink: true,
+    filePath: 'src/build-install/command',
   },
   nb: {filePath: 'src/1-command/node-busybox/index'},
   'tcp-gateway': {

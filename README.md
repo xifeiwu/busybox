@@ -8,7 +8,7 @@ A TypeScript CLI toolkit that wraps frequently-used logic for daily development,
 Logic can be run in three ways:
 
 1. As a script started by runtime: `ts-node src/command/login-to-server.ts`
-2. As a bin file: `./src/0-generate-bin/bin.ts`, or exposed to shell `$PATH` and run by name directly
+2. As a bin file: `./src/build-install/bin.ts`, or exposed to shell `$PATH` and run by name directly
 3. As a background process, managed by `src/daemon`
 
 > **Note:** Avoid importing from `src/service/external.ts` directly (e.g. `import {getFileList} from '../service/external.ts'`), as it will eagerly load all exported modules at runtime.
@@ -26,7 +26,7 @@ For simple command or daemon-script, it's unnecessary to create a new folder to 
 ```
 .
 ├── src
-│   ├── 0-generate-bin    # Compile project, create bin files, link to $PATH
+│   ├── build-install     # Compile project, create bin files, link to $PATH
 │   ├── 1-command         # Command implementations
 │   ├── 2-daemon-scripts          # Scripts run as child processes by daemon
 │   ├── daemon              # Daemon feature: manage child processes
@@ -43,11 +43,11 @@ For simple command or daemon-script, it's unnecessary to create a new folder to 
 └── tsconfig.json
 ```
 
-## Generate-bin
+## Build-install
 
 Running frequently-used logic as a bin command in the terminal significantly improves efficiency. Running commands as `.ts` files means ts-node compiles all related files on every startup, which is slow. Compiled `.js` bin commands are a better solution.
 
-`generate-bin` compiles the whole project and its submodules, creates bin files in the `bin/` directory, and links them to the global `$PATH` via `link-bin`.
+`build-install` compiles the whole project and its submodules, creates bin files in the `bin/` directory, and links them to the global `$PATH` via `link-bin`.
 
 ## Bin Command
 
