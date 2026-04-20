@@ -1,5 +1,6 @@
 import fs from 'fs';
 import {
+  isManagedProcPidAlive,
   listProcKeyInfo,
   readProcInfo,
   startProcess,
@@ -8,9 +9,10 @@ import {
   removeProcBaseDir,
   tailProcessOutLog,
   getProcKeyInfo,
-} from '../../modules/lib/node/lib/process-manager/service';
+  StartProcOptions,
+} from '../../modules/lib/node/lib/process-manager';
 import {PROCESS_MANAGER_ROOT_DIR} from '../../modules/lib/node/service/constants';
-import {selectOption} from '../../modules/lib/node/readline';
+import {goOnOrNot, selectOption} from '../../modules/lib/node/readline';
 import {selectConfigById} from '../2-process';
 
 function listManagedDirIds(): string[] {
@@ -52,9 +54,23 @@ export async function detail(id?: string) {
   return {cpId, info: readProcInfo(cpId)};
 }
 
-export async function start(id?: string) {
+export async function start(id?: string, options?: StartProcOptions) {
   const config = await selectConfigById(id);
-  return {cpId: config.id, result: await startProcess(config)};
+  if (isManagedProcPidAlive(config.id)) {
+    const restart = await goOnOrNot({
+      tips: [
+        `Process "${config.id}" is already running.`,
+        'Restart it (stop, then start with the same config)?',
+      ],
+      defaultValue: false,
+    });
+    if (restart) {
+      return {cpId: config.id, result: await restartProcess(config, undefined, options)};
+    }
+    throw new Error(`Process "${config.id}" is already running, cannot start again.`);
+  }
+
+  return {cpId: config.id, result: await startProcess(config, options)};
 }
 
 export async function stop(id?: string, clean?: boolean) {

@@ -12,6 +12,7 @@ import {
   isNumber,
   logColorful,
   selectOption,
+  getPreferredFileByExt,
 } from '../service/external';
 import {TcpGateWayOptions} from '../types';
 
@@ -22,29 +23,51 @@ const defaultMonitorConfig: MonitorConfig = {
     maxCount: 3,
     minInterval: 5000,
   },
+  logCpOut: true,
 };
 const defaultMaxWaitCpResInSec = 6;
 
-const launchProcConfigMap: Record<string, Omit<LaunchCpConfig, 'id'>> = {
+/**
+ * Simple version of LaunchCpConfig
+ */
+const simpleProcConfigMap: Record<string, Omit<LaunchCpConfig, 'id'>> = {
   'customized-server': {
     spawnConfig: {
       scriptPath: path.resolve(__dirname, '../../modules/lib/node/utils/cp-script/debug-server.ts'),
       infoToCp: {
         port: 3333,
       },
-      // maxWaitCpResInSec: defaultMaxWaitCpResInSec,
+    },
+  },
+  'tcp-gateway': {
+    spawnConfig: {
+      scriptPath: path.resolve(__dirname, 'tcp-gateway.ts'),
+      infoToCp: {
+        config: {
+          env: process.env.NODE_ENV ? (process.env.NODE_ENV as Env) : Env.local,
+        },
+      },
+      params: ['tcp-gateway'],
     },
   },
 };
 
-// will start cp in mointored mode by default
+/**
+ * Will try to use .js file if .ts file exists.
+ * By default, will start cp in mointored mode, as log is not ready.
+ */
 const launchProcConfigRecord: Record<string, LaunchCpConfig> = Object.fromEntries(
-  Object.entries(launchProcConfigMap).map(([id, config]) => {
+  Object.entries(simpleProcConfigMap).map(([id, config]) => {
     let spawnConfig = {...config.spawnConfig};
+    if ('scriptPath' in spawnConfig && spawnConfig.scriptPath.endsWith('.ts')) {
+      spawnConfig.scriptPath = getPreferredFileByExt(spawnConfig.scriptPath, {
+        preferredExtSequence: ['.js'],
+      });
+    }
     if (spawnConfig.infoToCp && !isNumber(spawnConfig.maxWaitCpResInSec)) {
       spawnConfig.maxWaitCpResInSec = defaultMaxWaitCpResInSec;
     }
-    return [id, {id, spawnConfig}];
+    return [id, {id, spawnConfig, monitorConfig: defaultMonitorConfig}];
   })
 );
 
@@ -66,59 +89,25 @@ export async function selectConfigById(id?: string): Promise<LaunchCpConfig> {
   return launchProcConfigRecord[selected.id];
 }
 
-export function debugServer(): LaunchCpConfig {
-  const id = 'customized-server';
-  return {
-    id,
-    spawnConfig: getSpawnConfigByScript<CP.DebugServerConfig>(tryUseJsFile(__filename), {
-      spawnOptions: {
-        stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
-      },
-      params: [id],
-      infoToCp: {
-        port: 3333,
-      },
-      maxWaitCpResInSec: 6,
-    }),
-  };
-}
-
-export function tlsGateway(): LaunchCpConfig {
-  const id = 'tls-gateway';
-  return {
-    id,
-    spawnConfig: getSpawnConfigByScript<TcpGateWayOptions>(
-      tryUseJsFile(path.resolve(__dirname, 'tls-gateway.ts')),
-      {
-        spawnOptions: {
-          stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
-        },
-        params: [id],
-      }
-    ),
-    monitorConfig: defaultMonitorConfig,
-  };
-}
-
-export function tcpGateway(): LaunchCpConfig {
-  const id = 'tcp-gateway';
-  return {
-    id,
-    spawnConfig: getSpawnConfigByScript<TcpGateWayOptions>(
-      tryUseJsFile(path.resolve(__dirname, 'tcp-gateway.ts')),
-      {
-        spawnOptions: {
-          stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
-        },
-        infoToCp: {
-          config: {
-            env: process.env.NODE_ENV ? (process.env.NODE_ENV as Env) : Env.local,
-          },
-        },
-        maxWaitCpResInSec: defaultMaxWaitCpResInSec,
-        params: [id],
-      }
-    ),
-    monitorConfig: defaultMonitorConfig,
-  };
-}
+// export function tcpGateway(): LaunchCpConfig {
+//   const id = 'tcp-gateway';
+//   return {
+//     id,
+//     spawnConfig: getSpawnConfigByScript<TcpGateWayOptions>(
+//       tryUseJsFile(path.resolve(__dirname, 'tcp-gateway.ts')),
+//       {
+//         spawnOptions: {
+//           stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
+//         },
+//         infoToCp: {
+//           config: {
+//             env: process.env.NODE_ENV ? (process.env.NODE_ENV as Env) : Env.local,
+//           },
+//         },
+//         maxWaitCpResInSec: defaultMaxWaitCpResInSec,
+//         params: [id],
+//       }
+//     ),
+//     monitorConfig: defaultMonitorConfig,
+//   };
+// }

@@ -31,7 +31,6 @@ export {
   selectOption,
   getSocketPath,
   CP,
-  tryUseJsFile,
   getLocalIpAddress,
   SOCKS_AUTH_USER_PASS,
   hashStream,
@@ -67,6 +66,7 @@ export {
   getFilePathInfo,
   linkFile,
   makeSureDirExist,
+  getPreferredFileByExt,
 } from '../../modules/lib/node';
 export {LaunchCpConfig, MonitorConfig} from '../../modules/lib/node/lib/process-manager';
 export {

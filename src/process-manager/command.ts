@@ -1,4 +1,5 @@
-import {Command} from 'commander';
+import {Command, Option} from 'commander';
+import type {StartProcOptions} from '../../modules/lib/node/lib/process-manager';
 import {logColorful} from '../service/external';
 import {list, info, detail, start, stop, restart, clean, log} from './service';
 
@@ -39,9 +40,18 @@ program
 
 program
   .command('start [id]')
-  .description('start a process from src/2-process config (monitored if entry has monitorConfig)')
-  .action(async (id?: string) => {
-    const {cpId, result} = await start(id);
+  .description(
+    'start a process from src/2-process config (default mode: monitored if entry has monitorConfig, else detached)'
+  )
+  .addOption(
+    new Option('-m, --mode <mode>', 'how to launch the child process').choices([
+      'detached',
+      'monitored',
+    ] as const)
+  )
+  .action(async (id: string | undefined, opts: Pick<StartProcOptions, 'mode'>) => {
+    const startOpts: StartProcOptions | undefined = opts.mode != null ? {mode: opts.mode} : undefined;
+    const {cpId, result} = await start(id, startOpts);
     logColorful({}, `Process ${cpId} started.`);
     logColorful({}, result);
   });
