@@ -9,10 +9,10 @@ interface CmdInfo {
  * Not add extname of command, as the extname can be .ts or .js
  */
 export const BIN_TO_COMMAND: Record<string, CmdInfo> = {
-  // 'generate-bin': {
-  //   filePath: '0-generate-bin/run',
-  //   noLink: true,
-  // },
+  'build-install': {
+    filePath: 'src/0-generate-bin/command',
+    noLink: true,
+  },
   nb: {filePath: 'src/1-command/node-busybox/index'},
   'tcp-gateway': {
     filePath: 'src/tcp-gateway/command',

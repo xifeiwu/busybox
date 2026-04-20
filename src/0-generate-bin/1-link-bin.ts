@@ -51,14 +51,14 @@ export async function generateBinFile(options?: GenerateOptions) {
       path.join(PROJECT_DIR_RELATIVE_PATH, cmdFile + suffix),
       runtime
     );
-    if (projectMode === 'ts') {
-      /** should also generate .js bin in tsMode */
-      genContentOfBinFile(
-        path.join(DIR_DIST, 'bin', bin + '.js'),
-        path.join(DIR_DIST, cmdFile + '.js'),
-        runtime
-      );
-    }
+    // if (projectMode === 'ts') {
+    //   /** should also generate .js bin in tsMode */
+    //   genContentOfBinFile(
+    //     path.join(DIR_DIST, 'bin', bin + '.js'),
+    //     path.join(DIR_DIST, cmdFile + '.js'),
+    //     runtime
+    //   );
+    // }
   }
 }
 
