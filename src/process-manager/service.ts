@@ -1,5 +1,5 @@
 import fs from 'fs';
-import {logColorful, selectOption, LaunchCpConfig, killProcessByPid} from '../service/external';
+import {selectOption, killProcessByPid} from '../service/external';
 import {isProcessAlive} from '../../modules/lib/node/process/service/kill';
 import {launchCpInDetachedMode} from '../../modules/lib/node/lib/process-manager/launch-cp/detached';
 import {launchCpInMonitoredMode} from '../../modules/lib/node/lib/process-manager/launch-cp/monitored';
@@ -7,12 +7,12 @@ import {
   getAllProcKeyInfo,
   readProcInfo,
   getProcBaseDir,
+  getProcInfoDir,
+  getProcLogDir,
   tailProcessOutLog,
 } from '../../modules/lib/node/lib/process-manager/service';
 import {DAEMON_ROOT_DIR} from '../../modules/lib/node/lib/process-manager/service/external';
-import {launchProcConfigList} from '../2-process';
-
-const configIdList = Object.keys(launchProcConfigList);
+import {selectConfigId} from '../2-process';
 
 export function listManagedDirIds(): string[] {
   if (!fs.existsSync(DAEMON_ROOT_DIR)) {
@@ -24,29 +24,10 @@ export function listManagedDirIds(): string[] {
     .map(e => e.name);
 }
 
-export async function selectConfigId(id?: string): Promise<string> {
-  if (id && configIdList.includes(id)) {
-    return id;
-  }
-  if (id && !configIdList.includes(id)) {
-    logColorful({color: 'yellow'}, `Unknown config id "${id}", choose from list.`);
-  }
-  const selected = await selectOption(
-    configIdList.map(x => ({
-      label: x,
-      id: x,
-    }))
-  );
-  return selected.id;
-}
-
 export async function selectRunningOrRegisteredId(id?: string): Promise<string> {
   const ids = listManagedDirIds();
   if (id && ids.includes(id)) {
     return id;
-  }
-  if (id && !ids.includes(id)) {
-    logColorful({color: 'yellow'}, `Unknown process id "${id}", choose from list.`);
   }
   if (ids.length === 0) {
     throw new Error('No managed processes found (empty process-manager root).');
@@ -60,40 +41,23 @@ export async function selectRunningOrRegisteredId(id?: string): Promise<string> 
   return selected.id;
 }
 
-export async function listProcesses(): Promise<Awaited<ReturnType<typeof getAllProcKeyInfo>>> {
-  const rows = await getAllProcKeyInfo();
-  logColorful({}, rows);
-  return rows;
+export async function listProcessesKeyInfo() {
+  return await getAllProcKeyInfo();
 }
 
-export async function infoProcess(id?: string): Promise<void> {
+export async function infoProcess(id?: string) {
   const cpId = await selectRunningOrRegisteredId(id);
-  const info = readProcInfo(cpId);
-  if (!info) {
-    logColorful({color: 'yellow'}, `No info file for process: ${cpId}`);
-    return;
-  }
-  logColorful({}, info);
+  return readProcInfo(cpId);
 }
 
-export async function startProcess(id?: string): Promise<void> {
-  const cpId = await selectConfigId(id);
-  const entry = launchProcConfigList[cpId];
-  if (!entry) {
-    throw new Error(`No config found for id: ${cpId}`);
-  }
-  const result = entry.monitorConfig
-    ? await launchCpInMonitoredMode(entry)
-    : await launchCpInDetachedMode(entry);
-  logColorful({}, result);
+export async function startProcess(id?: string) {
+  const config = await selectConfigId(id);
+  return config.monitorConfig ? await launchCpInMonitoredMode(config) : await launchCpInDetachedMode(config);
 }
 
-async function killPersistedProcess(cpId: string): Promise<void> {
+async function killPersistedProcess(cpId: string): Promise<number[]> {
   const info = readProcInfo(cpId);
-  if (!info) {
-    logColorful({color: 'yellow'}, `No persisted info for: ${cpId}`);
-    return;
-  }
+  if (!info) return [];
   const pids: number[] = [];
   const mon = info.monitor?.id;
   const sp = info.spawn?.pid;
@@ -103,42 +67,45 @@ async function killPersistedProcess(cpId: string): Promise<void> {
   if (sp != null && isProcessAlive(sp)) {
     pids.push(sp);
   }
-  if (pids.length === 0) {
-    logColorful({color: 'yellow'}, `Process ${cpId} is not running.`);
-    return;
+  if (pids.length > 0) {
+    await killProcessByPid(pids);
   }
-  await killProcessByPid(pids);
-  logColorful({}, `Process ${cpId} stopped.`);
+  return pids;
 }
 
-export async function stopProcess(id?: string, clean?: boolean): Promise<void> {
+export async function stopProcess(id?: string, clean?: boolean) {
+  const cpId = await selectRunningOrRegisteredId(id);
+  const killedPids = await killPersistedProcess(cpId);
+  if (clean) {
+    fs.rmSync(getProcBaseDir(cpId), {recursive: true, force: true});
+  }
+  return {cpId, killedPids, cleaned: Boolean(clean)};
+}
+
+export async function restartProcess(id?: string, clean?: boolean) {
   const cpId = await selectRunningOrRegisteredId(id);
   await killPersistedProcess(cpId);
   if (clean) {
     fs.rmSync(getProcBaseDir(cpId), {recursive: true, force: true});
-    logColorful({}, `Removed base folder for ${cpId}.`);
   }
+  return await startProcess(cpId);
 }
 
-export async function restartProcess(id?: string, clean?: boolean): Promise<void> {
+export async function cleanupProc(id?: string) {
   const cpId = await selectRunningOrRegisteredId(id);
   await killPersistedProcess(cpId);
-  if (clean) {
-    fs.rmSync(getProcBaseDir(cpId), {recursive: true, force: true});
-    logColorful({}, `Removed base folder for ${cpId}.`);
+  const infoDir = getProcInfoDir(cpId);
+  const logDir = getProcLogDir(cpId);
+  if (fs.existsSync(infoDir)) {
+    fs.rmSync(infoDir, {recursive: true, force: true});
   }
-  await startProcess(cpId);
+  if (fs.existsSync(logDir)) {
+    fs.rmSync(logDir, {recursive: true, force: true});
+  }
+  return {cpId};
 }
 
-export async function cleanUpProcess(id?: string): Promise<LaunchCpConfig> {
-  const cpId = await selectRunningOrRegisteredId(id);
-  if (isProcessAlive(cpId)) {
-    await killPersistedProcess(cpId);
-  }
-  return launchProcConfigList[cpId];
-}
-
-export async function logProcess(id?: string): Promise<void> {
+export async function logProcess(id?: string) {
   const cpId = await selectRunningOrRegisteredId(id);
   await tailProcessOutLog(cpId);
 }

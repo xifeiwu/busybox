@@ -10,6 +10,8 @@ import {
   CP,
   MonitorConfig,
   isNumber,
+  logColorful,
+  selectOption,
 } from '../service/external';
 import {TcpGateWayOptions} from '../types';
 
@@ -23,7 +25,7 @@ const defaultMonitorConfig: MonitorConfig = {
 };
 const defaultMaxWaitCpResInSec = 6;
 
-export const launchProcConfigMap: Record<string, Omit<LaunchCpConfig, 'id'>> = {
+const launchProcConfigMap: Record<string, Omit<LaunchCpConfig, 'id'>> = {
   'customized-server': {
     spawnConfig: {
       scriptPath: path.resolve(
@@ -38,28 +40,33 @@ export const launchProcConfigMap: Record<string, Omit<LaunchCpConfig, 'id'>> = {
   },
 };
 
-export const launchProcConfigList: LaunchCpConfig[] = Object.entries(launchProcConfigMap).map(([id, config]) => {
-  let spawnConfig = {...config.spawnConfig};
-  if (spawnConfig.infoToCp && !isNumber(spawnConfig.maxWaitCpResInSec)) {
-    spawnConfig.maxWaitCpResInSec = defaultMaxWaitCpResInSec;
+const launchProcConfigRecord: Record<string, LaunchCpConfig> = Object.fromEntries(
+  Object.entries(launchProcConfigMap).map(([id, config]) => {
+    let spawnConfig = {...config.spawnConfig};
+    if (spawnConfig.infoToCp && !isNumber(spawnConfig.maxWaitCpResInSec)) {
+      spawnConfig.maxWaitCpResInSec = defaultMaxWaitCpResInSec;
+    }
+    return [id, {id, spawnConfig, monitorConfig: defaultMonitorConfig}];
+  })
+);
+
+const configIdList = Object.keys(launchProcConfigRecord);
+
+export async function selectConfigId(id?: string): Promise<LaunchCpConfig> {
+  if (id && launchProcConfigRecord[id]) {
+    return launchProcConfigRecord[id];
   }
-  return {
-    id,
-    spawnConfig,
-    monitorConfig: defaultMonitorConfig,
-  };
-});
-
-// TODO: add to launchProcConfigList
-export const cpEntryMap = [debugServer, tlsGateway, tcpGateway].reduce<{
-  [key: string]: LaunchCpConfig;
-}>((sum, fn) => {
-  const entry = fn();
-  return {...sum, [entry.id]: entry};
-}, {});
-
-const configIdList = Object.keys(cpEntryMap);
-
+  if (id && !launchProcConfigRecord[id]) {
+    logColorful({color: 'yellow'}, `Unknown config id "${id}", choose from list.`);
+  }
+  const selected = await selectOption(
+    configIdList.map(x => ({
+      label: x,
+      id: x,
+    }))
+  );
+  return launchProcConfigRecord[selected.id];
+}
 
 export function debugServer(): LaunchCpConfig {
   const id = 'customized-server';

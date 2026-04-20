@@ -1,10 +1,12 @@
 import {Command} from 'commander';
+import {logColorful} from '../service/external';
 import {
-  listProcesses,
+  listProcessesKeyInfo,
   infoProcess,
   startProcess,
   stopProcess,
   restartProcess,
+  cleanupProc,
   logProcess,
 } from './service';
 
@@ -15,21 +17,28 @@ program
   .command('list')
   .description('list all managed processes (same layout as process-manager registry)')
   .action(async () => {
-    await listProcesses();
+    const rows = await listProcessesKeyInfo();
+    logColorful({}, rows);
   });
 
 program
   .command('info [id]')
   .description('read persisted process info (readProcInfo)')
   .action(async (id?: string) => {
-    await infoProcess(id);
+    const info = await infoProcess(id);
+    if (!info) {
+      logColorful({color: 'yellow'}, 'No info file found.');
+      return;
+    }
+    logColorful({}, info);
   });
 
 program
   .command('start [id]')
-  .description('start a process from src/2-process-config (monitored if entry has monitorConfig)')
+  .description('start a process from src/2-process config (monitored if entry has monitorConfig)')
   .action(async (id?: string) => {
-    await startProcess(id);
+    const result = await startProcess(id);
+    logColorful({}, result);
   });
 
 program
@@ -37,7 +46,15 @@ program
   .description('stop one process (interactive pick matches list)')
   .option('-c, --clean', 'remove process base folder after stop')
   .action(async (id: string | undefined, opts: {clean?: boolean}) => {
-    await stopProcess(id, Boolean(opts.clean));
+    const {cpId, killedPids, cleaned} = await stopProcess(id, Boolean(opts.clean));
+    if (killedPids.length === 0) {
+      logColorful({color: 'yellow'}, `Process ${cpId} is not running.`);
+    } else {
+      logColorful({}, `Process ${cpId} stopped.`);
+    }
+    if (cleaned) {
+      logColorful({}, `Removed base folder for ${cpId}.`);
+    }
   });
 
 program
@@ -45,7 +62,16 @@ program
   .description('stop then start one process (interactive pick matches list)')
   .option('-c, --clean', 'remove process base folder before start')
   .action(async (id: string | undefined, opts: {clean?: boolean}) => {
-    await restartProcess(id, Boolean(opts.clean));
+    const result = await restartProcess(id, Boolean(opts.clean));
+    logColorful({}, result);
+  });
+
+program
+  .command('cleanup [id]')
+  .description('kill process and remove its info and log files')
+  .action(async (id?: string) => {
+    const {cpId} = await cleanupProc(id);
+    logColorful({}, `Cleaned up info and log for ${cpId}.`);
   });
 
 program
