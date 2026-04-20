@@ -4,19 +4,13 @@
 import path from 'path';
 import {
   LaunchCpConfig,
-  tryUseJsFile,
   Env,
-  getSpawnConfigByScript,
-  CP,
   MonitorConfig,
   isNumber,
   logColorful,
   selectOption,
   getPreferredFileByExt,
 } from '../service/external';
-import {TcpGateWayOptions} from '../types';
-
-// const defaultMaxWaitCpResInSec = 60;
 
 const defaultMonitorConfig: MonitorConfig = {
   retry: {
