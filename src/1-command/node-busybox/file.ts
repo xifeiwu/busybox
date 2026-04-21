@@ -1,4 +1,4 @@
-import {Command} from 'commander';
+import {Command, Option} from 'commander';
 import path from 'path';
 import {
   intToWord,
@@ -13,20 +13,37 @@ import {searchFileInDir} from '../../../modules/lib/node/fs/go-through-dir';
 export function appendFileCommand(program: Command) {
   program
     .command('line-count <filePath>')
-    .option('-e, --exclude <exclude...>', 'exclude by relativePath')
-    .option('-l, --level <level>', 'exclude by relativePath')
-    .option('-f, --folder-only', 'kill processes filtered out')
+    .option(
+      '-i, --include <include...>',
+      'substring pattern(s); when set, only matching relative paths are kept; include overrides --exclude (metacharacters escaped). Use --filter-scope to limit to files or dirs only.'
+    )
+    .option(
+      '-e, --exclude <exclude...>',
+      'substring pattern(s); omit matching relative paths (ignored when --include matches; metacharacters escaped). Scope with --filter-scope.'
+    )
+    .addOption(
+      new Option(
+        '--filter-scope <scope>',
+        'whether --include/--exclude apply to leaf files, directory paths (prune when a dir fails), or both'
+      )
+        .choices(['both', 'file', 'dir'] as const)
+        .default('file')
+    )
+    .option('-l, --level <level>', 'maximum tree depth to print (integer, root depth is 0)')
+    .option('-f, --folder-only', 'only print directories, skip leaf files in the listing')
     .description('show line count of a file or a directory')
     .action(
       async (
         filePath,
         options: {
+          include?: string[];
           exclude?: string[];
+          filterScope?: 'both' | 'file' | 'dir';
           level?: string;
           folderOnly?: boolean;
         }
       ) => {
-        const {exclude, folderOnly} = options;
+        const {include, exclude, folderOnly, filterScope = 'file'} = options;
         let maxLevel: number;
         if (options.level !== undefined) {
           maxLevel = parseInt(options.level);
@@ -34,22 +51,30 @@ export function appendFileCommand(program: Command) {
             throw new Error(`param -l must be a number`);
           }
         }
-        function getFilter() {
+        function getFilter(scope: 'both' | 'file' | 'dir') {
           const filterOutList: string[] = [];
-          let filter: FileFilter = () => true;
-          if (Array.isArray(exclude) && exclude.length > 0) {
-            const regList = exclude.map(it => new RegExp(it));
-            filter = ({relativePath}) => {
-              const noMatch = !regList.some(it => it.test(relativePath));
-              if (!noMatch) {
-                filterOutList.push(relativePath);
-              }
-              return noMatch;
-            };
-          }
-          return {fileFilter: filter, dirFilter: filter, filterOutList};
+          const includeRegs =
+            Array.isArray(include) && include.length > 0 ? include.map(it => new RegExp(it)) : [];
+          const excludeRegs =
+            Array.isArray(exclude) && exclude.length > 0 ? exclude.map(it => new RegExp(it)) : [];
+          const pathFilter: FileFilter =
+            includeRegs.length > 0 || excludeRegs.length > 0
+              ? ({relativePath}) => {
+                  const hasInclude = includeRegs.length > 0;
+                  const incMatch = hasInclude && includeRegs.some(it => it.test(relativePath));
+                  const excMatch = excludeRegs.length > 0 && excludeRegs.some(it => it.test(relativePath));
+                  const keep = (!hasInclude || incMatch) && (!excMatch || incMatch);
+                  if (!keep) {
+                    filterOutList.push(relativePath);
+                  }
+                  return keep;
+                }
+              : () => true;
+          const fileFilter: FileFilter = scope === 'dir' ? () => true : pathFilter;
+          const dirFilter: FileFilter = scope === 'file' ? () => true : pathFilter;
+          return {fileFilter, dirFilter, filterOutList};
         }
-        const {fileFilter, dirFilter, filterOutList} = getFilter();
+        const {fileFilter, dirFilter, filterOutList} = getFilter(filterScope);
         const lineCountMap = getLineCountMap(filePath, {
           fileFilter,
           dirFilter,
@@ -72,7 +97,7 @@ export function appendFileCommand(program: Command) {
           .join('\n');
         logColorful({color: 'black'}, finalStr);
         if (filterOutList.length > 0) {
-          logColorful({color: 'red'}, `filter out file list:`);
+          logColorful({color: 'red'}, `paths omitted by --include / --exclude:`);
           for (const relativePath of filterOutList) {
             logColorful({color: 'black'}, relativePath);
           }
