@@ -1,4 +1,3 @@
-import fs from 'fs';
 import {
   isManagedProcPidAlive,
   listProcKeyInfo,
@@ -10,38 +9,56 @@ import {
   tailProcessOutLog,
   getProcKeyInfo,
   StartProcOptions,
+  ListProcKeyInfoOptions,
 } from '../../modules/lib/node/lib/process-manager';
-import {PROCESS_MANAGER_ROOT_DIR} from '../../modules/lib/node/service/constants';
 import {goOnOrNot, selectOption} from '../../modules/lib/node/readline';
 import {selectConfigById} from '../2-process';
 
-function listManagedDirIds(): string[] {
-  if (!fs.existsSync(PROCESS_MANAGER_ROOT_DIR)) {
-    return [];
+type SelectManagedProcOptions = {id?: string} & ListProcKeyInfoOptions;
+
+function emptyListMessage(filter?: ListProcKeyInfoOptions['filter']): string {
+  if (filter === 'running') {
+    return 'No running managed processes found.';
   }
-  return fs
-    .readdirSync(PROCESS_MANAGER_ROOT_DIR, {withFileTypes: true})
-    .filter(e => e.isDirectory())
-    .map(e => e.name);
+  if (filter === 'dead') {
+    return 'No stopped (dead) managed processes found.';
+  }
+  return 'No managed processes found (empty process-manager root or no matching entries).';
 }
 
-async function selectRunningOrRegisteredId(id?: string): Promise<string> {
-  const ids = listManagedDirIds();
-  if (id && ids.includes(id)) {
-    return id;
+function missingIdMessage(id: string, filter?: ListProcKeyInfoOptions['filter']): string {
+  if (filter === 'running') {
+    return `Process "${id}" is not running or does not exist.`;
+  }
+  if (filter === 'dead') {
+    return `Process "${id}" is still running or does not exist.`;
+  }
+  return `No managed process "${id}" (or its info file is missing).`;
+}
+
+async function selectManagedProcPid(options: SelectManagedProcOptions): Promise<string> {
+  const {id, ...listOpts} = options;
+  const rows = await list(listOpts);
+  const ids = rows.flatMap(row => (row ? [row.key] : []));
+  if (id) {
+    if (ids.includes(id)) {
+      return id;
+    }
+    throw new Error(missingIdMessage(id, listOpts.filter));
   }
   if (ids.length === 0) {
-    throw new Error('No managed processes found (empty process-manager root).');
+    throw new Error(emptyListMessage(listOpts.filter));
   }
   const selected = await selectOption(ids.map(x => ({label: x, id: x})));
   return selected.id;
 }
 
-export async function list() {
-  return await listProcKeyInfo();
+export async function list(options?: ListProcKeyInfoOptions) {
+  return await listProcKeyInfo(options);
 }
+
 export async function info(id?: string) {
-  const cpId = await selectRunningOrRegisteredId(id);
+  const cpId = await selectManagedProcPid({id});
   const info = await getProcKeyInfo(cpId);
   if (!info) {
     throw new Error(`No info file for process: ${cpId}`);
@@ -50,7 +67,7 @@ export async function info(id?: string) {
 }
 
 export async function detail(id?: string) {
-  const cpId = await selectRunningOrRegisteredId(id);
+  const cpId = await selectManagedProcPid({id});
   return {cpId, info: readProcInfo(cpId)};
 }
 
@@ -73,25 +90,25 @@ export async function start(id?: string, options?: StartProcOptions) {
   return {cpId: config.id, result: await startProcess(config, options)};
 }
 
-export async function stop(id?: string, clean?: boolean) {
-  const cpId = await selectRunningOrRegisteredId(id);
-  const killedPids = await killProc(cpId, {cleanUp: clean});
-  return {cpId, killedPids, cleaned: Boolean(clean)};
-}
-
 export async function restart(id?: string, clean?: boolean) {
   const config = await selectConfigById(id);
   return {cpId: config.id, result: await restartProcess(config, {cleanUp: clean})};
 }
 
-export async function clean(id?: string) {
-  const cpId = await selectRunningOrRegisteredId(id);
-  await removeProcBaseDir(cpId);
-  return {cpId};
+export async function stop(id?: string, clean?: boolean) {
+  const cpId = await selectManagedProcPid({id, filter: 'running'});
+  const killedPids = await killProc(cpId, {cleanUp: clean});
+  return {cpId, killedPids, cleaned: Boolean(clean)};
 }
 
 export async function log(id?: string) {
-  const cpId = await selectRunningOrRegisteredId(id);
+  const cpId = await selectManagedProcPid({id, filter: 'running'});
   await tailProcessOutLog(cpId);
+  return {cpId};
+}
+
+export async function clean(id?: string) {
+  const cpId = await selectManagedProcPid({id, filter: 'dead'});
+  await removeProcBaseDir(cpId);
   return {cpId};
 }

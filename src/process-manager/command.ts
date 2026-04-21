@@ -1,5 +1,5 @@
 import {Command, Option} from 'commander';
-import type {StartProcOptions} from '../../modules/lib/node/lib/process-manager';
+import type {ListProcKeyInfoOptions, StartProcOptions} from '../../modules/lib/node/lib/process-manager';
 import {logColorful} from '../service/external';
 import {list, info, detail, start, stop, restart, clean, log} from './service';
 
@@ -8,9 +8,14 @@ program.name('pm').description('manage child processes (process-manager)');
 
 program
   .command('list')
-  .description('list all managed processes (same layout as process-manager registry)')
-  .action(async () => {
-    const rows = await list();
+  .description('list managed processes (same layout as process-manager registry)')
+  .addOption(
+    new Option('-f, --filter <status>', 'restrict rows by process liveness')
+      .choices(['all', 'running', 'dead'] as const)
+      .default('all')
+  )
+  .action(async (opts: ListProcKeyInfoOptions) => {
+    const rows = await list(opts);
     logColorful({}, rows);
   });
 
