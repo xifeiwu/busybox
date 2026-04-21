@@ -62,6 +62,6 @@ program
       throw new Error(`This command not support in dist project`);
     }
     const tzFile = backupDist();
-    logColorful({}, tzFile);
+    logColorful({color: 'green'}, tzFile);
   });
 program.parse(process.argv);

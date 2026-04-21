@@ -22,7 +22,7 @@ function genContentOfBinFile(binPath: string, cmdPath: string, runtime: string) 
   const finalRunTime = runtime ?? (isTsFile ? 'ts-node' : 'node');
   const content = [
     `#!/usr/bin/env ${finalRunTime}`,
-    `require('${relativePath}')`,
+    `require('${relativePath}');`,
     // isTsFile ? `import '${relativePath}'` : `require('${relativePath}')`,
     '',
   ].join('\n');
