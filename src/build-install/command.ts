@@ -39,9 +39,10 @@ program
   .command('all [linkDir]')
   .description('generate and link bin command')
   .action(async linkDir => {
-    if (projectMode === 'ts') {
-      await doCheckBeforeCompile();
+    if (projectMode === 'js') {
+      throw new Error(`This command not support in dist project`);
     }
+    await doCheckBeforeCompile();
     await generateBinFile({projectMode});
     await linkBin(linkDir, {projectMode});
   });
@@ -50,9 +51,6 @@ program
   .command('link [linkDir]')
   .description("link process only, it's extremely useful when want to link backup dist bin")
   .action(async linkDir => {
-    if (projectMode === 'js') {
-      throw new Error(`This command not support in dist project`);
-    }
     await linkBin(linkDir, {projectMode});
   });
 
