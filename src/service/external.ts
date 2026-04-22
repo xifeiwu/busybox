@@ -19,20 +19,18 @@ export {
   FilterItem,
   matchFilter,
   matchFilters,
-} from '../../modules/lib/js/common';
+} from '../../modules/lib/js';
 export {
   checkPort as isPortOpen,
   logColorful,
   uploadDirOnHome,
   TcpServerConfig,
-  SocksServerConfigPerVersion,
   getSpawnConfigByScript,
   InfoToCp,
   selectOption,
   getSocketPath,
   CP,
   getLocalIpAddress,
-  SOCKS_AUTH_USER_PASS,
   hashStream,
   hashData,
   getFileInfoTree,
@@ -68,6 +66,7 @@ export {
   makeSureDirExist,
   getPreferredFileByExt,
 } from '../../modules/lib/node';
+export {SocksServerConfigPerVersion, SOCKS_AUTH_USER_PASS} from '../../modules/lib/node/lib/socks';
 export {LaunchCpConfig, MonitorConfig} from '../../modules/lib/node/lib/process-manager';
 export {
   KoaConfig,
