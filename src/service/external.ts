@@ -9,7 +9,6 @@ export {
   isNumber,
   prettyCurlCommand,
   isPlainObject,
-  intToWord,
   isObject,
   toNormalizedUrlProps,
   Env,
@@ -20,6 +19,7 @@ export {
   matchFilter,
   matchFilters,
 } from '../../modules/lib/js';
+export {intToWord} from '../../modules/lib/js/lib/humanize';
 export {
   checkPort as isPortOpen,
   logColorful,
