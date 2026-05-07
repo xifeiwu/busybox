@@ -54,6 +54,9 @@ export const elifTcpGateWayConfig: TcpGateWayConfig = {
   tcpServerConfig: tcpServerConfig,
   mwConfig: {socksConfig: SOCKS_SERVER_CONFIG},
   middlewares: [],
+  assetsSyncUp: {
+    dir: '/share/assets',
+  },
   koa: {
     config: koaConfig,
   },
