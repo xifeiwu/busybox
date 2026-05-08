@@ -27,8 +27,10 @@ TCP_GATEWAY_DEFAULT_CONFIG.mwConfig.socks[5].proxyConfigList = [
   },
 ];
 
+// TCP_GATEWAY_DEFAULT_CONFIG.tcpServerConfig.port = 3161;
 // TCP_GATEWAY_DEFAULT_CONFIG.mwConfig.assetsSyncUp = {
 //   dir: '/Users/Shared/assets',
-//   // git: 'git@github.com:fe/module/assets.git',
+//   // git: 'git@elif.site:fe/module/assets.git',
 // };
+
 export const localTcpGateWayConfig = TCP_GATEWAY_DEFAULT_CONFIG;

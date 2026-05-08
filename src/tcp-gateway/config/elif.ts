@@ -56,7 +56,7 @@ export const elifTcpGateWayConfig: TcpGateWayConfig = {
     socks: SOCKS_SERVER_CONFIG,
     assetsSyncUp: {
       dir: '/share/assets',
-      git: 'git@github.com:fe/module/assets.git',
+      git: 'git@elif.site:fe/module/assets.git',
     },
   },
   middlewares: [],
