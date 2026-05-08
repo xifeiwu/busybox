@@ -66,7 +66,7 @@ export {
   makeSureDirExist,
   getPreferredFileByExt,
 } from '../../modules/lib/node';
-export {SocksServerConfigPerVersion, SOCKS_AUTH_USER_PASS} from '../../modules/lib/node/lib/socks';
+export {SocksServerConfigPerVersion, SOCKS_AUTH_DEFAULT_USER_PASS} from '../../modules/lib/node/lib/socks';
 export {LaunchCpConfig, MonitorConfig} from '../../modules/lib/node/lib/process-manager';
 export {
   KoaConfig,
@@ -78,7 +78,7 @@ export {
   startTcpGateway,
   TcpGateWayConfig,
   defaultMwConfig,
-  TCP_GATEWAY_CONFIG,
+  TCP_GATEWAY_DEFAULT_CONFIG,
   serializeTcpGatewayConfig,
   echoDataOverTcp,
   getDownloadSpeed,
