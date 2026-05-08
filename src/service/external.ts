@@ -75,7 +75,7 @@ export {
   KoaShortCutConfig,
   DEFAULT_KOA_CONFIG as localKoaConfig,
   serializeKoaConfig,
-  startCustomizedTcpGateway,
+  startTcpGateway,
   TcpGateWayConfig,
   defaultMwConfig,
   TCP_GATEWAY_CONFIG,

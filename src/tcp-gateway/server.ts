@@ -2,7 +2,7 @@
  * A basic server contains frequently used function
  */
 import {
-  startCustomizedTcpGateway,
+  startTcpGateway,
   KoaShortCutConfig,
   Env,
   serializeTcpGatewayConfig,
@@ -44,7 +44,7 @@ export async function startTcpGatewayByOptions(options?: TcpGateWayOptions) {
   if (Number.isInteger(tcpPort)) {
     tcpServerConfig.port = tcpPort;
   }
-  const {host, port: finalPort, server, koaServerInfo} = await startCustomizedTcpGateway(tcpGatewayConfig);
+  const {host, port: finalPort, server, koaServerInfo} = await startTcpGateway(tcpGatewayConfig);
   return {host, port: finalPort, server, tcpGatewayConfig, koaServerInfo};
 }
 
