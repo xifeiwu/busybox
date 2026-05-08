@@ -1,6 +1,6 @@
 import {SOCKS_AUTH_USER_PASS, TCP_GATEWAY_CONFIG} from '../../service/external';
 
-TCP_GATEWAY_CONFIG.mwConfig.socksConfig[5].proxyConfigList = [
+TCP_GATEWAY_CONFIG.mwConfig.socks[5].proxyConfigList = [
   {
     socksVersion: 1,
     auth: SOCKS_AUTH_USER_PASS,

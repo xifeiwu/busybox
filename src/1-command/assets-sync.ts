@@ -1,5 +1,5 @@
 import {Command} from 'commander';
-import {runAssetsSyncCommand} from '../../modules/lib/node/lib/assets-management/remote-syncup/client';
+import {runAssetsSyncCommand} from '../../modules/lib/node/lib/assets-management/tcp-protocol/client';
 
 const program = new Command();
 program.name('assets').description('Sync assets between local and remote server via TCP');

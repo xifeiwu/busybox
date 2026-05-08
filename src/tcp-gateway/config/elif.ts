@@ -52,11 +52,14 @@ export const tcpServerConfig: TcpServerConfig = {
 
 export const elifTcpGateWayConfig: TcpGateWayConfig = {
   tcpServerConfig: tcpServerConfig,
-  mwConfig: {socksConfig: SOCKS_SERVER_CONFIG},
-  middlewares: [],
-  assetsSyncUp: {
-    dir: '/share/assets',
+  mwConfig: {
+    socks: SOCKS_SERVER_CONFIG,
+    assetsSyncUp: {
+      dir: '/share/assets',
+      git: 'git@github.com:fe/module/assets.git',
+    },
   },
+  middlewares: [],
   koa: {
     config: koaConfig,
   },
