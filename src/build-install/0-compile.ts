@@ -8,6 +8,7 @@ import {
   FilterItem,
   matchFilters,
   logColorful,
+  getDir,
 } from '../service/external';
 import {backupDist, getDistVersion, writeDistVersion} from './service';
 
@@ -60,49 +61,139 @@ function installNodeModulesForDistProject() {
   execCmdWithOptions('pnpm install');
 }
 
-export async function compile(options?: {
-  /** backup before compile to avoid stble logic override by unstable logic */
+import {makeSureDirExistForFile} from '../../modules/lib/node/path';
+import {BIN_TO_COMMAND} from './config';
+
+function genContentOfBinFile(binPath: string, cmdPath: string, runtime: string) {
+  if (!fs.existsSync(cmdPath)) {
+    throw new Error(`cmdPath not found: ${cmdPath}`);
+  }
+  let relativePath = path.relative(getDir(binPath), cmdPath);
+  const isTsFile = relativePath.endsWith('.ts');
+
+  /** Not need .ts suffix when import file */
+  if (isTsFile) {
+    relativePath = relativePath.substring(0, relativePath.length - 3);
+  }
+  const finalRunTime = runtime ?? (isTsFile ? 'ts-node' : 'node');
+  const content = [
+    `#!/usr/bin/env ${finalRunTime}`,
+    `require('${relativePath}');`,
+    // isTsFile ? `import '${relativePath}'` : `require('${relativePath}')`,
+    '',
+  ].join('\n');
+  makeSureDirExistForFile(binPath);
+  fs.writeFileSync(binPath, content);
+  fs.chmodSync(binPath, '755');
+}
+
+/**
+ * Generate bin file that can run directly by file itself by adding two lines:
+ * 1. Add shebang line
+ * 2. require the command file
+ */
+async function generateBinFile() {
+  const projectMode = 'ts';
+  const binDir = path.join(DIR_PROJECT, 'bin');
+  if (!fs.existsSync(binDir)) {
+    fs.mkdirSync(binDir, {recursive: true});
+  }
+  for (const [bin, cmdInfo] of Object.entries(BIN_TO_COMMAND)) {
+    const {filePath: cmdFile, runtime} = cmdInfo;
+    /** common logic for ts and js mode */
+    const suffix = '.' + projectMode;
+    genContentOfBinFile(
+      path.join(DIR_PROJECT, 'bin', bin + suffix),
+      path.join(DIR_PROJECT, cmdFile + suffix),
+      runtime
+    );
+    if (projectMode === 'ts') {
+      /** should also generate .js bin in tsMode */
+      genContentOfBinFile(
+        path.join(DIR_DIST, 'bin', bin + '.js'),
+        path.join(DIR_DIST, cmdFile + '.js'),
+        runtime
+      );
+    }
+  }
+}
+export async function build(options?: {
+  /**
+   * When `true` or `false`, that choice wins.
+   * When omitted, prompt to backup only if `dist/version.txt` exists.
+   */
   backupBeforeCompile?: boolean;
+  /**
+   * When `true` or `false`, that choice wins.
+   * When omitted, prompt whether to remove `dist` before build.
+   */
   cleanupDistDir?: boolean;
+  /**
+   * When `true` or `false`, that choice wins.
+   * When omitted, install if dist was cleaned up, else prompt.
+   */
   installNodeModules?: boolean;
 }) {
   process.chdir(DIR_PROJECT);
   const distVersion = getDistVersion();
-  const backupBeforeCompile =
-    options?.backupBeforeCompile ??
-    (distVersion &&
-      (await goOnOrNot({
-        tips: [`Do you want to backup dist with version ${distVersion}?`],
-        defaultValue: false,
-      })));
-  if (backupBeforeCompile) {
+  /**
+   * Check whether project is compiled or not, before generate bin file.
+   */
+  if (
+    distVersion &&
+    !(await goOnOrNot({
+      tips: [`current dist version is: ${distVersion}`, 'recompile project or not?'],
+      defaultValue: true,
+    }))
+  ) {
+    return;
+  }
+  /**
+   * Backup dist before build
+   */
+  const shouldBackup =
+    typeof options?.backupBeforeCompile === 'boolean'
+      ? options.backupBeforeCompile
+      : distVersion
+        ? await goOnOrNot({
+            tips: [`Do you want to backup dist with version ${distVersion}?`],
+            defaultValue: false,
+          })
+        : false;
+  if (shouldBackup) {
     backupDist();
   }
+  /**
+   * Cleanup dist dir before build
+   */
   const cleanupDistDir =
-    options?.cleanupDistDir ??
-    (await goOnOrNot({
-      tips: [`Do you clean up dist dir before compile?`],
-      defaultValue: false,
-    }));
+    typeof options?.cleanupDistDir === 'boolean'
+      ? options.cleanupDistDir
+      : await goOnOrNot({
+          tips: [`Do you clean up dist dir before build?`],
+          defaultValue: false,
+        });
   if (cleanupDistDir) {
     fs.rmSync(DIR_DIST, {recursive: true});
   }
-  logColorful({color: 'yellow'}, `start compile...`);
+  logColorful({color: 'yellow'}, `start build...`);
   execCmdWithOptions('npm run build');
   copyConfigFileToDist();
   /** Should install node_modules when cleanupDistDir is true */
   const installNodeModules =
-    options?.installNodeModules ??
-    (cleanupDistDir ||
-      (await goOnOrNot({
-        tips: ['install node_modules?'],
-        defaultValue: false,
-      })));
+    typeof options?.installNodeModules === 'boolean'
+      ? options.installNodeModules
+      : cleanupDistDir ||
+        (await goOnOrNot({
+          tips: ['install node_modules?'],
+          defaultValue: false,
+        }));
   /** node_modules can only install once if dependencies in package.json is not */
   if (installNodeModules) {
     logColorful({color: 'yellow'}, `start installNodeModules...`);
     installNodeModulesForDistProject();
   }
+  await generateBinFile();
   writeDistVersion();
-  logColorful({color: 'yellow'}, `compile done`);
+  logColorful({color: 'yellow'}, `build done`);
 }

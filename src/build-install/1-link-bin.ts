@@ -1,71 +1,15 @@
 import fs from 'fs';
 import path from 'path';
-import {logColorful, selectOption, linkFile, getDir} from '../service/external';
+import {logColorful, selectOption, linkFile} from '../service/external';
 import {BIN_TO_COMMAND} from './config';
 import {DEFAULT_BIN_DIR, GenerateOptions} from './service';
 import {DIR_DIST} from '../service';
-import {makeSureDirExistForFile} from '../../modules/lib/node/path';
-
-const PROJECT_DIR_RELATIVE_PATH = path.join(__dirname, '../../');
-
-function genContentOfBinFile(binPath: string, cmdPath: string, runtime: string) {
-  if (!fs.existsSync(cmdPath)) {
-    throw new Error(`cmdPath not found: ${cmdPath}`);
-  }
-  let relativePath = path.relative(getDir(binPath), cmdPath);
-  const isTsFile = relativePath.endsWith('.ts');
-
-  /** Not need .ts suffix when import file */
-  if (isTsFile) {
-    relativePath = relativePath.substring(0, relativePath.length - 3);
-  }
-  const finalRunTime = runtime ?? (isTsFile ? 'ts-node' : 'node');
-  const content = [
-    `#!/usr/bin/env ${finalRunTime}`,
-    `require('${relativePath}');`,
-    // isTsFile ? `import '${relativePath}'` : `require('${relativePath}')`,
-    '',
-  ].join('\n');
-  makeSureDirExistForFile(binPath);
-  fs.writeFileSync(binPath, content);
-  fs.chmodSync(binPath, '755');
-}
-
-/**
- * Generate bin file that can run directly by file itself by adding two lines:
- * 1. Add shebang line
- * 2. require the command file
- */
-export async function generateBinFile(options?: GenerateOptions) {
-  const {projectMode = 'ts'} = options ?? {};
-  const binDir = path.join(PROJECT_DIR_RELATIVE_PATH, 'bin');
-  if (!fs.existsSync(binDir)) {
-    fs.mkdirSync(binDir, {recursive: true});
-  }
-  for (const [bin, cmdInfo] of Object.entries(BIN_TO_COMMAND)) {
-    const {filePath: cmdFile, runtime} = cmdInfo;
-    /** common logic for ts and js mode */
-    const suffix = '.' + projectMode;
-    genContentOfBinFile(
-      path.join(PROJECT_DIR_RELATIVE_PATH, 'bin', bin + suffix),
-      path.join(PROJECT_DIR_RELATIVE_PATH, cmdFile + suffix),
-      runtime
-    );
-    if (projectMode === 'ts') {
-      /** should also generate .js bin in tsMode */
-      genContentOfBinFile(
-        path.join(DIR_DIST, 'bin', bin + '.js'),
-        path.join(DIR_DIST, cmdFile + '.js'),
-        runtime
-      );
-    }
-  }
-}
+const DIR_PROJECT = path.join(__dirname, '../../');
 
 export async function linkBin(linkDir?: string, options?: GenerateOptions) {
   linkDir = linkDir ?? DEFAULT_BIN_DIR;
   const {projectMode = 'ts'} = options ?? {};
-  const projectBinDir = path.join(PROJECT_DIR_RELATIVE_PATH, 'bin');
+  const projectBinDir = path.join(DIR_PROJECT, 'bin');
   const jsBinDir = projectMode === 'ts' ? path.join(DIR_DIST, 'bin') : undefined;
   const binDirOptions: Array<{label: string; binDir: string}> = [];
   if (projectMode === 'ts') {
