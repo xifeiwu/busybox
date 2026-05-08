@@ -1,4 +1,4 @@
-import {build} from './0-compile';
+import {build} from './0-build';
 import {linkBin} from './1-link-bin';
 import {DEFAULT_BIN_DIR} from './service';
 

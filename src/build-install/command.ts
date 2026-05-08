@@ -1,7 +1,7 @@
 import {Command} from 'commander';
 import {getFilePathInfo} from '../../modules/lib/node/path';
 import {logColorful} from '../../modules/lib/node/log';
-import {build} from './0-compile';
+import {build} from './0-build';
 import {linkBin} from './1-link-bin';
 import {backupDist, ProjectMode} from './service';
 
