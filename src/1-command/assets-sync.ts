@@ -1,8 +1,18 @@
 import {Command} from 'commander';
 import {runAssetsSyncCommand} from '../../modules/lib/node/lib/assets-management/tcp-protocol/client';
+import {logColorful} from '../../modules/lib/node/log';
+import type {AssetsSyncCommand} from '../../modules/lib/node/lib/assets-management/tcp-protocol/types';
 
 const program = new Command();
 program.name('assets').description('Sync assets between local and remote server via TCP');
+
+async function runAssetsSyncCommandWithErrorLog(command: AssetsSyncCommand, dir: string, opts) {
+  try {
+    await runAssetsSyncCommand(command, dir, opts);
+  } catch (err) {
+    logColorful({color: 'red'}, err instanceof Error ? err.message : String(err));
+  }
+}
 
 program
   .command('diff')
@@ -10,7 +20,7 @@ program
   .argument('<dir>', 'local asset directory')
   .option('-H, --host <host>', 'server host', '127.0.0.1')
   .option('-p, --port <port>', 'server port', '80')
-  .action((dir, opts) => runAssetsSyncCommand('diff', dir, opts));
+  .action((dir, opts) => runAssetsSyncCommandWithErrorLog('diff', dir, opts));
 
 program
   .command('push')
@@ -18,7 +28,8 @@ program
   .argument('<dir>', 'local asset directory')
   .option('-H, --host <host>', 'server host', '127.0.0.1')
   .option('-p, --port <port>', 'server port', '80')
-  .action((dir, opts) => runAssetsSyncCommand('push', dir, opts));
+  .option('-y, --run-directly', 'skip confirmation before applying push changes')
+  .action((dir, opts) => runAssetsSyncCommandWithErrorLog('push', dir, opts));
 
 program
   .command('pull')
@@ -26,6 +37,7 @@ program
   .argument('<dir>', 'local asset directory')
   .option('-H, --host <host>', 'server host', '127.0.0.1')
   .option('-p, --port <port>', 'server port', '80')
-  .action((dir, opts) => runAssetsSyncCommand('pull', dir, opts));
+  .option('-y, --run-directly', 'skip confirmation before applying pull changes')
+  .action((dir, opts) => runAssetsSyncCommandWithErrorLog('pull', dir, opts));
 
 program.parse(process.argv);
