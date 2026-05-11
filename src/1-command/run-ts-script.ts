@@ -27,15 +27,18 @@ export const handler = async (scriptPath, options) => {
    */
   const targetScript = path.resolve(process.cwd(), scriptPath);
   try {
-    const responseFromCp = await runScriptInCP(targetScript, {
-      dryRun,
-      cpWrapperOptions: {
-        runTargetScriptOptions: {
-          runExportedFunc: false,
+    const responseFromCp = await runScriptInCP(
+      targetScript,
+      {
+        cpWrapperOptions: {
+          runTargetScriptOptions: {
+            runExportedFunc: false,
+          },
         },
+        ...spawnConfig,
       },
-      ...spawnConfig,
-    });
+      {dryRun}
+    );
     logColorful({color: 'black'}, 'responseFromCp:', responseFromCp);
   } catch (err) {
     console.log(`catch Error:`);
