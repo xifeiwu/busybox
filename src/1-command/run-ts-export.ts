@@ -2,8 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
 import {logColorful} from '../../modules/lib/node/log';
-import {runScriptInCP} from '../../modules/lib/node/utils/run-script';
-import {RunScriptInCPOptions} from '../../modules/lib/node/types/utils';
+import {runScriptInCP} from '../../modules/lib/node/utils/run-script-in-cp';
+import {RunScriptInCpOptions} from '../../modules/lib/node/utils/run-script-in-cp/types';
 
 /**
  * Some restriction of config file
@@ -19,14 +19,14 @@ import {RunScriptInCPOptions} from '../../modules/lib/node/types/utils';
  * };
  */
 function parseConfigFile(configFile?: string) {
-  // const c: Partial<RunScriptInCPOptions> = {
+  // const c: Partial<RunScriptInCpOptions> = {
   //   preScript: '',
   //   runtimeOptions: {
   //     '--swc': undefined,
   //     '--transpileOnly': true,
   //   },
   // };
-  let spawnConfig: Partial<RunScriptInCPOptions> = {};
+  let spawnConfig: Partial<RunScriptInCpOptions> = {};
   if (configFile === undefined) {
     return spawnConfig;
   }
@@ -48,7 +48,7 @@ function parseConfigFile(configFile?: string) {
 
 export const handler = async (scriptPath, funcName, funcParams, options) => {
   const {dryRun, configFile} = options;
-  let spawnConfig: Partial<RunScriptInCPOptions> = parseConfigFile(configFile);
+  let spawnConfig: Partial<RunScriptInCpOptions> = parseConfigFile(configFile);
   /**
    * Format of argv:
    * [
@@ -60,14 +60,15 @@ export const handler = async (scriptPath, funcName, funcParams, options) => {
    */
   const targetScript = path.resolve(process.cwd(), scriptPath);
   try {
-    const responseFromCp = await runScriptInCP({
+    const responseFromCp = await runScriptInCP(targetScript, {
       dryRun,
-      targetScript,
-      runTargetScriptOptions: {
-        funcName,
-        funcParams,
-        runTheOnlyFuncDirectly: true,
-        runExportedFunc: true,
+      cpWrapperOptions: {
+        runTargetScriptOptions: {
+          funcName,
+          funcParams,
+          runTheOnlyFuncDirectly: true,
+          runExportedFunc: true,
+        },
       },
       ...spawnConfig,
     });

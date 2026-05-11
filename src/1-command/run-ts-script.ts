@@ -2,12 +2,12 @@ import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
 import {logColorful} from '../../modules/lib/node/log';
-import {runScriptInCP} from '../../modules/lib/node/utils/run-script';
-import {RunScriptInCPOptions} from '../../modules/lib/node/types/utils';
+import {runScriptInCP} from '../../modules/lib/node/utils/run-script-in-cp';
+import {RunScriptInCpOptions} from '../../modules/lib/node/utils/run-script-in-cp/types';
 
 export const handler = async (scriptPath, options) => {
   const {dryRun, configFile} = options;
-  let spawnConfig: Partial<RunScriptInCPOptions> = {};
+  let spawnConfig: Partial<RunScriptInCpOptions> = {};
   if (fs.existsSync(configFile)) {
     try {
       const info = require(configFile);
@@ -27,11 +27,12 @@ export const handler = async (scriptPath, options) => {
    */
   const targetScript = path.resolve(process.cwd(), scriptPath);
   try {
-    const responseFromCp = await runScriptInCP({
+    const responseFromCp = await runScriptInCP(targetScript, {
       dryRun,
-      targetScript,
-      runTargetScriptOptions: {
-        runExportedFunc: false,
+      cpWrapperOptions: {
+        runTargetScriptOptions: {
+          runExportedFunc: false,
+        },
       },
       ...spawnConfig,
     });
