@@ -3,7 +3,8 @@ import path from 'path';
 import {Command} from 'commander';
 import {logColorful} from '../../modules/lib/node/log';
 import {runScriptInCP} from '../../modules/lib/node/utils/run-script-in-cp';
-import {RunScriptInCpOptions} from '../../modules/lib/node/utils/run-script-in-cp/types';
+import {SpawnScriptOptions} from '../../modules/lib/node/types/child_process/common';
+import {NodeCpWrapScriptOptions} from '../../modules/lib/node/utils/run-script-in-cp/types';
 
 /**
  * Some restriction of config file
@@ -19,14 +20,7 @@ import {RunScriptInCpOptions} from '../../modules/lib/node/utils/run-script-in-c
  * };
  */
 function parseConfigFile(configFile?: string) {
-  // const c: Partial<RunScriptInCpOptions> = {
-  //   preScript: '',
-  //   runtimeOptions: {
-  //     '--swc': undefined,
-  //     '--transpileOnly': true,
-  //   },
-  // };
-  let spawnConfig: Partial<RunScriptInCpOptions> = {};
+  let spawnConfig: Partial<SpawnScriptOptions<any, NodeCpWrapScriptOptions>> = {};
   if (configFile === undefined) {
     return spawnConfig;
   }
@@ -48,22 +42,13 @@ function parseConfigFile(configFile?: string) {
 
 export const handler = async (scriptPath, funcName, funcParams, options) => {
   const {dryRun, configFile} = options;
-  let spawnConfig: Partial<RunScriptInCpOptions> = parseConfigFile(configFile);
-  /**
-   * Format of argv:
-   * [
-   *   '/Users/wuxifei/.nvm/versions/node/v18.12.0/bin/ts-node',
-   *   '/Users/wuxifei/code/bin/runTsExport',
-   *   'modules/lib/js/lib/humanize/time.test.ts',
-   *   'testDateFormat'
-   * ]
-   */
+  const spawnConfig = parseConfigFile(configFile);
   const targetScript = path.resolve(process.cwd(), scriptPath);
   try {
-    const responseFromCp = await runScriptInCP(
-      targetScript,
-      {
-        cpWrapperOptions: {
+    const responseFromCp = await runScriptInCP<any, NodeCpWrapScriptOptions>(targetScript, {
+      dryRun,
+      spawnWrapperOptions: {
+        infoToCp: {
           runTargetScriptOptions: {
             funcName,
             funcParams,
@@ -73,8 +58,7 @@ export const handler = async (scriptPath, funcName, funcParams, options) => {
         },
         ...spawnConfig,
       },
-      {dryRun}
-    );
+    });
     logColorful({color: 'black'}, 'responseFromCp:', responseFromCp);
   } catch (err) {
     console.log(`catch Error:`);

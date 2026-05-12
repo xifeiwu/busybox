@@ -3,42 +3,25 @@ import path from 'path';
 import {Command} from 'commander';
 import {logColorful} from '../../modules/lib/node/log';
 import {runScriptInCP} from '../../modules/lib/node/utils/run-script-in-cp';
-import {RunScriptInCpOptions} from '../../modules/lib/node/utils/run-script-in-cp/types';
+import {SpawnScriptOptions} from '../../modules/lib/node/types/child_process/common';
 
 export const handler = async (scriptPath, options) => {
   const {dryRun, configFile} = options;
-  let spawnConfig: Partial<RunScriptInCpOptions> = {};
+  let spawnOptions: Partial<SpawnScriptOptions> = {};
   if (fs.existsSync(configFile)) {
     try {
       const info = require(configFile);
-      spawnConfig = info?.config;
+      spawnOptions = info?.config;
     } catch (err) {
       logColorful({color: 'red'}, err);
     }
   }
-  /**
-   * Format of argv:
-   * [
-   *   '/Users/wuxifei/.nvm/versions/node/v18.12.0/bin/ts-node',
-   *   '/Users/wuxifei/code/bin/runTsExport',
-   *   'modules/lib/js/lib/humanize/time.test.ts',
-   *   'testIntword'
-   * ]
-   */
   const targetScript = path.resolve(process.cwd(), scriptPath);
   try {
-    const responseFromCp = await runScriptInCP(
-      targetScript,
-      {
-        cpWrapperOptions: {
-          runTargetScriptOptions: {
-            runExportedFunc: false,
-          },
-        },
-        ...spawnConfig,
-      },
-      {dryRun}
-    );
+    const responseFromCp = await runScriptInCP(targetScript, {
+      dryRun,
+      spawnOptions,
+    });
     logColorful({color: 'black'}, 'responseFromCp:', responseFromCp);
   } catch (err) {
     console.log(`catch Error:`);
