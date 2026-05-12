@@ -46,7 +46,7 @@ program
 program
   .command('start [id]')
   .description(
-    'start a process from src/2-process config (default mode: monitored if entry has monitorConfig, else detached)'
+    'start a process from src/2-cp-script config (default mode: monitored if entry has monitorConfig, else detached)'
   )
   .addOption(
     new Option('-m, --mode <mode>', 'how to launch the child process').choices([

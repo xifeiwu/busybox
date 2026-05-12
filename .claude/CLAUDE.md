@@ -41,9 +41,14 @@ All commands are registered in `src/build-install/config.ts` via the `BIN_TO_COM
 - **`src/build-install/`** - Build system: compiles TS, generates bin wrappers, links to $PATH
 - **`src/1-command/`** - CLI command implementations using `commander`
 - **`src/daemon/`** - Daemon feature: manage child processes (start, stop, restart background services)
-- **`src/2-daemon-scripts/`** - Scripts run as child processes by daemon, and their spawn configs
+- **`src/2-cp-script/`** - Scripts run as child processes by daemon, and their spawn configs
 - **`src/service/external.ts`** - Re-exports from modules (avoid importing this file directly as it loads everything)
 - **`modules/`** - Git submodules with shared libraries (js, node, net, db, utils, types)
+
+**File organization for `src/1-command/` and `src/2-cp-script/`:**
+- **Small scope** — single file directly in the folder (e.g. `src/1-command/run-ts-script.ts`)
+- **Larger scope** — own subfolder with related logic, entry point exported via `command.ts` or `script.ts` (e.g. `src/1-command/assist-prettier/command.ts`)
+- **Multiple entries from one subfolder** — place them in a `command/` or `cp-script/` sub-directory (e.g. `src/1-command/my-feature/command/cmd1.ts`, `cmd2.ts`)
 
 ### Key Commands
 

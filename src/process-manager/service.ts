@@ -12,7 +12,7 @@ import {
   ListProcKeyInfoOptions,
 } from '../../modules/lib/node/lib/process-manager';
 import {goOnOrNot, selectOption} from '../../modules/lib/node/readline';
-import {selectConfigById} from '../2-process';
+import {selectConfigById} from '../2-cp-script';
 
 type SelectManagedProcOptions = {id?: string} & ListProcKeyInfoOptions;
 
