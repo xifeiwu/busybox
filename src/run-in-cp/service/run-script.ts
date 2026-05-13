@@ -12,6 +12,7 @@ function toSpawnConfig(scriptPath: string, options: RunNodeScriptOptions) {
   const {options: {configFile} = {}} = options;
   const config = parseConfigFile(configFile);
   const hasPreScript = config.infoToCp?.preScript;
+  config.maxWaitCpResInSec = 60 * 60;
 
   if (hasPreScript) {
     return getSpawnConfigForRunExport(scriptPath, config);
@@ -27,7 +28,7 @@ export const runScript = async (scriptPath: string, options: RunNodeScriptOption
   if (dryRun) {
     return;
   }
-  const response = await spawnAndTryIpc({...spawnConfig, maxWaitCpResInSec: 60 * 60}, {stdinRawMode: true});
+  const response = await spawnAndTryIpc(spawnConfig, {stdinRawMode: true});
   const result = serializeSpawnResponse(response);
   logColorful({color: 'green'}, 'child process info:', {ppid: process.pid, ...result});
   return result;

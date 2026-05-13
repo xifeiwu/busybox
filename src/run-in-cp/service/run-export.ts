@@ -13,11 +13,14 @@ export function toSpawnScriptOptions(options: RunNodeExportOptions) {
     infoToCp: {
       runTargetScriptOptions: {
         runExportedFunc: true,
+        runTheOnlyFuncDirectly: true,
         funcName,
         funcParams,
       },
     },
     params: [funcName, ...funcParams].filter(Boolean).map(String),
+    // max wait time for child process to return result
+    maxWaitCpResInSec: 60 * 60,
   };
   const merged = deepMerge(spawnWrapperOptions, parseConfigFile(configFile));
   return merged;
@@ -36,10 +39,7 @@ export const runExport = async (scriptPath: string, options: RunNodeExportOption
   if (dryRun) {
     return;
   }
-  const response = await spawnAndTryIpc(
-    {...spawnWrapperConfig, maxWaitCpResInSec: 60 * 60},
-    {stdinRawMode: true}
-  );
+  const response = await spawnAndTryIpc(spawnWrapperConfig, {stdinRawMode: true});
   const result = serializeSpawnResponse(response);
   logColorful({color: 'green'}, 'child process info:', {ppid: process.pid, ...result});
   return result;
