@@ -69,6 +69,8 @@ export const runExport = async (scriptPath: string, options: RunNodeExportOption
   if (dryRun) {
     return;
   }
-  const response = await spawnAndTryIpc(spawnWrapperConfig, {stdinRawMode: true});
-  return serializeSpawnResponse(response);
+  const response = await spawnAndTryIpc({...spawnWrapperConfig, maxWaitCpResInSec: 60 * 60}, {stdinRawMode: true});
+  const result = serializeSpawnResponse(response);
+  logColorful({color: 'green'}, 'child process info:', {ppid: process.pid, ...result});
+  return result
 };
