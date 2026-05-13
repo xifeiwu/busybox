@@ -21,6 +21,6 @@
     "resolveFullPaths": true,
     "verbose": false
   },
-  "include": ["src", "modules/lib/node/utils/cp-script/**/*.ts", "modules/lib/node/utils/run-script-in-cp/**/*.ts"],
+  "include": ["src", "modules/lib/node/utils/cp-script/**/*.ts", "modules/lib/node/utils/run-script-via-wrapper/**/*.ts"],
   "exclude": ["node_modules/**/*"]
 }

@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import {Command} from 'commander';
-import {logColorful} from '../../modules/lib/node/log';
-import {runScriptInCP} from '../../modules/lib/node/utils/run-script-in-cp';
-import {SpawnScriptOptions} from '../../modules/lib/node/types/child_process/common';
+import {logColorful} from '../../../modules/lib/node/log';
+import {runScriptInCP} from '../../../modules/lib/node/utils/run-script-via-wrapper';
+import {SpawnScriptOptions} from '../../../modules/lib/node/types/child_process/common';
 
 export const handler = async (scriptPath, options) => {
   const {dryRun, configFile} = options;
