@@ -10,3 +10,10 @@ export interface RunNodeExportOptions {
     configFile?: string;
   };
 }
+
+export interface RunNodeScriptOptions {
+  options?: {
+    dryRun?: boolean;
+    configFile?: string;
+  };
+}

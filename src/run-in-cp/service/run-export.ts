@@ -1,44 +1,11 @@
-import fs from 'fs';
 import {logColorful} from '../../../modules/lib/node/log';
 import {getSpawnConfigForRunExport} from '../../../modules/lib/node/utils/run-script-via-wrapper';
-import {SpawnConfig, SpawnScriptOptions} from '../../../modules/lib/node/types/child_process/common';
+import {SpawnScriptOptions} from '../../../modules/lib/node/types/child_process/common';
 import {NodeCpWrapScriptOptions} from '../../../modules/lib/node/utils/run-script-via-wrapper/types';
 import {deepMerge} from '../../../modules/lib/js/service/deep';
 import {RunNodeExportOptions} from './types';
 import {serializeSpawnResponse, spawnAndTryIpc} from '../../../modules/lib/node/child-process/spawn';
-
-/**
- * Some restriction of config file
- * 1. config file should use commonjs grammar, as bin logic may run on node runtime
- * 2. should export config in the way module.exports.config = ..
- * Content format of config file:
- * module.exports.config = {
- *  preScript: path.join(__dirname, 'init-env.ts'),
- *  runtimeOptions: {
- *    '--swc': undefined,
- *    '--transpileOnly': true,
- *  },
- * };
- */
-function parseConfigFile(configFile?: string) {
-  if (!configFile) {
-    return {};
-  }
-  if (!fs.existsSync(configFile)) {
-    throw new Error(`config file provide not exist: ${configFile}`);
-  }
-  let spawnScriptOptions: Partial<SpawnScriptOptions<any, NodeCpWrapScriptOptions>> = {};
-  try {
-    const info = require(configFile);
-    if (info?.config === undefined) {
-      throw new Error(`config variable is not exported from config file`);
-    }
-    spawnScriptOptions = info.config;
-  } catch (err) {
-    logColorful({color: 'red'}, err);
-  }
-  return spawnScriptOptions;
-}
+import {parseConfigFile} from './common';
 
 export function toSpawnScriptOptions(options: RunNodeExportOptions) {
   const {funcName, funcParams, options: {configFile} = {}} = options;
@@ -69,8 +36,11 @@ export const runExport = async (scriptPath: string, options: RunNodeExportOption
   if (dryRun) {
     return;
   }
-  const response = await spawnAndTryIpc({...spawnWrapperConfig, maxWaitCpResInSec: 60 * 60}, {stdinRawMode: true});
+  const response = await spawnAndTryIpc(
+    {...spawnWrapperConfig, maxWaitCpResInSec: 60 * 60},
+    {stdinRawMode: true}
+  );
   const result = serializeSpawnResponse(response);
   logColorful({color: 'green'}, 'child process info:', {ppid: process.pid, ...result});
-  return result
+  return result;
 };
