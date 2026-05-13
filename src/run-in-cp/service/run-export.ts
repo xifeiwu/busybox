@@ -1,11 +1,11 @@
 import fs from 'fs';
-import path from 'path';
 import {logColorful} from '../../../modules/lib/node/log';
-import {runScriptInCP} from '../../../modules/lib/node/utils/run-script-via-wrapper';
-import {SpawnScriptOptions} from '../../../modules/lib/node/types/child_process/common';
+import {getSpawnConfigForRunExport} from '../../../modules/lib/node/utils/run-script-via-wrapper';
+import {SpawnConfig, SpawnScriptOptions} from '../../../modules/lib/node/types/child_process/common';
 import {NodeCpWrapScriptOptions} from '../../../modules/lib/node/utils/run-script-via-wrapper/types';
 import {deepMerge} from '../../../modules/lib/js/service/deep';
 import {RunNodeExportOptions} from './types';
+import {serializeSpawnResponse, spawnAndTryIpc} from '../../../modules/lib/node/child-process/spawn';
 
 /**
  * Some restriction of config file
@@ -27,48 +27,48 @@ function parseConfigFile(configFile?: string) {
   if (!fs.existsSync(configFile)) {
     throw new Error(`config file provide not exist: ${configFile}`);
   }
-  let spawnConfig: Partial<SpawnScriptOptions<any, NodeCpWrapScriptOptions>> = {};
+  let spawnScriptOptions: Partial<SpawnScriptOptions<any, NodeCpWrapScriptOptions>> = {};
   try {
     const info = require(configFile);
     if (info?.config === undefined) {
       throw new Error(`config variable is not exported from config file`);
     }
-    spawnConfig = info.config;
+    spawnScriptOptions = info.config;
   } catch (err) {
     logColorful({color: 'red'}, err);
   }
-  return spawnConfig;
+  return spawnScriptOptions;
 }
 
-function getSpawnWrapperOptions(options: RunNodeExportOptions) {
+export function toSpawnScriptOptions(options: RunNodeExportOptions) {
   const {funcName, funcParams, options: {configFile} = {}} = options;
   const spawnWrapperOptions: SpawnScriptOptions<any, NodeCpWrapScriptOptions> = {
     infoToCp: {
       runTargetScriptOptions: {
+        runExportedFunc: true,
         funcName,
         funcParams,
       },
     },
-    params: [funcName, ...funcParams].filter(Boolean),
+    params: [funcName, ...funcParams].filter(Boolean).map(String),
   };
-  const result = deepMerge(spawnWrapperOptions, parseConfigFile(configFile));
-  return result;
+  const merged = deepMerge(spawnWrapperOptions, parseConfigFile(configFile));
+  return merged;
 }
 
-export const runNodeExport = async (scriptPath: string, options: RunNodeExportOptions) => {
+export function toWrapperSpawnConfig(scriptPath: string, options: RunNodeExportOptions) {
+  const spawnScriptOptions = toSpawnScriptOptions(options);
+  const wrapperSpawnConfig = getSpawnConfigForRunExport(scriptPath, spawnScriptOptions);
+  return wrapperSpawnConfig;
+}
+
+export const runExport = async (scriptPath: string, options: RunNodeExportOptions) => {
   const {options: {dryRun} = {}} = options;
-  const spawnConfig = getSpawnWrapperOptions(options);
-  const targetScript = path.resolve(process.cwd(), scriptPath);
-  try {
-    const responseFromCp = await runScriptInCP<any, NodeCpWrapScriptOptions>(targetScript, {
-      dryRun,
-      spawnWrapperOptions: spawnConfig,
-    });
-    logColorful({color: 'black'}, 'responseFromCp:', responseFromCp);
-  } catch (err) {
-    console.log(`catch Error:`);
-    logColorful({color: 'red'}, err.message);
-    console.error(err);
-    throw err;
+  const spawnWrapperConfig = toWrapperSpawnConfig(scriptPath, options);
+  logColorful({color: 'magenta'}, 'spawnWrapperConfig:', spawnWrapperConfig);
+  if (dryRun) {
+    return;
   }
+  const response = await spawnAndTryIpc(spawnWrapperConfig, {stdinRawMode: true});
+  return serializeSpawnResponse(response);
 };
