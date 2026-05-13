@@ -31,7 +31,7 @@ export const handler = async (scriptPath, options) => {
   }
 };
 const program = new Command();
-program.name('runTsExport').description('utility for process handling');
+program.name('runNodeScript').description('utility for process handling');
 program
   .argument('<scriptPath>', 'path to ts file to run')
   .option('-d, --dry-run', 'show the command without running it. ')

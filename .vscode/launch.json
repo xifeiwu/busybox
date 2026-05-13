@@ -3,9 +3,9 @@
   "configurations": [
     {
       "type": "node",
-      "name": "runTsExport",
+      "name": "runNodeExport",
       // "request": "launch",
-      "runtimeExecutable": "runTsExport",
+      "runtimeExecutable": "runNodeExport",
       "args": ["${relativeFile}"],
       "console": "integratedTerminal",
       "cwd": "${workspaceRoot}"
@@ -13,9 +13,9 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "runTsScript",
+      "name": "runNodeScript",
       "skipFiles": ["<node_internals>/**"],
-      "runtimeExecutable": "runTsScript",
+      "runtimeExecutable": "runNodeScript",
       "args": ["${relativeFile}"],
       "console": "integratedTerminal",
       "cwd": "${workspaceRoot}"

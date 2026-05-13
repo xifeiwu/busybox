@@ -57,11 +57,11 @@ Running frequently-used logic as a bin command in the terminal significantly imp
 - Some params are needed for ts-node runtime: `-r ${projectPath}/node_modules/tsconfig-paths/register.js` and `--project ${projectPath}/tsconfig.json`. These depend on the project location, so they are generated dynamically.
 - Shebang lines are not well supported on every platform (e.g. CentOS does not support passing params in shebang lines).
 
-### VSCode Debug with runTsExport
+### VSCode Debug with runNodeExport
 
 If VSCode reports "cannot find path of runtimeExecutable on launch.json":
 
-Append `alias runTsExport='${HOME}/code/bin/runTsExport'` to `.zshrc`, then start VSCode from the project directory with `code .`.
+Append `alias runNodeExport='${HOME}/code/bin/runNodeExport'` to `.zshrc`, then start VSCode from the project directory with `code .`.
 
 ### Production Environment
 
@@ -79,7 +79,7 @@ forever start /share/nvm/versions/node/v18.18.0/bin/ts-node \
   /share/code/node/start/busybox/src/command/http-server.ts -p 80
 ```
 
-### runTsExport Tips
+### runNodeExport Tips
 
-- Running `runTsExport` creates two Node processes per bin command, which costs more resources. You can run `runTsExport -d` first and then run the output command as a second step.
-- `--swc` speeds up runTsExport from ~5s to ~2s, but requires: `npm install -g @swc/core @swc/helpers`
+- Running `runNodeExport` creates two Node processes per bin command, which costs more resources. You can run `runNodeExport -d` first and then run the output command as a second step.
+- `--swc` speeds up runNodeExport from ~5s to ~2s, but requires: `npm install -g @swc/core @swc/helpers`

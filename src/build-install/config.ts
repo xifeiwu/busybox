@@ -17,8 +17,8 @@ export const BIN_TO_COMMAND: Record<string, CmdInfo> = {
     filePath: 'src/tcp-gateway/command',
   },
   'login-to-server': {filePath: 'src/1-command/login-to-server'},
-  runTsExport: {filePath: 'src/run-in-cp/command/run-ts-export'},
-  runTsScript: {filePath: 'src/run-in-cp/command/run-ts-script'},
+  runNodeExport: {filePath: 'src/run-in-cp/command/run-export'},
+  runNodeScript: {filePath: 'src/run-in-cp/command/run-script'},
   subrepo: {
     filePath: 'src/1-command/subrepo',
     /** It must run on ts-node, as this cmd need to import .ts file */

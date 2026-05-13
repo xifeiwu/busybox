@@ -1,4 +1,4 @@
-export interface RunTsExportOptions {
+export interface RunNodeExportOptions {
   /** Function name to run */
   funcName: string;
   /** Function params to pass */
@@ -6,7 +6,7 @@ export interface RunTsExportOptions {
   options?: {
     /** If true, only print the command without actually running it */
     dryRun?: boolean;
-    /** Config file path for run-ts-export */
+    /** Config file path for run-export */
     configFile?: string;
   };
 }

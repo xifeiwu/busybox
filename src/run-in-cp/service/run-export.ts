@@ -5,7 +5,7 @@ import {runScriptInCP} from '../../../modules/lib/node/utils/run-script-via-wrap
 import {SpawnScriptOptions} from '../../../modules/lib/node/types/child_process/common';
 import {NodeCpWrapScriptOptions} from '../../../modules/lib/node/utils/run-script-via-wrapper/types';
 import {deepMerge} from '../../../modules/lib/js/service/deep';
-import {RunTsExportOptions} from './types';
+import {RunNodeExportOptions} from './types';
 
 /**
  * Some restriction of config file
@@ -40,7 +40,7 @@ function parseConfigFile(configFile?: string) {
   return spawnConfig;
 }
 
-function getSpawnWrapperOptions(options: RunTsExportOptions) {
+function getSpawnWrapperOptions(options: RunNodeExportOptions) {
   const {funcName, funcParams, options: {configFile} = {}} = options;
   const spawnWrapperOptions: SpawnScriptOptions<any, NodeCpWrapScriptOptions> = {
     infoToCp: {
@@ -55,7 +55,7 @@ function getSpawnWrapperOptions(options: RunTsExportOptions) {
   return result;
 }
 
-export const runTsExport = async (scriptPath: string, options: RunTsExportOptions) => {
+export const runNodeExport = async (scriptPath: string, options: RunNodeExportOptions) => {
   const {options: {dryRun} = {}} = options;
   const spawnConfig = getSpawnWrapperOptions(options);
   const targetScript = path.resolve(process.cwd(), scriptPath);
