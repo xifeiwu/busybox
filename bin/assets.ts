@@ -1,2 +1,2 @@
 #!/usr/bin/env ts-node
-require('../src/1-command/assets-sync');
+require('../src/assets-management/command');

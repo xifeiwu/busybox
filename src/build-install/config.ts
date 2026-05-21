@@ -51,6 +51,6 @@ export const BIN_TO_COMMAND: Record<string, CmdInfo> = {
     filePath: 'src/process-manager/command',
   },
   assets: {
-    filePath: 'src/1-command/assets-sync',
+    filePath: 'src/assets-management/command',
   },
 };

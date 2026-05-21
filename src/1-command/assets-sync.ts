@@ -1,43 +1,4 @@
-import {Command} from 'commander';
-import {runAssetsSyncCommand} from '../../modules/lib/node/lib/assets-management/tcp-protocol/client';
-import {logColorful} from '../../modules/lib/node/log';
-import type {AssetsSyncCommand} from '../../modules/lib/node/lib/assets-management/tcp-protocol/types';
-
-const program = new Command();
-program.name('assets').description('Sync assets between local and remote server via TCP');
-
-async function runAssetsSyncCommandWithErrorLog(command: AssetsSyncCommand, dir: string, opts) {
-  try {
-    await runAssetsSyncCommand(command, dir, opts);
-  } catch (err) {
-    logColorful({color: 'red'}, err instanceof Error ? err.message : String(err));
-  }
-}
-
-program
-  .command('diff')
-  .description('Show diff between local and server assets')
-  .argument('<dir>', 'local asset directory')
-  .option('-H, --host <host>', 'server host', '127.0.0.1')
-  .option('-p, --port <port>', 'server port', '80')
-  .action((dir, opts) => runAssetsSyncCommandWithErrorLog('diff', dir, opts));
-
-program
-  .command('push')
-  .description('Push local assets to server')
-  .argument('<dir>', 'local asset directory')
-  .option('-H, --host <host>', 'server host', '127.0.0.1')
-  .option('-p, --port <port>', 'server port', '80')
-  .option('-y, --run-directly', 'skip confirmation before applying push changes')
-  .action((dir, opts) => runAssetsSyncCommandWithErrorLog('push', dir, opts));
-
-program
-  .command('pull')
-  .description('Pull assets from server to local')
-  .argument('<dir>', 'local asset directory')
-  .option('-H, --host <host>', 'server host', '127.0.0.1')
-  .option('-p, --port <port>', 'server port', '80')
-  .option('-y, --run-directly', 'skip confirmation before applying pull changes')
-  .action((dir, opts) => runAssetsSyncCommandWithErrorLog('pull', dir, opts));
-
-program.parse(process.argv);
+/**
+ * @deprecated Use src/assets-management/cli.ts — kept for direct ts-node invocation.
+ */
+import '../assets-management/cli';
