@@ -41,6 +41,6 @@ export const runExport = async (scriptPath: string, options: RunNodeExportOption
   }
   const response = await spawnAndTryIpc(spawnWrapperConfig, {stdinRawMode: true});
   const result = serializeSpawnResponse(response);
-  logColorful({color: 'green'}, 'child process info:', {ppid: process.pid, ...result});
+  // logColorful({color: 'green'}, 'child process info:', {ppid: process.pid, ...result});
   return result;
 };
