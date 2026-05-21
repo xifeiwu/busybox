@@ -1,2 +1,2 @@
 #!/usr/bin/env ts-node
-require('../src/build-install/command');
+require('../src/0-build-install/command');
