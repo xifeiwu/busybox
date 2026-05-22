@@ -1,12 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {addAsset, alignMetaWithAssets} from '../external';
-import {
-  getMetaHandlersByKey,
-  getPrimaryMetaHandlers,
-  selectMetaHandler,
-  type AssetsMetaRunDirectlyCliOptions,
-} from '../service';
+import {getDefaultMetaHandler, type AssetsMetaRunDirectlyCliOptions} from '../service';
 
 export async function runAssetsAddCommand(
   assetsDir: string,
@@ -16,15 +11,13 @@ export async function runAssetsAddCommand(
 ) {
   source = path.resolve(process.cwd(), source);
   if (!fs.existsSync(source)) {
-    throw new Error(`target file not exist: ${source}`);
+    throw new Error(`source file not exist: ${source}`);
   }
   const {meta} = options ?? {};
-  const metaHandlers = meta
-    ? await getMetaHandlersByKey(assetsDir, meta)
-    : await getPrimaryMetaHandlers(assetsDir);
-  await alignMetaWithAssets(metaHandlers);
+  const metaHandler = await getDefaultMetaHandler(assetsDir, meta);
+  await alignMetaWithAssets(metaHandler);
 
-  await addAsset(metaHandlers, [{sourcePath: source, targetPath: target}], {
+  await addAsset(metaHandler, [{sourcePath: source, targetPath: target}], {
     runDirectly: options?.runDirectly,
   });
 }

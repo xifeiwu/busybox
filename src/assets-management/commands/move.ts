@@ -1,5 +1,5 @@
 import {alignMetaWithAssets, moveAsset} from '../external';
-import {selectMetaHandler} from '../service';
+import {getDefaultMetaHandler} from '../service';
 import type {AssetsCopyMoveOptions} from './copy';
 
 export async function runAssetsMoveCommand(
@@ -8,14 +8,11 @@ export async function runAssetsMoveCommand(
   target: string,
   options?: AssetsCopyMoveOptions
 ) {
-  // const registry = createMetaSourceRegistry(assetsDir);
-  // const metaHandlers = await resolveMetaHandlers(registry, options);
   const {meta} = options ?? {};
-  const metaHandlers = await selectMetaHandler(assetsDir, {
-    meta,
-  });
-  await alignMetaWithAssets(metaHandlers);
-  await moveAsset(metaHandlers, [{sourcePath: source, targetPath: target}], {
+  const metaHandler = await getDefaultMetaHandler(assetsDir, meta);
+
+  await alignMetaWithAssets(metaHandler);
+  await moveAsset(metaHandler, [{sourcePath: source, targetPath: target}], {
     overwrite: options?.overwrite ?? options?.runDirectly,
   });
 }

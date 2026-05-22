@@ -1,7 +1,7 @@
 import {alignMetaWithAssets, backupAssets, runAssetsSyncCommand} from '../external';
 import {
-  getMetaHandlersByKey,
-  getPrimaryMetaHandlers,
+  getDefaultMetaHandler,
+  getPrimaryMetaHandler,
   parseSyncTarget,
   type AssetsMetaRunDirectlyCliOptions,
 } from '../service';
@@ -12,15 +12,14 @@ export async function runAssetsPushCommand(
   options?: AssetsMetaRunDirectlyCliOptions
 ) {
   const {meta} = options ?? {};
-  const metaHandlers = meta
-    ? await getMetaHandlersByKey(assetsDir, meta)
-    : await getPrimaryMetaHandlers(assetsDir);
-  await alignMetaWithAssets(metaHandlers);
+
+  const metaHandler = await getDefaultMetaHandler(assetsDir, meta);
+  await alignMetaWithAssets(metaHandler);
 
   const parsed = parseSyncTarget(target);
   if (parsed.kind === 'local') {
-    const targetHandlers = await getPrimaryMetaHandlers(parsed.path);
-    await backupAssets(targetHandlers, metaHandlers, {runDirectly: options?.runDirectly});
+    const targetHandlers = await getPrimaryMetaHandler(parsed.path);
+    await backupAssets(targetHandlers, metaHandler, {runDirectly: options?.runDirectly});
     return;
   }
 

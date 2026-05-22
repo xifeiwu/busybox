@@ -1,16 +1,15 @@
 import {alignTwoMetas, diffMetaForSyncUp, goOnOrNot, printDiffSummary} from '../external';
 import {
   getMetaSourceList,
-  getPrimaryMetaHandlers,
+  getPrimaryMetaHandler,
   getPrimaryMetaSourceKey,
   selectMetaHandler,
 } from '../service';
 import {type AssetsRunDirectlyCliOptions} from '../service';
 
 export async function runAssetsMetaSyncupCommand(assetsDir: string, options?: AssetsRunDirectlyCliOptions) {
-  const primaryMetaHandler = await getPrimaryMetaHandlers(assetsDir);
-  const registry = getMetaSourceList(assetsDir);
-  if (registry.entries.length < 2) {
+  const primaryMetaHandler = await getPrimaryMetaHandler(assetsDir);
+  if (getMetaSourceList(assetsDir).length < 2) {
     throw new Error(
       'meta-syncup requires at least two meta sources (files matching .meta/{local|sqlite|mysql}_*.{js,ts})'
     );

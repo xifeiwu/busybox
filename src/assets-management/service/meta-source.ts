@@ -95,6 +95,7 @@ export function getMetaSourceList(assetsDir: string): ParsedMetaSource[] {
     if (b.priority !== a.priority) {
       return b.priority - a.priority;
     }
+    return a.key.localeCompare(b.key);
   });
   return sorted;
 }
@@ -108,12 +109,13 @@ export function getPrimaryMetaSource(assetsDir: string): ParsedMetaSource {
   const sources = getMetaSourceList(assetsDir);
   return sources[0];
 }
-export async function getPrimaryMetaHandlers(assetsDir: string): Promise<MetaHandlers> {
+export async function getPrimaryMetaHandler(assetsDir: string): Promise<MetaHandlers> {
   const source = getPrimaryMetaSource(assetsDir);
   return await getMetaHandlersForSource(source, assetsDir);
 }
 
 interface SelectMetaSourceOptions {
+  /** this is preferred meta, will not throw Error even it not exist */
   meta?: string;
   excludeKeys?: string[];
   selectTips?: string[];
@@ -126,9 +128,9 @@ export async function selectMetaSource(
   const sources = getMetaSourceList(assetsDir);
   const candidates = sources.filter(it => !excludeKeys.includes(it.key));
   if (meta) {
-    const target = candidates.find(it => it.key === meta);
-    if (target) {
-      return target;
+    const source = candidates.find(it => it.key === meta);
+    if (source) {
+      return source;
     }
   }
   if (candidates.length === 0) {
@@ -164,4 +166,8 @@ export async function getMetaSourceByKey(assetsDir: string, key: string): Promis
 export async function getMetaHandlersByKey(assetsDir: string, key: string): Promise<MetaHandlers> {
   const source = await getMetaSourceByKey(assetsDir, key);
   return await getMetaHandlersForSource(source, assetsDir);
+}
+
+export async function getDefaultMetaHandler(assetsDir: string, meta?: string): Promise<MetaHandlers> {
+  return meta ? await getMetaHandlersByKey(assetsDir, meta) : await getPrimaryMetaHandler(assetsDir);
 }

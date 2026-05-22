@@ -4,16 +4,14 @@ import {
   getAssetPartialInfoTreeMeta,
   printDiffSummary,
 } from '../external';
-import {getMetaHandlersByKey, getPrimaryMetaHandlers, type AssetsMetaCliOptions} from '../service';
+import {getDefaultMetaHandler, type AssetsMetaCliOptions} from '../service';
 
 export async function runAssetsDiffCommand(assetsDir: string, options?: AssetsMetaCliOptions) {
   const {meta} = options ?? {};
-  const metaHandlers = meta
-    ? await getMetaHandlersByKey(assetsDir, meta)
-    : await getPrimaryMetaHandlers(assetsDir);
+  const metaHandler = await getDefaultMetaHandler(assetsDir, meta);
 
-  await alignMetaWithAssets(metaHandlers);
-  const currentMeta = await metaHandlers.getMeta();
+  await alignMetaWithAssets(metaHandler);
+  const currentMeta = await metaHandler.getMeta();
   const partialMetaFromAssets = await getAssetPartialInfoTreeMeta(assetsDir);
   const diff = await diffMetaForSyncUp(currentMeta, partialMetaFromAssets);
   printDiffSummary(diff);
