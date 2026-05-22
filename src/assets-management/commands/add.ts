@@ -1,35 +1,33 @@
+import fs from 'fs';
 import path from 'path';
 import {addAsset, alignMetaWithAssets, resolvePathInRoot} from '../external';
-import {createRegistry, resolveMetaHandlers, type AssetsCommandOptions} from './shared';
+import {createMetaSourceRegistry, resolveMetaHandlers, type AssetsCommandOptions} from '../meta-source';
 
 export interface AssetsAddOptions extends AssetsCommandOptions {
   to?: string;
-  overwrite?: boolean;
 }
 
 export async function runAssetsAddCommand(
   assetsDir: string,
-  file: string | undefined,
+  sourceFile: string | undefined,
   options?: AssetsAddOptions
 ) {
-  const registry = createRegistry(assetsDir);
+  if (!sourceFile) {
+    return;
+  }
+  sourceFile = path.resolve(process.cwd(), sourceFile);
+  if (!fs.existsSync(sourceFile)) {
+    throw new Error(`target file not exist: ${sourceFile}`);
+  }
+  const registry = createMetaSourceRegistry(assetsDir);
   const metaHandlers = await resolveMetaHandlers(registry, {
     ...options,
     allowSelect: true,
     selectTips: ['Select target meta source for add'],
   });
+  await alignMetaWithAssets(metaHandlers);
 
-  if (!file) {
-    await alignMetaWithAssets(metaHandlers);
-    return;
-  }
-
-  const {rootDir} = metaHandlers;
-  const {fullpath, relativePath} = resolvePathInRoot(rootDir, file);
-  const targetPath =
-    options?.to ?? relativePath ?? (path.relative(rootDir, fullpath) || path.basename(fullpath));
-
-  await addAsset(metaHandlers, [{sourcePath: file, targetPath}], {
-    overwrite: options?.overwrite ?? options?.runDirectly,
+  await addAsset(metaHandlers, [{sourcePath: sourceFile}], {
+    runDirectly: options?.runDirectly,
   });
 }

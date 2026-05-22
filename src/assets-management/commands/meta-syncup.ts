@@ -1,9 +1,9 @@
 import {alignTwoMetas, diffMetaForSyncUp, goOnOrNot, printDiffSummary} from '../external';
 import {getMetaHandlersForSource, selectMetaSource} from '../meta-source';
-import {createRegistry, type AssetsCommandOptions} from './shared';
+import {createMetaSourceRegistry, type AssetsCommandOptions} from '../meta-source';
 
 export async function runAssetsMetaSyncupCommand(assetsDir: string, options?: AssetsCommandOptions) {
-  const registry = createRegistry(assetsDir);
+  const registry = createMetaSourceRegistry(assetsDir);
   if (registry.entries.length < 2) {
     throw new Error(
       'meta-syncup requires at least two meta sources (files matching .meta/{local|sqlite|mysql}_*.{js,ts})'

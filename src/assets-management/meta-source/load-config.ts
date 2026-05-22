@@ -1,23 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import {rerequire, getMetaDir} from '../external';
-import type {
-  DbMetaSourceFileExport,
-  LocalMetaSourceFileExport,
-  MetaSourceKind,
-  ParsedMetaSource,
-  SequelizeConfig,
-} from './types';
-
-const META_SOURCE_FILENAME_RE = /^(local|sqlite|mysql)(?:_(.+))?\.(js|ts)$/;
-
-function parseMetaSourceFilename(filename: string): {kind: MetaSourceKind} | null {
-  const match = filename.match(META_SOURCE_FILENAME_RE);
-  if (!match) {
-    return null;
-  }
-  return {kind: match[1] as MetaSourceKind};
-}
+import {rerequire, META_DIR_NAME, getMetaDir, MetaFileContent} from '../external';
+import {META_SOURCE_FILENAME_RE} from './constants';
+import type {DbMetaSourceFileExport, MetaSourceKind, ParsedMetaSource, SequelizeConfig} from './types';
 
 function unwrapExport(raw: unknown): Record<string, unknown> {
   if (!raw || typeof raw !== 'object') {
@@ -31,108 +16,84 @@ function unwrapExport(raw: unknown): Record<string, unknown> {
   return inner as Record<string, unknown>;
 }
 
-function readPriority(raw: Record<string, unknown>, fileLabel: string): number {
-  if (raw.priority === undefined) {
-    return 0;
-  }
-  if (typeof raw.priority !== 'number' || !Number.isFinite(raw.priority)) {
-    throw new Error(`Invalid priority in ${fileLabel}: must be a finite number`);
-  }
-  return raw.priority;
-}
-
-function readKeyFromFileName(fileLabel: string): string {
-  return path.basename(fileLabel, path.extname(fileLabel));
-}
-
-function parseLocalMetaSource(filePath: string, fileLabel: string): ParsedMetaSource {
+function parseLocalMetaSource(filePath: string, moreInfo: {defaultPriority?: number}): ParsedMetaSource {
+  const {defaultPriority} = moreInfo;
   const raw = unwrapExport(rerequire(filePath));
-  const local = raw as unknown as LocalMetaSourceFileExport;
+  const local = raw as unknown as MetaFileContent;
   if (local.meta === undefined) {
-    throw new Error(`Local meta source ${fileLabel} must export "meta"`);
+    throw new Error(`Local meta source must export "meta"`);
   }
   return {
     kind: 'local',
-    key: readKeyFromFileName(fileLabel),
+    key: path.basename(filePath, path.extname(filePath)),
     metaFilePath: filePath,
-    priority: readPriority(raw, fileLabel),
+    priority: local.priority ?? defaultPriority,
   };
 }
 
-function parseDbMetaSource(kind: 'sqlite' | 'mysql', filePath: string, fileLabel: string): ParsedMetaSource {
+function parseDbMetaSource(
+  filePath: string,
+  moreInfo: {
+    kind: 'sqlite' | 'mysql';
+    defaultPriority?: number;
+  }
+): ParsedMetaSource {
+  const {kind, defaultPriority = 0} = moreInfo;
   const raw = unwrapExport(rerequire(filePath));
   const db = raw as unknown as DbMetaSourceFileExport;
   if (!db.config || typeof db.config !== 'object') {
-    throw new Error(`${kind} meta source ${fileLabel} must export "config"`);
+    throw new Error(`${kind} meta source must export "config"`);
   }
+  // TODO: support db_key
   const config = db.config as SequelizeConfig;
   if (config.dialect !== kind) {
-    throw new Error(`${fileLabel}: config.dialect must be "${kind}", got "${String(config.dialect)}"`);
+    throw new Error(`config.dialect must be "${kind}", got "${String(config.dialect)}"`);
   }
   const base = {
-    key: readKeyFromFileName(fileLabel),
     config,
-    priority: readPriority(raw, fileLabel),
+    priority: (raw.priority as number) ?? defaultPriority,
   };
-  return kind === 'sqlite' ? {kind: 'sqlite', ...base} : {kind: 'mysql', ...base};
+  const key = path.basename(filePath, path.extname(filePath));
+  return kind === 'sqlite' ? {kind: 'sqlite', key, ...base} : {kind: 'mysql', key, ...base};
 }
 
+/**
+ * By default, local meta source has the highest priority, so we set 100 as its default priority.
+ * If want to use some other meta source as the primary, you can set a higher priority for it.
+ * @param assetsDir
+ * @returns
+ */
 function loadMetaSourceConfigs(assetsDir: string): ParsedMetaSource[] {
   const metaDir = getMetaDir(assetsDir);
   if (!fs.existsSync(metaDir)) {
     return [];
   }
-  const sources: ParsedMetaSource[] = [];
-  for (const name of fs.readdirSync(metaDir).sort()) {
-    const parsed = parseMetaSourceFilename(name);
-    if (!parsed) {
-      continue;
-    }
-    const filePath = path.join(metaDir, name);
-    const fileLabel = name;
-    if (parsed.kind === 'local') {
-      sources.push(parseLocalMetaSource(filePath, fileLabel));
-    } else {
-      sources.push(parseDbMetaSource(parsed.kind, filePath, fileLabel));
-    }
-  }
-  return sources;
-}
-
-function assertUniqueKeys(sources: ParsedMetaSource[]) {
-  const seen = new Set<string>();
-  for (const source of sources) {
-    if (seen.has(source.key)) {
-      throw new Error(`Duplicate meta source key "${source.key}" under .meta/`);
-    }
-    seen.add(source.key);
-  }
-}
-
-/**
- * as readMetaFromDir and saveDirMeta in modules/lib/node/lib/assets-management/service/assets-meta.ts
- * will use local.js as its name, this fallback function will not needed.
- */
-function getFallbackMetaSources(assetsDir: string): ParsedMetaSource[] {
-  const indexTs = path.join(getMetaDir(assetsDir), 'index.ts');
-  if (fs.existsSync(indexTs)) {
-    return [{kind: 'local', key: 'default', metaFilePath: indexTs, priority: 0}];
-  }
-  return [{kind: 'local', key: 'default', metaFilePath: '', priority: 0}];
-}
-
-export function sortMetaSources(sources: ParsedMetaSource[]): ParsedMetaSource[] {
-  return [...sources].sort((a, b) => {
-    if (b.priority !== a.priority) {
-      return b.priority - a.priority;
-    }
-    return a.key.localeCompare(b.key);
-  });
+  return fs
+    .readdirSync(metaDir)
+    .sort()
+    .flatMap(name => {
+      const match = name.match(META_SOURCE_FILENAME_RE);
+      const kind = match ? (match[1] as MetaSourceKind) : null;
+      if (!kind) {
+        return [];
+      }
+      const filePath = path.join(metaDir, name);
+      if (kind === 'local') {
+        return [parseLocalMetaSource(filePath, {defaultPriority: 100})];
+      }
+      return [parseDbMetaSource(filePath, {kind})];
+    });
 }
 
 export function resolveMetaSourceEntries(assetsDir: string): ParsedMetaSource[] {
-  const loaded = loadMetaSourceConfigs(assetsDir);
-  const sources = loaded.length > 0 ? loaded : getFallbackMetaSources(assetsDir);
-  assertUniqueKeys(sources);
-  return sortMetaSources(sources);
+  const sources = loadMetaSourceConfigs(assetsDir);
+  if (sources.length === 0) {
+    throw new Error(`No meta source found in ${assetsDir}`);
+  }
+  const sorted = sources.sort((a, b) => {
+    if (b.priority !== a.priority) {
+      return b.priority - a.priority;
+    }
+  });
+  return sorted;
 }

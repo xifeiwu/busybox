@@ -1,4 +1,4 @@
-export * from './shared';
+export * from './init';
 export * from './diff';
 export * from './add';
 export * from './copy';

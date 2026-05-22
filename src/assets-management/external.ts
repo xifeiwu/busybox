@@ -1,12 +1,16 @@
 export {
   diffMetaForSyncUp,
   getAssetPartialInfoTreeMeta,
+  getAssetFullInfoTreeMeta,
+  serializeMeta,
   printDiffSummary,
   getFileMetaHandler,
   getMetaDir,
+  META_DIR_NAME,
 } from '../../modules/lib/node/lib/assets-management/service';
+export type {AssetTreeMeta, MetaFileContent} from '../../modules/lib/node/lib/assets-management/types';
 export {
-  addAsset,
+  addAssets as addAsset,
   alignMetaWithAssets,
   alignTwoMetas,
   backupAssets,
@@ -16,6 +20,8 @@ export {
 export {runAssetsSyncCommand} from '../../modules/lib/node/lib/assets-management/tcp-protocol/client';
 export {
   goOnOrNot,
+  logColorful,
+  makeSureDirExistForFile,
   resolvePathInRoot,
   rerequire,
   selectOption,

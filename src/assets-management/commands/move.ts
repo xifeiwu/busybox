@@ -1,5 +1,5 @@
 import {moveAsset} from '../external';
-import {createRegistry, resolveMetaHandlers, type AssetsCommandOptions} from './shared';
+import {createMetaSourceRegistry, resolveMetaHandlers, type AssetsCommandOptions} from '../meta-source';
 import type {AssetsCopyMoveOptions} from './copy';
 
 export async function runAssetsMoveCommand(
@@ -8,7 +8,7 @@ export async function runAssetsMoveCommand(
   target: string,
   options?: AssetsCopyMoveOptions
 ) {
-  const registry = createRegistry(assetsDir);
+  const registry = createMetaSourceRegistry(assetsDir);
   const metaHandlers = await resolveMetaHandlers(registry, options);
   await moveAsset(metaHandlers, [{sourcePath: source, targetPath: target}], {
     overwrite: options?.overwrite ?? options?.runDirectly,

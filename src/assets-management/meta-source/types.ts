@@ -22,9 +22,3 @@ export interface DbMetaSourceFileExport {
   config: SequelizeConfig;
   priority?: number;
 }
-
-/** Export shape for local meta source files (file is the meta store). */
-export interface LocalMetaSourceFileExport {
-  meta: unknown;
-  priority?: number;
-}
