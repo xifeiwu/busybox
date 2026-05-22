@@ -1,9 +1,10 @@
-import {copyAsset} from '../external';
+import {alignMetaWithAssets, copyAsset} from '../external';
 import {
-  createMetaSourceRegistry,
-  resolveMetaHandlers,
+  getMetaHandlersByKey,
+  getPrimaryMetaHandlers,
+  selectMetaHandler,
   type AssetsMetaRunDirectlyCliOptions,
-} from '../meta-source';
+} from '../service';
 
 export interface AssetsCopyMoveOptions extends AssetsMetaRunDirectlyCliOptions {
   overwrite?: boolean;
@@ -15,8 +16,12 @@ export async function runAssetsCopyCommand(
   target: string,
   options?: AssetsCopyMoveOptions
 ) {
-  const registry = createMetaSourceRegistry(assetsDir);
-  const metaHandlers = await resolveMetaHandlers(registry, options);
+  const {meta} = options ?? {};
+  const metaHandlers = meta
+    ? await getMetaHandlersByKey(assetsDir, meta)
+    : await getPrimaryMetaHandlers(assetsDir);
+
+  await alignMetaWithAssets(metaHandlers);
   await copyAsset(metaHandlers, [{sourcePath: source, targetPath: target}], {
     overwrite: options?.overwrite ?? options?.runDirectly,
   });

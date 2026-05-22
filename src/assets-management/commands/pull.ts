@@ -1,30 +1,32 @@
 import {alignMetaWithAssets, backupAssets, runAssetsSyncCommand} from '../external';
 import {
-  createMetaSourceRegistry,
+  getMetaHandlersByKey,
   getPrimaryMetaHandlers,
   parseSyncTarget,
   type AssetsMetaRunDirectlyCliOptions,
-} from '../meta-source';
+} from '../service';
 
 export async function runAssetsPullCommand(
   assetsDir: string,
   target: string,
   options?: AssetsMetaRunDirectlyCliOptions
 ) {
-  const registry = createMetaSourceRegistry(assetsDir);
-  const localHandlers = await getPrimaryMetaHandlers(registry);
-  await alignMetaWithAssets(localHandlers);
+  const {meta} = options ?? {};
+  const metaHandlers = meta
+    ? await getMetaHandlersByKey(assetsDir, meta)
+    : await getPrimaryMetaHandlers(assetsDir);
+  await alignMetaWithAssets(metaHandlers);
 
   const parsed = parseSyncTarget(target);
   if (parsed.kind === 'local') {
-    const targetRegistry = createMetaSourceRegistry(parsed.path);
-    const targetHandlers = await getPrimaryMetaHandlers(targetRegistry);
-    await backupAssets(localHandlers, targetHandlers, {runDirectly: options?.runDirectly});
+    // const targetRegistry = createMetaSourceRegistry(parsed.path);
+    const targetHandlers = await getPrimaryMetaHandlers(parsed.path);
+    await backupAssets(metaHandlers, targetHandlers, {runDirectly: options?.runDirectly});
     return;
   }
 
   const {host, port} = parsed;
-  await runAssetsSyncCommand('pull', registry.assetsDir, {
+  await runAssetsSyncCommand('pull', assetsDir, {
     host,
     port,
     runDirectly: options?.runDirectly,

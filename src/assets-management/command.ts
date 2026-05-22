@@ -1,6 +1,6 @@
 import {Command} from 'commander';
 import {logColorful} from '../../modules/lib/node/log';
-import {findAssetsRootDir, resolveMetaSourceEntries} from './meta-source';
+import {findAssetsRootDir, getMetaSourceList} from './service';
 import {
   runAssetsAddCommand,
   runAssetsCopyCommand,
@@ -16,7 +16,7 @@ import type {
   AssetsMetaCliOptions,
   AssetsMetaRunDirectlyCliOptions,
   AssetsRunDirectlyCliOptions,
-} from './meta-source';
+} from './service';
 
 const program = new Command();
 program
@@ -145,7 +145,7 @@ program
   .description('list all meta sources')
   .action(
     wrapActionWithPositionals<[], AssetsEmptyCliOptions>(async (rootDir, _opts) => {
-      const metas = resolveMetaSourceEntries(rootDir);
+      const metas = getMetaSourceList(rootDir);
       metas.forEach(meta => {
         logColorful({}, meta.key);
       });

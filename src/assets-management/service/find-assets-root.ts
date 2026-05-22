@@ -29,7 +29,3 @@ export function findAssetsRootDir(dirOption?: string): string {
     `Assets root not found${hint}: no "${META_DIR_NAME}/" directory found while searching upward. Run "assets init" first.`
   );
 }
-
-export function logAssetsRoot(rootDir: string) {
-  logColorful({}, `rootDir: ${rootDir}`);
-}

@@ -1,25 +1,28 @@
 import {alignTwoMetas, diffMetaForSyncUp, goOnOrNot, printDiffSummary} from '../external';
-import {getMetaHandlersForSource, selectMetaSource} from '../meta-source';
-import {createMetaSourceRegistry, type AssetsRunDirectlyCliOptions} from '../meta-source';
+import {
+  getMetaSourceList,
+  getPrimaryMetaHandlers,
+  getPrimaryMetaSourceKey,
+  selectMetaHandler,
+} from '../service';
+import {type AssetsRunDirectlyCliOptions} from '../service';
 
 export async function runAssetsMetaSyncupCommand(assetsDir: string, options?: AssetsRunDirectlyCliOptions) {
-  const registry = createMetaSourceRegistry(assetsDir);
+  const primaryMetaHandler = await getPrimaryMetaHandlers(assetsDir);
+  const registry = getMetaSourceList(assetsDir);
   if (registry.entries.length < 2) {
     throw new Error(
       'meta-syncup requires at least two meta sources (files matching .meta/{local|sqlite|mysql}_*.{js,ts})'
     );
   }
 
-  const fromSource = await selectMetaSource(registry, {tips: ['Select source meta (from)']});
-  const toSource = await selectMetaSource(registry, {
-    tips: ['Select target meta (to)'],
-    excludeKeys: [],
+  const targetMetaHandler = await selectMetaHandler(assetsDir, {
+    selectTips: ['Select target meta (to)'],
+    excludeKeys: [getPrimaryMetaSourceKey(assetsDir)],
   });
 
-  const fromHandlers = await getMetaHandlersForSource(fromSource, registry.assetsDir);
-  const toHandlers = await getMetaHandlersForSource(toSource, registry.assetsDir);
-  const fromMeta = await fromHandlers.getMeta();
-  const toMeta = await toHandlers.getMeta();
+  const fromMeta = await primaryMetaHandler.getMeta();
+  const toMeta = await targetMetaHandler.getMeta();
   const diff = await diffMetaForSyncUp(toMeta, fromMeta);
   printDiffSummary(diff);
 
@@ -30,12 +33,12 @@ export async function runAssetsMetaSyncupCommand(assetsDir: string, options?: As
   if (
     !options?.runDirectly &&
     !(await goOnOrNot({
-      tips: [`Apply meta sync from "${fromSource.key}" to "${toSource.key}"?`],
+      tips: [`Apply meta sync from "${primaryMetaHandler.rootDir}" to "${targetMetaHandler.rootDir}"?`],
       defaultValue: true,
     }))
   ) {
     return;
   }
 
-  await alignTwoMetas(toHandlers, fromMeta, {runDirectly: true});
+  await alignTwoMetas(targetMetaHandler, fromMeta, {runDirectly: true});
 }

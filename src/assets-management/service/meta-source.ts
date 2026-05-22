@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import {rerequire, META_DIR_NAME, getMetaDir, MetaFileContent} from '../external';
+import {rerequire, META_DIR_NAME, getMetaDir, MetaFileContent, selectOption, MetaHandlers} from '../external';
 import {META_SOURCE_FILENAME_RE} from './constants';
 import type {DbMetaSourceFileExport, MetaSourceKind, ParsedMetaSource, SequelizeConfig} from './types';
+import {getMetaHandlersForSource} from './resolve-handler';
 
 function unwrapExport(raw: unknown): Record<string, unknown> {
   if (!raw || typeof raw !== 'object') {
@@ -85,10 +86,10 @@ function loadMetaSourceConfigs(assetsDir: string): ParsedMetaSource[] {
     });
 }
 
-export function resolveMetaSourceEntries(assetsDir: string): ParsedMetaSource[] {
+export function getMetaSourceList(assetsDir: string): ParsedMetaSource[] {
   const sources = loadMetaSourceConfigs(assetsDir);
   if (sources.length === 0) {
-    throw new Error(`No meta source found in ${assetsDir}`);
+    throw new Error(`No meta source found in ${assetsDir}, please init meta first`);
   }
   const sorted = sources.sort((a, b) => {
     if (b.priority !== a.priority) {
@@ -96,4 +97,71 @@ export function resolveMetaSourceEntries(assetsDir: string): ParsedMetaSource[] 
     }
   });
   return sorted;
+}
+
+export function getPrimaryMetaSourceKey(assetsDir: string): string {
+  const sources = getMetaSourceList(assetsDir);
+  return sources[0].key;
+}
+
+export function getPrimaryMetaSource(assetsDir: string): ParsedMetaSource {
+  const sources = getMetaSourceList(assetsDir);
+  return sources[0];
+}
+export async function getPrimaryMetaHandlers(assetsDir: string): Promise<MetaHandlers> {
+  const source = getPrimaryMetaSource(assetsDir);
+  return await getMetaHandlersForSource(source, assetsDir);
+}
+
+interface SelectMetaSourceOptions {
+  meta?: string;
+  excludeKeys?: string[];
+  selectTips?: string[];
+}
+export async function selectMetaSource(
+  assetsDir: string,
+  options?: SelectMetaSourceOptions
+): Promise<ParsedMetaSource> {
+  const {selectTips: tips = ['Select meta source'], excludeKeys = [], meta} = options ?? {};
+  const sources = getMetaSourceList(assetsDir);
+  const candidates = sources.filter(it => !excludeKeys.includes(it.key));
+  if (meta) {
+    const target = candidates.find(it => it.key === meta);
+    if (target) {
+      return target;
+    }
+  }
+  if (candidates.length === 0) {
+    throw new Error('No meta source available to select');
+  }
+  if (candidates.length === 1) {
+    return candidates[0];
+  }
+  const {value} = await selectOption<{label: string; value: ParsedMetaSource}>(
+    candidates.map(it => ({label: `${it.key} [${it.kind}, priority ${it.priority}]`, value: it})),
+    {tips}
+  );
+  return value;
+}
+
+export async function selectMetaHandler(
+  assetsDir: string,
+  options?: SelectMetaSourceOptions
+): Promise<MetaHandlers> {
+  const source = await selectMetaSource(assetsDir, options);
+  return await getMetaHandlersForSource(source, assetsDir);
+}
+
+export async function getMetaSourceByKey(assetsDir: string, key: string): Promise<ParsedMetaSource> {
+  const sources = getMetaSourceList(assetsDir);
+  const source = sources.find(it => it.key === key);
+  if (!source) {
+    throw new Error(`Unknown meta source "${key}". Available: ${sources.map(it => it.key).join(', ')}`);
+  }
+  return source;
+}
+
+export async function getMetaHandlersByKey(assetsDir: string, key: string): Promise<MetaHandlers> {
+  const source = await getMetaSourceByKey(assetsDir, key);
+  return await getMetaHandlersForSource(source, assetsDir);
 }
