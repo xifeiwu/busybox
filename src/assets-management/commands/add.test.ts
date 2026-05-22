@@ -3,7 +3,7 @@ import {runAssetsAddCommand} from './add';
 
 export async function testRunAssetsAddCommand() {
   const targetDir = path.join(__dirname, '../../../modules/lib/node/lib/assets-management/test/.tmp/source');
-  await runAssetsAddCommand(targetDir, __filename, {runDirectly: true});
+  await runAssetsAddCommand(targetDir, __filename, undefined, {runDirectly: true});
   //   const metaHandlers = await getFileMetaHandler()(SOURCE_DIR);
   //   await metaHandlers.getMeta();
   //   await alignMetaWithAssets(metaHandlers);

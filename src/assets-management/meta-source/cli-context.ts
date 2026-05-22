@@ -1,18 +1,8 @@
-import {logColorful} from '../external';
 import type {MetaHandlers} from '../external';
 import {getMetaHandlersByKey, getPrimaryMetaHandlers, selectMetaSourceHandlers} from './registry';
 import type {MetaSourceRegistry} from './registry';
+import {AssetsCommandOptions} from './types';
 
-export interface AssetsCommandOptions {
-  /** Starting directory for assets root discovery (see findAssetsRootDir). */
-  dir?: string;
-  meta?: string;
-  runDirectly?: boolean;
-}
-
-export function logAssetsRoot(rootDir: string) {
-  logColorful({}, `rootDir: ${rootDir}`);
-}
 export async function resolveMetaHandlers(
   registry: MetaSourceRegistry,
   options?: AssetsCommandOptions & {selectTips?: string[]; allowSelect?: boolean}

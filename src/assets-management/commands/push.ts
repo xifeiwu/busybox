@@ -1,16 +1,15 @@
 import {alignMetaWithAssets, backupAssets, runAssetsSyncCommand} from '../external';
 import {
   createMetaSourceRegistry,
-  createMetaSourceRegistry,
   getPrimaryMetaHandlers,
   parseSyncTarget,
-  type AssetsCommandOptions,
+  type AssetsMetaRunDirectlyCliOptions,
 } from '../meta-source';
 
 export async function runAssetsPushCommand(
   assetsDir: string,
-  target: string | undefined,
-  options?: AssetsCommandOptions
+  target: string,
+  options?: AssetsMetaRunDirectlyCliOptions
 ) {
   const registry = createMetaSourceRegistry(assetsDir);
   const localHandlers = await getPrimaryMetaHandlers(registry);

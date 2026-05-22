@@ -1,20 +1,18 @@
 import fs from 'fs';
 import path from 'path';
 import {addAsset, alignMetaWithAssets, resolvePathInRoot} from '../external';
-import {createMetaSourceRegistry, resolveMetaHandlers, type AssetsCommandOptions} from '../meta-source';
-
-export interface AssetsAddOptions extends AssetsCommandOptions {
-  to?: string;
-}
+import {
+  createMetaSourceRegistry,
+  resolveMetaHandlers,
+  type AssetsMetaRunDirectlyCliOptions,
+} from '../meta-source';
 
 export async function runAssetsAddCommand(
   assetsDir: string,
-  sourceFile: string | undefined,
-  options?: AssetsAddOptions
+  sourceFile: string,
+  target?: string,
+  options?: AssetsMetaRunDirectlyCliOptions
 ) {
-  if (!sourceFile) {
-    return;
-  }
   sourceFile = path.resolve(process.cwd(), sourceFile);
   if (!fs.existsSync(sourceFile)) {
     throw new Error(`target file not exist: ${sourceFile}`);
@@ -27,7 +25,7 @@ export async function runAssetsAddCommand(
   });
   await alignMetaWithAssets(metaHandlers);
 
-  await addAsset(metaHandlers, [{sourcePath: sourceFile}], {
+  await addAsset(metaHandlers, [{sourcePath: sourceFile, targetPath: target}], {
     runDirectly: options?.runDirectly,
   });
 }

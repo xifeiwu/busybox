@@ -1,7 +1,7 @@
 import {diffMetaForSyncUp, getAssetPartialInfoTreeMeta, printDiffSummary} from '../external';
-import {createMetaSourceRegistry, resolveMetaHandlers, type AssetsCommandOptions} from '../meta-source';
+import {createMetaSourceRegistry, resolveMetaHandlers, type AssetsMetaCliOptions} from '../meta-source';
 
-export async function runAssetsDiffCommand(assetsDir: string, options?: AssetsCommandOptions) {
+export async function runAssetsDiffCommand(assetsDir: string, options?: AssetsMetaCliOptions) {
   const registry = createMetaSourceRegistry(assetsDir);
   const metaHandlers = await resolveMetaHandlers(registry, options);
   const currentMeta = await metaHandlers.getMeta();

@@ -52,10 +52,9 @@ export async function selectMetaSource(
   options?: {
     tips?: string[];
     excludeKeys?: string[];
-    defaultKey?: string;
   }
 ): Promise<ParsedMetaSource> {
-  const {tips = ['Select meta source'], excludeKeys = [], defaultKey} = options ?? {};
+  const {tips = ['Select meta source'], excludeKeys = []} = options ?? {};
   const candidates = registry.entries.filter(it => !excludeKeys.includes(it.key));
   if (candidates.length === 0) {
     throw new Error('No meta source available to select');
@@ -63,35 +62,18 @@ export async function selectMetaSource(
   if (candidates.length === 1) {
     return candidates[0];
   }
-  const defaultIndex = defaultKey
-    ? Math.max(
-        0,
-        candidates.findIndex(it => it.key === defaultKey)
-      )
-    : 0;
-  const {label} = await selectOption<{label: string}>(
-    candidates.map(it => ({label: formatSourceLabel(it)})),
-    {tips, defaultAnswer: defaultIndex}
+  const {value} = await selectOption<{label: string; value: ParsedMetaSource}>(
+    candidates.map(it => ({label: formatSourceLabel(it), value: it})),
+    {tips}
   );
-  const byKey = candidates.find(it => it.key === label);
-  if (byKey) {
-    return byKey;
-  }
-  const byPrefix = candidates.find(it => label.startsWith(it.key));
-  if (byPrefix) {
-    return byPrefix;
-  }
-  const index = parseInt(label, 10);
-  if (Number.isInteger(index) && candidates[index]) {
-    return candidates[index];
-  }
-  return candidates[defaultIndex];
+  return value;
 }
 
 export async function selectMetaSourceHandlers(
   registry: MetaSourceRegistry,
   options?: Parameters<typeof selectMetaSource>[1]
 ): Promise<{source: ParsedMetaSource; handlers: MetaHandlers}> {
+  selectOption;
   const source = await selectMetaSource(registry, options);
   const handlers = await getMetaHandlersForSource(source, registry.assetsDir);
   return {source, handlers};

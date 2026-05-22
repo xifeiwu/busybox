@@ -1,7 +1,11 @@
 import {copyAsset} from '../external';
-import {createMetaSourceRegistry, resolveMetaHandlers, type AssetsCommandOptions} from '../meta-source';
+import {
+  createMetaSourceRegistry,
+  resolveMetaHandlers,
+  type AssetsMetaRunDirectlyCliOptions,
+} from '../meta-source';
 
-export interface AssetsCopyMoveOptions extends AssetsCommandOptions {
+export interface AssetsCopyMoveOptions extends AssetsMetaRunDirectlyCliOptions {
   overwrite?: boolean;
 }
 

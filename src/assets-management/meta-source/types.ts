@@ -22,3 +22,17 @@ export interface DbMetaSourceFileExport {
   config: SequelizeConfig;
   priority?: number;
 }
+
+/** Commander subcommand options (camelCase keys from .option()). */
+export type AssetsMetaCliOptions = {meta?: string};
+export type AssetsRunDirectlyCliOptions = {runDirectly?: boolean};
+export type AssetsMetaRunDirectlyCliOptions = AssetsMetaCliOptions & AssetsRunDirectlyCliOptions;
+export type AssetsEmptyCliOptions = Record<string, never>;
+
+/** Internal / registry options (includes global --dir). */
+export interface AssetsCommandOptions {
+  /** Starting directory for assets root discovery (see findAssetsRootDir). */
+  dir?: string;
+  meta?: string;
+  runDirectly?: boolean;
+}

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {META_DIR_NAME} from '../external';
+import {logColorful, META_DIR_NAME} from '../external';
 
 function isMetaDir(dirPath: string): boolean {
   return fs.existsSync(dirPath) && fs.statSync(dirPath).isDirectory();
@@ -30,9 +30,6 @@ export function findAssetsRootDir(dirOption?: string): string {
   );
 }
 
-/**
- * Resolve assets root for `init` — does not require `.meta` to exist yet.
- */
-export function resolveAssetsRootForInit(dirOption?: string): string {
-  return path.resolve(process.cwd(), dirOption ?? '.');
+export function logAssetsRoot(rootDir: string) {
+  logColorful({}, `rootDir: ${rootDir}`);
 }

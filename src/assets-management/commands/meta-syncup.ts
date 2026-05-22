@@ -1,8 +1,8 @@
 import {alignTwoMetas, diffMetaForSyncUp, goOnOrNot, printDiffSummary} from '../external';
 import {getMetaHandlersForSource, selectMetaSource} from '../meta-source';
-import {createMetaSourceRegistry, type AssetsCommandOptions} from '../meta-source';
+import {createMetaSourceRegistry, type AssetsRunDirectlyCliOptions} from '../meta-source';
 
-export async function runAssetsMetaSyncupCommand(assetsDir: string, options?: AssetsCommandOptions) {
+export async function runAssetsMetaSyncupCommand(assetsDir: string, options?: AssetsRunDirectlyCliOptions) {
   const registry = createMetaSourceRegistry(assetsDir);
   if (registry.entries.length < 2) {
     throw new Error(

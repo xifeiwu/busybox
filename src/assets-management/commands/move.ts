@@ -1,5 +1,5 @@
 import {moveAsset} from '../external';
-import {createMetaSourceRegistry, resolveMetaHandlers, type AssetsCommandOptions} from '../meta-source';
+import {createMetaSourceRegistry, resolveMetaHandlers} from '../meta-source';
 import type {AssetsCopyMoveOptions} from './copy';
 
 export async function runAssetsMoveCommand(

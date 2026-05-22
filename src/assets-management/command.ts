@@ -1,6 +1,6 @@
 import {Command} from 'commander';
 import {logColorful} from '../../modules/lib/node/log';
-import {logAssetsRoot, findAssetsRootDir} from './meta-source';
+import {findAssetsRootDir, resolveMetaSourceEntries} from './meta-source';
 import {
   runAssetsAddCommand,
   runAssetsCopyCommand,
@@ -11,7 +11,12 @@ import {
   runAssetsPullCommand,
   runAssetsPushCommand,
 } from './commands';
-import type {AssetsCommandOptions} from './meta-source';
+import type {
+  AssetsEmptyCliOptions,
+  AssetsMetaCliOptions,
+  AssetsMetaRunDirectlyCliOptions,
+  AssetsRunDirectlyCliOptions,
+} from './meta-source';
 
 const program = new Command();
 program
@@ -23,15 +28,15 @@ function getGlobalDirOption(): string | undefined {
   return program.opts<{dir?: string}>().dir;
 }
 
-function wrapActionWithPositionals(
-  handler: (rootDir: string, ...args: [...unknown[], AssetsCommandOptions]) => Promise<void>
+function wrapActionWithPositionals<P extends readonly unknown[], O extends Record<string, unknown>>(
+  handler: (rootDir: string, ...args: [...P, O]) => Promise<void>
 ): (...args: unknown[]) => Promise<void> {
   return async (...args: unknown[]) => {
-    const opts = args[args.length - 1] as AssetsCommandOptions;
-    const positional = args.slice(0, -1);
+    const opts = args[args.length - 1] as O;
+    const positional = args.slice(0, -1) as unknown as P;
     try {
       const rootDir = findAssetsRootDir(getGlobalDirOption());
-      logAssetsRoot(rootDir);
+      logColorful({}, `rootDir: ${rootDir}`);
       await handler(rootDir, ...positional, opts);
     } catch (err) {
       logColorful({color: 'red'}, err instanceof Error ? err.message : String(err));
@@ -46,7 +51,7 @@ program
   .action(async (opts: {force?: boolean}) => {
     try {
       const rootDir = await init({dir: getGlobalDirOption()});
-      logAssetsRoot(`init meta info for rootDir success: ${rootDir}`);
+      console.log(`init meta info for rootDir success: ${rootDir}`);
     } catch (err) {
       logColorful({color: 'red'}, err instanceof Error ? err.message : String(err));
       process.exitCode = 1;
@@ -57,18 +62,22 @@ program
   .command('diff')
   .description('Show diff between persisted meta and files on disk')
   .option('--meta <key>', 'meta source key (from .meta/{local|sqlite|mysql}_*.{js,ts})')
-  .action(wrapActionWithPositionals((rootDir, opts) => runAssetsDiffCommand(rootDir, opts)));
+  .action(
+    wrapActionWithPositionals<[], AssetsMetaCliOptions>((rootDir, opts) =>
+      runAssetsDiffCommand(rootDir, opts)
+    )
+  );
 
 program
   .command('add')
   .description('Add file(s) to assets dir, or align meta with disk when file is omitted')
-  .argument('[file]', 'source file or folder to add')
+  .argument('<source>', 'source file or folder to add')
+  .argument('[target]', 'target relative path')
   .option('--meta <key>', 'meta source key (from .meta/{local|sqlite|mysql}_*.{js,ts})')
-  .option('--to <path>', 'target relative path in assets dir')
   .option('-y, --run-directly', 'skip confirmation prompts')
   .action(
-    wrapActionWithPositionals((rootDir, file: string | undefined, opts) =>
-      runAssetsAddCommand(rootDir, file, opts)
+    wrapActionWithPositionals<[string, string | undefined], AssetsMetaRunDirectlyCliOptions>(
+      (rootDir, source, target, opts) => runAssetsAddCommand(rootDir, source, target, opts)
     )
   );
 
@@ -80,8 +89,8 @@ program
   .option('--meta <key>', 'meta source key (from .meta/{local|sqlite|mysql}_*.{js,ts})')
   .option('-y, --run-directly', 'skip confirmation prompts')
   .action(
-    wrapActionWithPositionals((rootDir, source: string, target: string, opts) =>
-      runAssetsCopyCommand(rootDir, source, target, opts)
+    wrapActionWithPositionals<[string, string], AssetsMetaRunDirectlyCliOptions>(
+      (rootDir, source, target, opts) => runAssetsCopyCommand(rootDir, source, target, opts)
     )
   );
 
@@ -93,24 +102,19 @@ program
   .option('--meta <key>', 'meta source key (from .meta/{local|sqlite|mysql}_*.{js,ts})')
   .option('-y, --run-directly', 'skip confirmation prompts')
   .action(
-    wrapActionWithPositionals((rootDir, source: string, target: string, opts) =>
-      runAssetsMoveCommand(rootDir, source, target, opts)
+    wrapActionWithPositionals<[string, string], AssetsMetaRunDirectlyCliOptions>(
+      (rootDir, source, target, opts) => runAssetsMoveCommand(rootDir, source, target, opts)
     )
   );
 
 program
-  .command('meta-syncup')
-  .description('Sync meta between two meta sources (requires multiple sources)')
-  .option('-y, --run-directly', 'skip confirmation prompts')
-  .action(wrapActionWithPositionals((rootDir, opts) => runAssetsMetaSyncupCommand(rootDir, opts)));
-
-program
   .command('push')
   .description('Align local meta, then push assets to a local dir or remote server')
-  .argument('[target]', 'local directory or remote host[:port]')
+  .argument('<target>', 'local directory or remote host[:port]')
+  .option('--meta <key>', 'meta source key (from .meta/{local|sqlite|mysql}_*.{js,ts})')
   .option('-y, --run-directly', 'skip confirmation prompts')
   .action(
-    wrapActionWithPositionals((rootDir, target: string | undefined, opts) =>
+    wrapActionWithPositionals<[string], AssetsMetaRunDirectlyCliOptions>((rootDir, target, opts) =>
       runAssetsPushCommand(rootDir, target, opts)
     )
   );
@@ -119,11 +123,33 @@ program
   .command('pull')
   .description('Align local meta, then pull assets from a local dir or remote server')
   .argument('<target>', 'local directory or remote host[:port]')
+  .option('--meta <key>', 'meta source key (from .meta/{local|sqlite|mysql}_*.{js,ts})')
   .option('-y, --run-directly', 'skip confirmation prompts')
   .action(
-    wrapActionWithPositionals((rootDir, target: string | undefined, opts) =>
+    wrapActionWithPositionals<[string], AssetsMetaRunDirectlyCliOptions>((rootDir, target, opts) =>
       runAssetsPullCommand(rootDir, target, opts)
     )
+  );
+
+program
+  .command('meta-syncup')
+  .description('Sync meta between two meta sources (requires multiple sources)')
+  .option('-y, --run-directly', 'skip confirmation prompts')
+  .action(
+    wrapActionWithPositionals<[], AssetsRunDirectlyCliOptions>((rootDir, opts) =>
+      runAssetsMetaSyncupCommand(rootDir, opts)
+    )
+  );
+program
+  .command('meta-list')
+  .description('list all meta sources')
+  .action(
+    wrapActionWithPositionals<[], AssetsEmptyCliOptions>(async (rootDir, _opts) => {
+      const metas = resolveMetaSourceEntries(rootDir);
+      metas.forEach(meta => {
+        logColorful({}, meta.key);
+      });
+    })
   );
 
 program.parse(process.argv);
