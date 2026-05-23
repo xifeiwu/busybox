@@ -1,4 +1,4 @@
-import {alignMetaWithAssets, copyAsset} from '../external';
+import {alignMetaWithAssets, copyAsset, printOperatedAssets} from '../external';
 import {getDefaultMetaHandler, type AssetsMetaRunDirectlyCliOptions} from '../service';
 
 export interface AssetsCopyMoveOptions extends AssetsMetaRunDirectlyCliOptions {
@@ -16,7 +16,8 @@ export async function runAssetsCopyCommand(
   const metaHandler = await getDefaultMetaHandler(assetsDir, meta);
 
   await alignMetaWithAssets(metaHandler);
-  await copyAsset(metaHandler, [{sourcePath: source, targetPath: target}], {
+  const results = await copyAsset(metaHandler, [{sourcePath: source, targetPath: target}], {
     overwrite: options?.overwrite ?? options?.runDirectly,
   });
+  printOperatedAssets(results);
 }

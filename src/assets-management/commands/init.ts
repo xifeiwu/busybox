@@ -1,5 +1,5 @@
 import fs from 'fs';
-import {getMetaDir, getFileMetaHandler} from '../external';
+import {getMetaDir, getFileMetaHandler, logColorful} from '../external';
 
 export async function init(options: {dir?: string}) {
   const {dir = process.cwd()} = options;
@@ -8,5 +8,6 @@ export async function init(options: {dir?: string}) {
     throw new Error(`Meta directory already exists, please remove it before init: ${metaDir}`);
   }
   await getFileMetaHandler()(metaDir);
+  logColorful({color: 'green'}, `init meta info for dir success: ${metaDir}`);
   return dir;
 }

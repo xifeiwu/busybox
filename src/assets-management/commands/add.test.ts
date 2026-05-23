@@ -2,8 +2,9 @@ import path from 'path';
 import {runAssetsAddCommand} from './add';
 
 export async function testRunAssetsAddCommand() {
-  const targetDir = path.join(__dirname, '../../../modules/lib/node/lib/assets-management/test/.tmp/source');
-  await runAssetsAddCommand(targetDir, __filename, undefined, {runDirectly: true});
+  const assetsDir =
+    '/Users/xfwu/code/node/tool/busybox/modules/lib/node/lib/assets-management/test/.tmp/target';
+  await runAssetsAddCommand(assetsDir, __filename, undefined, {runDirectly: true});
   //   const metaHandlers = await getFileMetaHandler()(SOURCE_DIR);
   //   await metaHandlers.getMeta();
   //   await alignMetaWithAssets(metaHandlers);

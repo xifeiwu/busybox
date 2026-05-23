@@ -3,10 +3,12 @@ export {
   getAssetPartialInfoTreeMeta,
   getAssetFullInfoTreeMeta,
   serializeMeta,
-  printDiffSummary,
+  printDiffForSyncUp as printDiffSummary,
   getFileMetaHandler,
   getMetaDir,
   META_DIR_NAME,
+  printIgnoredAssets,
+  printOperatedAssets,
 } from '../../modules/lib/node/lib/assets-management/service';
 export type {AssetTreeMeta, MetaFileContent} from '../../modules/lib/node/lib/assets-management/types';
 export {

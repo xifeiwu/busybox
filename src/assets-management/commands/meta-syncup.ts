@@ -7,6 +7,9 @@ import {
 } from '../service';
 import {type AssetsRunDirectlyCliOptions} from '../service';
 
+/**
+ * align two metas of the same dir
+ */
 export async function runAssetsMetaSyncupCommand(assetsDir: string, options?: AssetsRunDirectlyCliOptions) {
   const primaryMetaHandler = await getPrimaryMetaHandler(assetsDir);
   if (getMetaSourceList(assetsDir).length < 2) {

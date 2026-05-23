@@ -36,7 +36,7 @@ function wrapActionWithPositionals<P extends readonly unknown[], O extends Recor
     const positional = args.slice(0, -1) as unknown as P;
     try {
       const rootDir = findAssetsRootDir(getGlobalDirOption());
-      logColorful({}, `rootDir: ${rootDir}`);
+      logColorful({color: 'yellow'}, `rootDir: ${rootDir}`);
       await handler(rootDir, ...positional, opts);
     } catch (err) {
       logColorful({color: 'red'}, err instanceof Error ? err.message : String(err));
