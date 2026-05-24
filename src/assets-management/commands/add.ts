@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {addAsset, alignMetaWithAssets, printIgnoredAssets, printOperatedAssets} from '../external';
+import {addAsset, updateMetaHandlerMeta, printIgnoredAssets, printOperatedAssets} from '../external';
 import {getDefaultMetaHandler, type AssetsMetaRunDirectlyCliOptions} from '../service';
 
 export async function runAssetsAddCommand(
@@ -15,7 +15,7 @@ export async function runAssetsAddCommand(
   }
   const {meta} = options ?? {};
   const metaHandler = await getDefaultMetaHandler(assetsDir, meta);
-  await alignMetaWithAssets(metaHandler);
+  await updateMetaHandlerMeta(metaHandler);
 
   const {results, ignored} = await addAsset(metaHandler, [{sourcePath: source, targetPath: target}], {
     runDirectly: options?.runDirectly,

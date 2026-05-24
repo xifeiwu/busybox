@@ -6,7 +6,7 @@ import {
   runAssetsCopyCommand,
   runAssetsDiffCommand,
   init,
-  runAssetsMetaSyncupCommand,
+  runAssetsMetaAlignCommand,
   runAssetsMoveCommand,
   runAssetsPullCommand,
   runAssetsPushCommand,
@@ -75,6 +75,7 @@ program
   .argument('[target]', 'target relative path')
   .option('--meta <key>', 'meta source key (from .meta/{local|sqlite|mysql}_*.{js,ts})')
   .option('-y, --run-directly', 'skip confirmation prompts')
+  .option('-A, --all', 'skip confirmation prompts')
   .action(
     wrapActionWithPositionals<[string, string | undefined], AssetsMetaRunDirectlyCliOptions>(
       (rootDir, source, target, opts) => runAssetsAddCommand(rootDir, source, target, opts)
@@ -130,26 +131,27 @@ program
       runAssetsPullCommand(rootDir, target, opts)
     )
   );
-
-program
-  .command('meta-syncup')
-  .description('Sync meta between two meta sources (requires multiple sources)')
-  .option('-y, --run-directly', 'skip confirmation prompts')
-  .action(
-    wrapActionWithPositionals<[], AssetsRunDirectlyCliOptions>((rootDir, opts) =>
-      runAssetsMetaSyncupCommand(rootDir, opts)
-    )
-  );
 program
   .command('meta-list')
   .description('list all meta sources')
   .action(
     wrapActionWithPositionals<[], AssetsEmptyCliOptions>(async (rootDir, _opts) => {
       const metas = getMetaSourceList(rootDir);
+      logColorful({color: 'red'}, 'Meta Sources:');
       metas.forEach(meta => {
         logColorful({}, meta.key);
       });
     })
+  );
+
+program
+  .command('meta-align')
+  .description('Sync meta between two meta sources (requires multiple sources)')
+  .option('-y, --run-directly', 'skip confirmation prompts')
+  .action(
+    wrapActionWithPositionals<[], AssetsRunDirectlyCliOptions>((rootDir, opts) =>
+      runAssetsMetaAlignCommand(rootDir, opts)
+    )
   );
 
 program.parse(process.argv);

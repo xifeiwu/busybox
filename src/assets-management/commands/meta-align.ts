@@ -1,4 +1,4 @@
-import {alignTwoMetas, diffMetaForSyncUp, goOnOrNot, printDiffSummary} from '../external';
+import {alignTwoMetas, diffMetaForSyncUp, goOnOrNot, printDiffForSyncUp} from '../external';
 import {
   getMetaSourceList,
   getPrimaryMetaHandler,
@@ -10,7 +10,7 @@ import {type AssetsRunDirectlyCliOptions} from '../service';
 /**
  * align two metas of the same dir
  */
-export async function runAssetsMetaSyncupCommand(assetsDir: string, options?: AssetsRunDirectlyCliOptions) {
+export async function runAssetsMetaAlignCommand(assetsDir: string, options?: AssetsRunDirectlyCliOptions) {
   const primaryMetaHandler = await getPrimaryMetaHandler(assetsDir);
   if (getMetaSourceList(assetsDir).length < 2) {
     throw new Error(
@@ -26,7 +26,7 @@ export async function runAssetsMetaSyncupCommand(assetsDir: string, options?: As
   const fromMeta = await primaryMetaHandler.getMeta();
   const toMeta = await targetMetaHandler.getMeta();
   const diff = await diffMetaForSyncUp(toMeta, fromMeta);
-  printDiffSummary(diff);
+  printDiffForSyncUp(diff);
 
   if (!diff.isNeedAction) {
     return;

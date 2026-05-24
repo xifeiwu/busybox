@@ -1,4 +1,4 @@
-import {alignMetaWithAssets, backupAssets, runAssetsSyncCommand} from '../external';
+import {updateMetaHandlerMeta, backupAssets, runAssetsSyncCommand} from '../external';
 import {
   getDefaultMetaHandler,
   getPrimaryMetaHandler,
@@ -13,7 +13,7 @@ export async function runAssetsPullCommand(
 ) {
   const {meta} = options ?? {};
   const metaHandler = await getDefaultMetaHandler(assetsDir, meta);
-  await alignMetaWithAssets(metaHandler);
+  await updateMetaHandlerMeta(metaHandler);
 
   const parsed = parseSyncTarget(target);
   if (parsed.kind === 'local') {

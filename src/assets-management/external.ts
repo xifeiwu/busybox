@@ -3,7 +3,7 @@ export {
   getAssetPartialInfoTreeMeta,
   getAssetFullInfoTreeMeta,
   serializeMeta,
-  printDiffForSyncUp as printDiffSummary,
+  printDiffForSyncUp,
   getFileMetaHandler,
   getMetaDir,
   META_DIR_NAME,
@@ -13,7 +13,7 @@ export {
 export type {AssetTreeMeta, MetaFileContent} from '../../modules/lib/node/lib/assets-management/types';
 export {
   addAssets as addAsset,
-  alignMetaWithAssets,
+  updateMetaHandlerMeta,
   alignTwoMetas,
   backupAssets,
   copyAsset,
