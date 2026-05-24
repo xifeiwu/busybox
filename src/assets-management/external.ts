@@ -14,7 +14,7 @@ export type {AssetTreeMeta, MetaFileContent} from '../../modules/lib/node/lib/as
 export {
   addAssets as addAsset,
   updateMetaHandlerMeta,
-  alignTwoMetas,
+  applyDiffForMetaSyncup,
   backupAssets,
   copyAsset,
   moveAsset,

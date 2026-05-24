@@ -1,4 +1,4 @@
-import {alignTwoMetas, diffMetaForSyncUp, goOnOrNot, printDiffForSyncUp} from '../external';
+import {applyDiffForMetaSyncup, diffMetaForSyncUp, goOnOrNot, printDiffForSyncUp} from '../external';
 import {
   getMetaSourceList,
   getPrimaryMetaHandler,
@@ -42,5 +42,5 @@ export async function runAssetsMetaAlignCommand(assetsDir: string, options?: Ass
     return;
   }
 
-  await alignTwoMetas(targetMetaHandler, fromMeta, {runDirectly: true});
+  await applyDiffForMetaSyncup(targetMetaHandler, diff, {runDirectly: true});
 }
