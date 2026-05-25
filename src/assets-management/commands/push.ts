@@ -19,7 +19,7 @@ export async function runAssetsPushCommand(
   const parsed = parseSyncTarget(target);
   if (parsed.kind === 'local') {
     const targetHandlers = await getPrimaryMetaHandler(parsed.path);
-    await backupAssets(targetHandlers, metaHandler, {runDirectly: options?.runDirectly});
+    await backupAssets(targetHandlers, await metaHandler.getMeta(), {runDirectly: options?.runDirectly});
     return;
   }
 

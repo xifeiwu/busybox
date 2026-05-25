@@ -18,7 +18,7 @@ export async function runAssetsPullCommand(
   const parsed = parseSyncTarget(target);
   if (parsed.kind === 'local') {
     const targetHandlers = await getPrimaryMetaHandler(parsed.path);
-    await backupAssets(metaHandler, targetHandlers, {runDirectly: options?.runDirectly});
+    await backupAssets(metaHandler, await targetHandlers.getMeta(), {runDirectly: options?.runDirectly});
     return;
   }
 

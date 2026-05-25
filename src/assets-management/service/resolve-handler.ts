@@ -14,7 +14,7 @@ export async function createDbMetaHandlersFactory(config: SequelizeConfig): Prom
 async function createMetaHandlersFactory(source: ParsedMetaSource): Promise<GetMetaHandlers> {
   if (source.kind === 'local') {
     if (source.metaFilePath) {
-      return getFileMetaHandler({metaFile: source.metaFilePath});
+      return getFileMetaHandler({});
     }
     return getFileMetaHandler();
   }

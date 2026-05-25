@@ -5,7 +5,7 @@ import {
   runAssetsAddCommand,
   runAssetsCopyCommand,
   runAssetsDiffCommand,
-  init,
+  runInitMeta,
   runAssetsMetaAlignCommand,
   runAssetsMoveCommand,
   runAssetsPullCommand,
@@ -50,7 +50,7 @@ program
   .description('Create .meta/ and a local meta source file from assets on disk')
   .action(async (opts: {force?: boolean}) => {
     try {
-      const rootDir = await init({dir: getGlobalDirOption()});
+      const rootDir = await runInitMeta({rootDir: getGlobalDirOption()});
       console.log(`init meta info for rootDir success: ${rootDir}`);
     } catch (err) {
       logColorful({color: 'red'}, err instanceof Error ? err.message : String(err));
@@ -71,11 +71,11 @@ program
 program
   .command('add')
   .description('Add file(s) to assets dir, or align meta with disk when file is omitted')
-  .argument('<source>', 'source file or folder to add')
+  .argument('[source]', 'source file or folder to add')
   .argument('[target]', 'target relative path')
   .option('--meta <key>', 'meta source key (from .meta/{local|sqlite|mysql}_*.{js,ts})')
   .option('-y, --run-directly', 'skip confirmation prompts')
-  .option('-A, --all', 'skip confirmation prompts')
+  // .option('-A, --all', 'skip confirmation prompts')
   .action(
     wrapActionWithPositionals<[string, string | undefined], AssetsMetaRunDirectlyCliOptions>(
       (rootDir, source, target, opts) => runAssetsAddCommand(rootDir, source, target, opts)

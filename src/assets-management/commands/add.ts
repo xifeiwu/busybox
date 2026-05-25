@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import {addAsset, updateMetaHandlerMeta, printIgnoredAssets, printOperatedAssets} from '../external';
 import {getDefaultMetaHandler, type AssetsMetaRunDirectlyCliOptions} from '../service';
+import {runAssetsDiffCommand} from './diff';
 
 export async function runAssetsAddCommand(
   assetsDir: string,
@@ -9,6 +10,9 @@ export async function runAssetsAddCommand(
   target?: string,
   options?: AssetsMetaRunDirectlyCliOptions
 ) {
+  if (source === undefined) {
+    return runAssetsDiffCommand(assetsDir, options);
+  }
   source = path.resolve(process.cwd(), source);
   if (!fs.existsSync(source)) {
     throw new Error(`source file not exist: ${source}`);
