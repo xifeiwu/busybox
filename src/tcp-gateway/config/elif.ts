@@ -32,15 +32,20 @@ export const koaConfig: KoaConfig = {
   },
   mwConfig: {
     ...defaultMwConfig,
-    staticWMConfig: {
-      spaDirList: [
-        {
-          fullpath: '/share/code/react/start/browser-feature/react-tsx-less/dist',
-          entries: ['net', 'browser-feature'],
-        },
-      ],
+    static: {
+      // staticConfigList: [
+      //   {
+      //     dir: '/share/assets',
+      //   },
+      // ],
+      // spaConfigList: [
+      //   {
+      //     dir: '/share/code/react/start/browser-feature/react-tsx-less/dist',
+      //     entryToDistFile: ['net', 'browser-feature'],
+      //   },
+      // ],
     },
-    socksConfig: SOCKS_SERVER_CONFIG,
+    socks: SOCKS_SERVER_CONFIG,
   },
   printOrigin: true,
 };

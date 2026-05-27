@@ -71,7 +71,7 @@ export {LaunchCpConfig, MonitorConfig} from '../../modules/lib/node/lib/process-
 export {
   KoaConfig,
   startKoaServer,
-  StaticMiddlewareOptions,
+  KoaStaticConfig,
   KoaShortCutConfig,
   DEFAULT_KOA_CONFIG as localKoaConfig,
   serializeKoaConfig,
