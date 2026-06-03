@@ -1,5 +1,7 @@
-import {SOCKS_AUTH_DEFAULT_USER_PASS, TCP_GATEWAY_DEFAULT_CONFIG} from '../../service/external';
+import path from 'path';
+import {PORT, SOCKS_AUTH_DEFAULT_USER_PASS, TCP_GATEWAY_DEFAULT_CONFIG} from '../../service/external';
 
+TCP_GATEWAY_DEFAULT_CONFIG.tcpServerConfig.port = PORT.tcpGatewayServer.port;
 TCP_GATEWAY_DEFAULT_CONFIG.mwConfig.socks[5].proxyConfigList = [
   {
     socksVersion: 1,
@@ -26,6 +28,30 @@ TCP_GATEWAY_DEFAULT_CONFIG.mwConfig.socks[5].proxyConfigList = [
     ],
   },
 ];
+
+TCP_GATEWAY_DEFAULT_CONFIG.koa.config.port = PORT.stableHttpServer.port;
+TCP_GATEWAY_DEFAULT_CONFIG.koa.config.mwConfig.static = {
+  staticConfigList: [
+    {
+      dir: path.join(process.env.HOME, 'code/huffie/xifeiwu.github.io'),
+      // urlPrefix: '/resume',
+      fallbackUrl: {
+        '/resume': '/index.html',
+      },
+    },
+  ],
+  spaConfigList: [
+    {
+      dir: path.resolve(process.env.HOME, 'code/react/start/small-apps-wrapper/dist'),
+      entryToDistFile: {
+        '/browser-runtime/feature': '/browser-runtime/feature.html',
+        '/react-feature/feature': '/react-feature/feature.html',
+        '/forum': '/forum.html',
+        '/auth': '/auth.html',
+      },
+    },
+  ],
+};
 
 // TCP_GATEWAY_DEFAULT_CONFIG.tcpServerConfig.port = 3161;
 // TCP_GATEWAY_DEFAULT_CONFIG.mwConfig.assetsSyncUp = {

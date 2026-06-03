@@ -9,7 +9,7 @@ import {
 } from '../../service/external';
 import path from 'path';
 
-export const SOCKS_SERVER_CONFIG: Partial<SocksServerConfigPerVersion> = {
+const SOCKS_SERVER_CONFIG: Partial<SocksServerConfigPerVersion> = {
   '1': {
     socksVersion: 1,
     auth: SOCKS_AUTH_DEFAULT_USER_PASS,
@@ -24,7 +24,7 @@ export const SOCKS_SERVER_CONFIG: Partial<SocksServerConfigPerVersion> = {
   // },
 };
 
-export const koaConfig: KoaConfig = {
+const koaConfig: KoaConfig = {
   /** Make http server can be accessed from outside */
   host: '127.0.0.1',
   port: 8880,

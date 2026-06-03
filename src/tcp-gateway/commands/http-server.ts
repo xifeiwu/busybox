@@ -33,8 +33,6 @@ async function startTcpGatewayByOptions(options?: TcpGateWayOptions) {
   }
 
   const tcpGatewayConfig = TCP_GATEWAY_DEFAULT_CONFIG;
-  delete tcpGatewayConfig.tcpServerConfig.port;
-  delete tcpGatewayConfig.koa.config.port;
   const {koa, tcpServerConfig} = tcpGatewayConfig;
   const koaShortCutConfig: KoaShortCutConfig = {
     staticDir,
