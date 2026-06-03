@@ -7,6 +7,8 @@ import {
   Env,
   serializeTcpGatewayConfig,
   closePortIfInUse,
+  TcpGateWayConfig,
+  TCP_GATEWAY_DEFAULT_CONFIG,
 } from '../service/external';
 import {TcpGateWayOptions} from '../types';
 import {tcpGatewayConfigByEnv} from './config';
@@ -19,19 +21,15 @@ process.on('uncaughtException', function (err) {
   console.log('uncaughtException:');
   console.log(err.stack);
 });
-export async function startTcpGatewayByEnv(options?: TcpGateWayOptions) {
-  const {env = process.env.NODE_ENV ?? Env.local, uploadDir, staticDir, port} = options ?? {};
+
+async function handeTcpGatewayOptions(tcpGatewayConfig: TcpGateWayConfig, options?: TcpGateWayOptions) {
+  const {uploadDir, staticDir, port} = options ?? {};
   let tcpPort = parseInt(port as string, 10);
   /** Must to use the port is it's not undefined */
   if (!Number.isNaN(tcpPort)) {
     if (!(await closePortIfInUse(tcpPort))) {
       throw new Error(`port ${tcpPort} is in use`);
     }
-  }
-
-  const tcpGatewayConfig = tcpGatewayConfigByEnv[env as Env];
-  if (!tcpGatewayConfig) {
-    throw new Error(`Not found config for env: ${env}`);
   }
   const {koa, tcpServerConfig} = tcpGatewayConfig;
   const koaShortCutConfig: KoaShortCutConfig = {
@@ -44,6 +42,21 @@ export async function startTcpGatewayByEnv(options?: TcpGateWayOptions) {
   if (Number.isInteger(tcpPort)) {
     tcpServerConfig.port = tcpPort;
   }
+  return tcpGatewayConfig;
+}
+export async function startTcpGatewayByEnv(options?: {env?: Env} & TcpGateWayOptions) {
+  const {env = process.env.NODE_ENV ?? Env.local, ...restOptions} = options ?? {};
+  const tcpGatewayConfig = tcpGatewayConfigByEnv[env as Env];
+  if (!tcpGatewayConfig) {
+    throw new Error(`Not found config for env: ${env}`);
+  }
+  const finalConfig = await handeTcpGatewayOptions(tcpGatewayConfig, restOptions);
+  const {host, port: finalPort, server, koaServerInfo} = await startTcpGateway(finalConfig);
+  return {host, port: finalPort, server, tcpGatewayConfig, koaServerInfo};
+}
+
+export async function startTcpGatewayByDefaultConfig(options?: TcpGateWayOptions) {
+  const tcpGatewayConfig = await handeTcpGatewayOptions(TCP_GATEWAY_DEFAULT_CONFIG, options);
   const {host, port: finalPort, server, koaServerInfo} = await startTcpGateway(tcpGatewayConfig);
   return {host, port: finalPort, server, tcpGatewayConfig, koaServerInfo};
 }
