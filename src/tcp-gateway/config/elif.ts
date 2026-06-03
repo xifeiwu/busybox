@@ -36,24 +36,24 @@ export const koaConfig: KoaConfig = {
     static: {
       staticConfigList: [
         {
-          dir: path.join(process.env.HOME, 'code/huffie/xifeiwu.github.io'),
+          dir: path.join('/home/xifei', 'code/huffie/xifeiwu.github.io'),
           // urlPrefix: '/resume',
           fallbackUrl: {
             '/resume': '/index.html',
           },
         },
       ],
-      spaConfigList: [
-        {
-          dir: path.resolve(process.env.HOME, 'code/react/start/small-apps-wrapper/dist'),
-          entryToDistFile: {
-            '/browser-runtime/feature': '/browser-runtime/feature.html',
-            '/react-feature/feature': '/react-feature/feature.html',
-            '/forum': '/forum.html',
-            '/auth': '/auth.html',
-          },
-        },
-      ],
+      // spaConfigList: [
+      //   {
+      //     dir: path.resolve(process.env.HOME, 'code/react/start/small-apps-wrapper/dist'),
+      //     entryToDistFile: {
+      //       '/browser-runtime/feature': '/browser-runtime/feature.html',
+      //       '/react-feature/feature': '/react-feature/feature.html',
+      //       '/forum': '/forum.html',
+      //       '/auth': '/auth.html',
+      //     },
+      //   },
+      // ],
     },
     socks: SOCKS_SERVER_CONFIG,
   },
