@@ -22,7 +22,7 @@ TCP_GATEWAY_DEFAULT_CONFIG.mwConfig.socks[5].proxyConfigList = [
       /wikipedia/,
       /v2ex.com/,
       /youtube.com/,
-      /github.com/,
+      /github/,
     ],
   },
 ];
