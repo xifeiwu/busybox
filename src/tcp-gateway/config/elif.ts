@@ -6,7 +6,7 @@ import {
   TcpGateWayConfig,
   TcpServerConfig,
   uploadDirOnHome,
-} from '@src/service/external';
+} from '../../service/external';
 import path from 'path';
 
 export const SOCKS_SERVER_CONFIG: Partial<SocksServerConfigPerVersion> = {

@@ -1,4 +1,4 @@
-import {Env, TcpGateWayConfig} from '@src/service/external';
+import {Env, TcpGateWayConfig} from '../../service/external';
 import {elifTcpGateWayConfig} from './elif';
 import {localTcpGateWayConfig} from './local';
 

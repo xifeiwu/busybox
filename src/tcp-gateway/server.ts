@@ -7,8 +7,8 @@ import {
   Env,
   serializeTcpGatewayConfig,
   closePortIfInUse,
-} from '@src/service/external';
-import {TcpGateWayOptions} from '@src/types';
+} from '../service/external';
+import {TcpGateWayOptions} from '../types';
 import {tcpGatewayConfigByEnv} from './config';
 
 /**
@@ -19,7 +19,7 @@ process.on('uncaughtException', function (err) {
   console.log('uncaughtException:');
   console.log(err.stack);
 });
-export async function startTcpGatewayByOptions(options?: TcpGateWayOptions) {
+export async function startTcpGatewayByEnv(options?: TcpGateWayOptions) {
   const {env = process.env.NODE_ENV ?? Env.local, uploadDir, staticDir, port} = options ?? {};
   let tcpPort = parseInt(port as string, 10);
   /** Must to use the port is it's not undefined */
@@ -48,7 +48,7 @@ export async function startTcpGatewayByOptions(options?: TcpGateWayOptions) {
   return {host, port: finalPort, server, tcpGatewayConfig, koaServerInfo};
 }
 
-export function serializeTcpGatewayInfo(info: Awaited<ReturnType<typeof startTcpGatewayByOptions>>) {
+export function serializeTcpGatewayInfo(info: Awaited<ReturnType<typeof startTcpGatewayByEnv>>) {
   const {host, port, koaServerInfo, tcpGatewayConfig} = info;
   const serializeableInfo = {
     host,

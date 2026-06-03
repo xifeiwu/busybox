@@ -5,14 +5,14 @@ import path from 'path';
 import {Command} from 'commander';
 import {Env, logColorful} from '../../service/external';
 import {TcpGateWayOptions} from '../../types';
-import {serializeTcpGatewayInfo, startTcpGatewayByOptions} from '../server';
+import {serializeTcpGatewayInfo, startTcpGatewayByEnv} from '../server';
 
-export async function startTcpGatewayByOptionsAndPrintInfo(
+export async function startTcpGatewayByEnvAndPrintInfo(
   options: Omit<TcpGateWayOptions, 'staticDir'>,
   staticDir?: string
 ) {
   const {env = process.env.NODE_ENV ?? 'local', uploadDir, port} = options;
-  const info = await startTcpGatewayByOptions({
+  const info = await startTcpGatewayByEnv({
     env: env as Env,
     staticDir: staticDir ? path.resolve(process.cwd(), staticDir) : undefined,
     uploadDir,
@@ -31,6 +31,6 @@ program
   .option('-p, --port <port>', 'the port used for http server')
   .option('-u, --upload-dir <upload>', 'dir to locate upload files')
   .action(async (staticDir, options) => {
-    await startTcpGatewayByOptionsAndPrintInfo(options, staticDir);
+    await startTcpGatewayByEnvAndPrintInfo(options, staticDir);
   });
 program.parse(process.argv);

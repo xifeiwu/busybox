@@ -1,5 +1,5 @@
 import path from 'path';
-import {serializeTcpGatewayInfo, startTcpGatewayByOptions} from './server';
+import {serializeTcpGatewayInfo, startTcpGatewayByEnv} from './server';
 import {logColorful, Env} from '@src/service/external';
 
 export async function testStartTcpGatewayByOptions() {
@@ -7,7 +7,7 @@ export async function testStartTcpGatewayByOptions() {
   const uploadDir = path.resolve(__dirname, 'uploads');
   const staticDir = undefined;
   // const tcpPort = 3161;
-  const info = await startTcpGatewayByOptions({
+  const info = await startTcpGatewayByEnv({
     env,
     staticDir: staticDir ? path.resolve(process.cwd(), staticDir) : undefined,
     uploadDir,
