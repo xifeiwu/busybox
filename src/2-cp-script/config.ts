@@ -35,7 +35,7 @@ const simpleProcConfigMap: Record<string, Omit<LaunchCpConfig, 'id'>> = {
   },
   'tcp-gateway': {
     spawnConfig: {
-      scriptPath: path.resolve(__dirname, 'tcp-gateway.ts'),
+      scriptPath: path.resolve(__dirname, '../tcp-gateway/cp-script.ts'),
       infoToCp: {
         config: {
           env: process.env.NODE_ENV ? (process.env.NODE_ENV as Env) : Env.local,

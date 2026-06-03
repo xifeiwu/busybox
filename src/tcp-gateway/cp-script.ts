@@ -7,7 +7,7 @@ import {
 } from '@src/service/external';
 import {serializeTcpGatewayInfo, startTcpGatewayByOptions} from '@src/tcp-gateway';
 import {TcpGateWayOptions} from '@src/types';
-import {out, responseError} from './service';
+import {out, responseError} from '../2-cp-script/service';
 
 function route(requestInfo?: HttpRequestInfo) {
   return {
