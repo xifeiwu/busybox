@@ -1,18 +1,18 @@
 [submodule "modules/lib/js"]
 	path = modules/lib/js
-	url = git@elif.site:fe/module/lib.git
+	url = git@github.com:xifeiwu/lib-js.git
 [submodule "modules/lib/node"]
 	path = modules/lib/node
-	url = git@elif.site:node/module/lib.git
+	url = git@github.com:xifeiwu/lib-node.git
 [submodule "modules/lib/net"]
 	path = modules/lib/net
-	url = git@elif.site:node/module/net.git
+	url = git@github.com:xifeiwu/lib-net.git
 [submodule "modules/lib/db"]
 	path = modules/lib/db
-	url = git@elif.site:node/module/db.git
+	url = git@github.com:xifeiwu/lib-db.git
 [submodule "modules/lib/utils"]
 	path = modules/lib/utils
-	url = git@elif.site:node/module/utils.git
+	url = git@github.com:xifeiwu/lib-utils.git
 [submodule "modules/types/common"]
 	path = modules/types/common
-	url = git@elif.site:fe/module/types.git
+	url = git@github.com:xifeiwu/lib-types.git
