@@ -14,7 +14,7 @@ export const BIN_TO_COMMAND: Record<string, CmdInfo> = {
   },
   nb: {filePath: 'src/1-command/node-busybox/index'},
   'tcp-gateway': {
-    filePath: 'src/tcp-gateway/command',
+    filePath: 'src/tcp-gateway/commands/tcp-gateway',
   },
   'login-to-server': {filePath: 'src/1-command/login-to-server'},
   runNodeExport: {filePath: 'src/run-in-cp/command/run-export'},
@@ -25,7 +25,7 @@ export const BIN_TO_COMMAND: Record<string, CmdInfo> = {
     runtime: 'ts-node',
   },
   'http-server': {
-    filePath: 'src/1-command/http-server',
+    filePath: 'src/tcp-gateway/commands/http-server',
   },
   'io-transparent': {
     /**

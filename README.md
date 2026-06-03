@@ -19,7 +19,7 @@ Features are categorized by folder under `src/`, and can expose two kinds of fil
 - `command.ts` — command file
 - `daemon-script.ts` — script run as child process
 
-When there are multiple files of the same kind, a subfolder (`bin/`, `command/`, `cp-script/`) can be created to store them.
+When there are multiple files of the same kind, a subfolder (`bin/`, `commands/`, `cp-scripts/`) can be created to store them.
 
 For simple command or daemon-script, it's unnecessary to create a new folder to locate them, it can be placed into dir `1-command`/`2-cp-scripts` directly.
 

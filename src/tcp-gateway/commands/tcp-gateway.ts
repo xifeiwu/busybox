@@ -2,9 +2,10 @@
  * A basic server contains frequently used function
  */
 import path from 'path';
-import {Env, logColorful} from '../service/external';
-import {serializeTcpGatewayInfo, startTcpGatewayByOptions} from './server';
-import {TcpGateWayOptions} from '@src/types';
+import {Command} from 'commander';
+import {Env, logColorful} from '../../service/external';
+import {TcpGateWayOptions} from '../../types';
+import {serializeTcpGatewayInfo, startTcpGatewayByOptions} from '../server';
 
 export async function startTcpGatewayByOptionsAndPrintInfo(
   options: Omit<TcpGateWayOptions, 'staticDir'>,
@@ -19,11 +20,6 @@ export async function startTcpGatewayByOptionsAndPrintInfo(
   });
   logColorful({}, serializeTcpGatewayInfo(info));
 }
-
-/**
- * A basic server contains frequently used function
- */
-import {Command} from 'commander';
 
 /**
  * Should take care about NODE_ENV, as config of tcp service depends on config get by env

@@ -10,7 +10,7 @@ import {
   runAssetsMoveCommand,
   runAssetsPullCommand,
   runAssetsPushCommand,
-} from './commands';
+} from './functions';
 import type {
   AssetsEmptyCliOptions,
   AssetsMetaCliOptions,
