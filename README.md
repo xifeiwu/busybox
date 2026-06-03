@@ -19,17 +19,17 @@ Features are categorized by folder under `src/`, and can expose two kinds of fil
 - `command.ts` — command file
 - `daemon-script.ts` — script run as child process
 
-When there are multiple files of the same kind, a subfolder (`bin/`, `command/`, `script/`) can be created to store them.
+When there are multiple files of the same kind, a subfolder (`bin/`, `command/`, `cp-script/`) can be created to store them.
 
-For simple command or daemon-script, it's unnecessary to create a new folder to locate them, it can be placed into dir `1-command`/`2-daemon-scripts` directly.
+For simple command or daemon-script, it's unnecessary to create a new folder to locate them, it can be placed into dir `1-command`/`2-cp-scripts` directly.
 
 ```
 .
 ├── src
 │   ├── build-install     # Compile project, create bin files, link to $PATH
 │   ├── 1-command         # Command implementations
-│   ├── 2-daemon-scripts          # Scripts run as child processes by daemon
-│   ├── daemon              # Daemon feature: manage child processes
+│   ├── 2-cp-scripts      # Scripts run as child processes by daemon
+│   ├── process-manager   # Process Manager: manage the running of child processes
 │   ├── db                # Database commands
 │   ├── redis             # Redis integration
 │   ├── service           # Shared services
@@ -63,21 +63,11 @@ If VSCode reports "cannot find path of runtimeExecutable on launch.json":
 
 Append `alias runNodeExport='${HOME}/code/bin/runNodeExport'` to `.zshrc`, then start VSCode from the project directory with `code .`.
 
-### Production Environment
+### Start Child process script using command pm
 
 1. Some commands require root: `sudo su root`
 2. Set environment: `export NODE_ENV=elif`
-3. Run in detached mode: `daemon start-detach`
-
-**Start with forever on server:**
-
-```bash
-forever start /share/nvm/versions/node/v18.18.0/bin/ts-node \
-  -r /share/code/node/start/busybox/node_modules/tsconfig-paths/register.js \
-  --project /share/code/node/start/busybox/tsconfig.json \
-  --transpileOnly \
-  /share/code/node/start/busybox/src/command/http-server.ts -p 80
-```
+3. Run: `pm start`，and select the script want to run
 
 ### runNodeExport Tips
 

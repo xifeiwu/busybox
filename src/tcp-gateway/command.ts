@@ -3,7 +3,7 @@
  */
 import path from 'path';
 import {Env, logColorful} from '../service/external';
-import {serializeTcpGatewayInfo, startTcpGatewayByOptions} from '@src/tcp-gateway';
+import {serializeTcpGatewayInfo, startTcpGatewayByOptions} from './server';
 import {TcpGateWayOptions} from '@src/types';
 
 export async function startTcpGatewayByOptionsAndPrintInfo(
@@ -19,7 +19,6 @@ export async function startTcpGatewayByOptionsAndPrintInfo(
   });
   logColorful({}, serializeTcpGatewayInfo(info));
 }
-
 
 /**
  * A basic server contains frequently used function
