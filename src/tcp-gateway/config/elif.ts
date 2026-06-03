@@ -7,6 +7,7 @@ import {
   TcpServerConfig,
   uploadDirOnHome,
 } from '@src/service/external';
+import path from 'path';
 
 export const SOCKS_SERVER_CONFIG: Partial<SocksServerConfigPerVersion> = {
   '1': {
@@ -33,17 +34,26 @@ export const koaConfig: KoaConfig = {
   mwConfig: {
     ...defaultMwConfig,
     static: {
-      // staticConfigList: [
-      //   {
-      //     dir: '/share/assets',
-      //   },
-      // ],
-      // spaConfigList: [
-      //   {
-      //     dir: '/share/code/react/start/browser-feature/react-tsx-less/dist',
-      //     entryToDistFile: ['net', 'browser-feature'],
-      //   },
-      // ],
+      staticConfigList: [
+        {
+          dir: path.join(process.env.HOME, 'code/huffie/xifeiwu.github.io'),
+          // urlPrefix: '/resume',
+          fallbackUrl: {
+            '/resume': '/index.html',
+          },
+        },
+      ],
+      spaConfigList: [
+        {
+          dir: path.resolve(process.env.HOME, 'code/react/start/small-apps-wrapper/dist'),
+          entryToDistFile: {
+            '/browser-runtime/feature': '/browser-runtime/feature.html',
+            '/react-feature/feature': '/react-feature/feature.html',
+            '/forum': '/forum.html',
+            '/auth': '/auth.html',
+          },
+        },
+      ],
     },
     socks: SOCKS_SERVER_CONFIG,
   },
