@@ -77,11 +77,15 @@ export const elifTcpGateWayConfig: AssistServiceConfig = {
   },
 };
 
+const IDLE_TIMEOUT_MS = 60 * 60 * 1000;
+
 export const tcpPort80: TcpServerConfig = {
   port: 80,
   host: '0.0.0.0',
+  idleTimeoutMs: IDLE_TIMEOUT_MS,
 };
 export const tcpPort443: TcpServerConfig = {
   port: 443,
   host: '0.0.0.0',
+  idleTimeoutMs: IDLE_TIMEOUT_MS,
 };
