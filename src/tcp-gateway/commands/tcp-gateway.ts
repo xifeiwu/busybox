@@ -8,7 +8,7 @@ import {TcpGateWayOptions} from '../../types';
 import {serializeTcpGatewayInfo, startTcpGatewayByEnv} from '../server';
 
 export async function startTcpGatewayByEnvAndPrintInfo(
-  options: Omit<TcpGateWayOptions, 'staticDir'>,
+  options: Omit<{env?: Env} & TcpGateWayOptions, 'staticDir'>,
   staticDir?: string
 ) {
   const {env = process.env.NODE_ENV ?? 'local', uploadDir, port} = options;

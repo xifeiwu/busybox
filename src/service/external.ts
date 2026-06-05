@@ -65,6 +65,7 @@ export {
   linkFile,
   makeSureDirExist,
   getPreferredFileByExt,
+  waitIpcMessageOnce,
 } from '../../modules/lib/node';
 export {SocksServerConfigPerVersion, SOCKS_AUTH_DEFAULT_USER_PASS} from '../../modules/lib/node/lib/socks';
 export {LaunchCpConfig, MonitorConfig} from '../../modules/lib/node/lib/process-manager';

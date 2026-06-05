@@ -36,6 +36,7 @@ const localSocksConfig: Partial<SocksServerConfigPerVersion> = {
           /wikipedia/,
           /v2ex.com/,
           /youtube.com/,
+          /.*av.*/,
           /github/,
         ],
       },

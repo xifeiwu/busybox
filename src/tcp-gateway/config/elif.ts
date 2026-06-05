@@ -60,7 +60,7 @@ const koaConfig: KoaConfig = {
   printOrigin: true,
 };
 
-export const tcpServerConfig: TcpServerConfig = {
+const tcpServerConfig: TcpServerConfig = {
   port: 80,
   host: '0.0.0.0',
 };

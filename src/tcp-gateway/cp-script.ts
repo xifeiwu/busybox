@@ -1,13 +1,17 @@
 import {
   HttpRequestInfo,
-  InfoToCp,
   startSocketClient,
   startSocketServer,
   getDefaultHttpsConfig,
-} from '@src/service/external';
+  Env,
+  waitIpcMessageOnce,
+} from '../service/external';
 import {serializeTcpGatewayInfo, startTcpGatewayByEnv} from '@src/tcp-gateway';
-import {TcpGateWayOptions} from '@src/types';
 import {out, responseError} from '../2-cp-script/service';
+
+interface IpcMessage {
+  env: Env;
+}
 
 function route(requestInfo?: HttpRequestInfo) {
   return {
@@ -16,7 +20,7 @@ function route(requestInfo?: HttpRequestInfo) {
   };
 }
 
-export async function startTlsGateway(config: TcpGateWayOptions) {
+export async function startTlsGateway(config?: IpcMessage) {
   try {
     const {server, host, port} = await startSocketServer(async socket => {
       const {host, port} = route();
@@ -30,19 +34,7 @@ export async function startTlsGateway(config: TcpGateWayOptions) {
 }
 
 export async function start() {
-  let ipcMessage: InfoToCp<TcpGateWayOptions> = {};
-  if (process.send) {
-    ipcMessage = await new Promise<InfoToCp<TcpGateWayOptions>>(res => {
-      process.once('message', (chunk: InfoToCp<TcpGateWayOptions>) => {
-        res(chunk);
-      });
-      /** Wait message for one second at most */
-      setTimeout(() => {
-        res({});
-      }, 1000);
-    });
-  }
-  const {config = {}} = ipcMessage;
+  const config = await waitIpcMessageOnce<IpcMessage>();
   try {
     const info = await startTcpGatewayByEnv(config);
     const response = serializeTcpGatewayInfo(info);
