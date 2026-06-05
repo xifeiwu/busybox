@@ -69,6 +69,7 @@ export {
 } from '../../modules/lib/node';
 export {SocksServerConfigPerVersion, SOCKS_AUTH_DEFAULT_USER_PASS} from '../../modules/lib/node/lib/socks';
 export {LaunchCpConfig, MonitorConfig} from '../../modules/lib/node/lib/process-manager';
+export {outputInfo, getErrorMessage} from '../../modules/lib/node/utils/cp-script';
 export {
   KoaConfig,
   startKoaServer,
@@ -78,10 +79,11 @@ export {
   SOCKS_SERVER_CONFIG,
   serializeKoaConfig,
   startTcpGateway,
-  TcpGateWayConfig,
+  AssistServiceConfig,
   defaultMwConfig,
-  TCP_GATEWAY_DEFAULT_CONFIG,
+  ASSIST_SERVER_DEFAULT_CONFIG,
   serializeTcpGatewayConfig,
+  serializeTcpGatewayInfo,
   echoDataOverTcp,
   getDownloadSpeed,
   getUploadSpeed,

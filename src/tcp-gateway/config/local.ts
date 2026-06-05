@@ -4,7 +4,7 @@ import {
   SOCKS_AUTH_DEFAULT_USER_PASS,
   KoaConfig,
   SocksServerConfigPerVersion,
-  TcpGateWayConfig,
+  AssistServiceConfig,
   TcpServerConfig,
   DEFAULT_KOA_CONFIG,
   SOCKS_SERVER_CONFIG,
@@ -36,7 +36,6 @@ const localSocksConfig: Partial<SocksServerConfigPerVersion> = {
           /wikipedia/,
           /v2ex.com/,
           /youtube.com/,
-          /.*av.*/,
           /github/,
         ],
       },
@@ -46,7 +45,7 @@ const localSocksConfig: Partial<SocksServerConfigPerVersion> = {
 
 const koaConfig: KoaConfig = {
   ...DEFAULT_KOA_CONFIG,
-  port: PORT.stableHttpServer.port,
+  // port: PORT.stableHttpServer.port,
   mwConfig: {
     ...DEFAULT_KOA_CONFIG.mwConfig,
     static: {
@@ -75,24 +74,26 @@ const koaConfig: KoaConfig = {
   },
 };
 
-const tcpServerConfig: TcpServerConfig = {
-  host: '0.0.0.0',
-  port: PORT.tcpGatewayServer.port,
-};
-
 // tcpServerConfig.port = 3161;
 // assetsSyncUp: {
 //   dir: '/Users/Shared/assets',
 //   // git: 'git@elif.site:fe/module/assets.git',
 // },
 
-export const localTcpGateWayConfig: TcpGateWayConfig = {
-  tcpServerConfig,
-  mwConfig: {
-    socks: localSocksConfig,
+export const LOCAL_ASSIST_SERVER_CONFIG: AssistServiceConfig = {
+  // tcpServerConfig,
+  tcp: {
+    mwConfig: {
+      socks: localSocksConfig,
+    },
+    middlewares: [],
   },
-  middlewares: [],
   koa: {
     config: koaConfig,
   },
+};
+
+export const tcpPort3160: TcpServerConfig = {
+  host: '0.0.0.0',
+  port: PORT.tcpGatewayServer.port,
 };

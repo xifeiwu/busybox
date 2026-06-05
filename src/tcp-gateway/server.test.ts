@@ -1,24 +1,26 @@
 import path from 'path';
-import {serializeTcpGatewayInfo, startTcpGatewayByDefaultConfig, startTcpGatewayByEnv} from './server';
-import {logColorful, Env} from '@src/service/external';
+import {startTcpGatewayByDefaultConfig, startTcpGatewayByEnv} from './server';
+import {logColorful, Env, serializeTcpGatewayInfo} from '../service/external';
 
 export async function testStartTcpGatewayByEnv() {
   const env: Env = (process.env.NODE_ENV ?? Env.local) as Env;
-  const uploadDir = path.resolve(__dirname, 'uploads');
-  const staticDir = undefined;
-  // const tcpPort = 3161;
   const info = await startTcpGatewayByEnv({
     env,
-    staticDir: staticDir ? path.resolve(process.cwd(), staticDir) : undefined,
-    uploadDir,
-    // port: tcpPort,
   });
   logColorful({}, serializeTcpGatewayInfo(info));
 }
 
 export async function testStartTcpGatewayDefaultConfig() {
+  const uploadDir = path.resolve(__dirname, 'uploads');
+  const staticDir = '/Users/xfwu/Documents/jingyuexing.github.io';
   const info = await startTcpGatewayByDefaultConfig({
-    staticDir: '/Users/xfwu/Documents/jingyuexing.github.io',
+    koa: {
+      staticDir,
+      uploadDir,
+    },
+    gateway: {
+      port: 3161,
+    },
   });
   logColorful({}, serializeTcpGatewayInfo(info));
 }

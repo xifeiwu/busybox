@@ -3,7 +3,7 @@ import {
   KoaConfig,
   defaultMwConfig,
   SocksServerConfigPerVersion,
-  TcpGateWayConfig,
+  AssistServiceConfig,
   TcpServerConfig,
   uploadDirOnHome,
 } from '../../service/external';
@@ -27,7 +27,7 @@ const SOCKS_SERVER_CONFIG: Partial<SocksServerConfigPerVersion> = {
 const koaConfig: KoaConfig = {
   /** Make http server can be accessed from outside */
   host: '127.0.0.1',
-  port: 8880,
+  // port: 8880,
   bodyParserOptions: {
     uploadDir: uploadDirOnHome,
   },
@@ -60,22 +60,28 @@ const koaConfig: KoaConfig = {
   printOrigin: true,
 };
 
-const tcpServerConfig: TcpServerConfig = {
-  port: 80,
-  host: '0.0.0.0',
-};
-
-export const elifTcpGateWayConfig: TcpGateWayConfig = {
-  tcpServerConfig: tcpServerConfig,
-  mwConfig: {
-    socks: SOCKS_SERVER_CONFIG,
-    assetsSyncUp: {
-      dir: '/share/assets',
-      git: 'git@elif.site:fe/module/assets.git',
+export const elifTcpGateWayConfig: AssistServiceConfig = {
+  // tcpServerConfig: tcpServerConfig,
+  tcp: {
+    mwConfig: {
+      socks: SOCKS_SERVER_CONFIG,
+      assetsSyncUp: {
+        dir: '/share/assets',
+        git: 'git@elif.site:fe/module/assets.git',
+      },
     },
+    middlewares: [],
   },
-  middlewares: [],
   koa: {
     config: koaConfig,
   },
+};
+
+export const tcpPort80: TcpServerConfig = {
+  port: 80,
+  host: '0.0.0.0',
+};
+export const tcpPort443: TcpServerConfig = {
+  port: 443,
+  host: '0.0.0.0',
 };

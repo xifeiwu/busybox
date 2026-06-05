@@ -30,6 +30,7 @@ export const runScript = async (scriptPath: string, options: RunNodeScriptOption
   }
   const response = await spawnAndTryIpc(spawnConfig, {stdinRawMode: true});
   const result = serializeSpawnResponse(response);
+  /** stop log response from child process to avoid confusion */
   // logColorful({color: 'green'}, 'child process info:', {ppid: process.pid, ...result});
   return result;
 };

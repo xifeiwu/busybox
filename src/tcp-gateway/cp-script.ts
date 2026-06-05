@@ -1,19 +1,20 @@
 import {
-  HttpRequestInfo,
   startSocketClient,
   startSocketServer,
   getDefaultHttpsConfig,
   Env,
   waitIpcMessageOnce,
+  outputInfo,
+  getErrorMessage,
+  serializeTcpGatewayInfo,
 } from '../service/external';
-import {serializeTcpGatewayInfo, startTcpGatewayByEnv} from '@src/tcp-gateway';
-import {out, responseError} from '../2-cp-script/service';
+import {startTcpGatewayByEnv} from './server';
 
 interface IpcMessage {
   env: Env;
 }
 
-function route(requestInfo?: HttpRequestInfo) {
+function route() {
   return {
     host: '127.0.0.1',
     port: 80,
@@ -39,9 +40,9 @@ export async function start() {
     const info = await startTcpGatewayByEnv(config);
     const response = serializeTcpGatewayInfo(info);
     const tlsInfo = await startTlsGateway(config);
-    out({...response, tlsInfo});
+    outputInfo({...response, tlsInfo}, {stdout: true, ipc: true});
   } catch (err) {
-    out(responseError(err));
+    outputInfo(getErrorMessage(err), {stdout: true, ipc: true});
   }
 }
 start();

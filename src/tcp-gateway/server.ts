@@ -1,17 +1,10 @@
 /**
  * A basic server contains frequently used function
  */
-import {
-  startTcpGateway,
-  KoaShortCutConfig,
-  Env,
-  serializeTcpGatewayConfig,
-  closePortIfInUse,
-  TcpGateWayConfig,
-  TCP_GATEWAY_DEFAULT_CONFIG,
-} from '../service/external';
-import {TcpGateWayOptions} from '../types';
-import {tcpGatewayConfigByEnv} from './config';
+import {startTcpGateway, Env, closePortIfInUse, AssistServiceConfig} from '../service/external';
+import {ASSIST_SERVER_CONFIG_BY_ENV} from './config/by-env';
+import {LOCAL_ASSIST_SERVER_CONFIG} from './config/local';
+import {ShortCutConfig} from './types';
 
 /**
  * used to catch error, such as:
@@ -22,54 +15,54 @@ process.on('uncaughtException', function (err) {
   console.log(err.stack);
 });
 
-async function handeTcpGatewayOptions(tcpGatewayConfig: TcpGateWayConfig, options?: TcpGateWayOptions) {
-  const {uploadDir, staticDir, port} = options ?? {};
-  let tcpPort = parseInt(port as string, 10);
+async function mergeTcpGatewayOptions(serviceConfig: AssistServiceConfig, options?: ShortCutConfig) {
+  const {gateway} = options ?? {};
+  // const {uploadDir, staticDir, port} = koa ?? {};
+  let tcpPort = parseInt(gateway?.port as string, 10);
   /** Must to use the port is it's not undefined */
   if (!Number.isNaN(tcpPort)) {
-    if (!(await closePortIfInUse(tcpPort))) {
+    if (!(await closePortIfInUse(tcpPort, {doubleConfirm: true}))) {
       throw new Error(`port ${tcpPort} is in use`);
     }
+    if (Array.isArray(serviceConfig.gateway)) {
+      serviceConfig.gateway.push({port: tcpPort});
+    } else {
+      serviceConfig.gateway = [{port: tcpPort}];
+    }
   }
-  const {koa, tcpServerConfig} = tcpGatewayConfig;
-  const koaShortCutConfig: KoaShortCutConfig = {
-    staticDir,
-    uploadDir,
-  };
-  if (koa) {
-    koa.shortCut = koaShortCutConfig;
+  if (options?.koa && serviceConfig.koa) {
+    const {uploadDir, staticDir} = options.koa;
+    if (!serviceConfig.koa.shortCut) {
+      serviceConfig.koa.shortCut = {};
+    }
+    if (staticDir) {
+      serviceConfig.koa.shortCut.staticDir = staticDir;
+    }
+    if (uploadDir) {
+      serviceConfig.koa.shortCut.uploadDir = uploadDir;
+    }
   }
-  if (Number.isInteger(tcpPort)) {
-    tcpServerConfig.port = tcpPort;
-  }
-  return tcpGatewayConfig;
+  return serviceConfig;
 }
-export async function startTcpGatewayByEnv(options?: {env?: Env} & TcpGateWayOptions) {
-  const {env = process.env.NODE_ENV ?? Env.local, ...restOptions} = options ?? {};
-  const tcpGatewayConfig = tcpGatewayConfigByEnv[env as Env];
-  if (!tcpGatewayConfig) {
+
+export async function startTcpGatewayByDefaultConfig(options?: ShortCutConfig) {
+  const config = await mergeTcpGatewayOptions(LOCAL_ASSIST_SERVER_CONFIG, options);
+  const {gateway, koaServerInfo} = await startTcpGateway(config);
+  return {config, gateway, koaServerInfo};
+}
+
+/**
+ * All config comes from env config.
+ * Mainly used by start assist server from child process
+ * @param options
+ * @returns
+ */
+export async function startTcpGatewayByEnv(options?: {env?: Env}) {
+  const {env = process.env.NODE_ENV ?? Env.local} = options ?? {};
+  const config = ASSIST_SERVER_CONFIG_BY_ENV[env as Env];
+  if (!config) {
     throw new Error(`Not found config for env: ${env}`);
   }
-  const finalConfig = await handeTcpGatewayOptions(tcpGatewayConfig, restOptions);
-  const {host, port: finalPort, server, koaServerInfo} = await startTcpGateway(finalConfig);
-  return {host, port: finalPort, server, tcpGatewayConfig, koaServerInfo};
-}
-
-export async function startTcpGatewayByDefaultConfig(options?: TcpGateWayOptions) {
-  const tcpGatewayConfig = await handeTcpGatewayOptions(TCP_GATEWAY_DEFAULT_CONFIG, options);
-  const {host, port: finalPort, server, koaServerInfo} = await startTcpGateway(tcpGatewayConfig);
-  return {host, port: finalPort, server, tcpGatewayConfig, koaServerInfo};
-}
-
-export function serializeTcpGatewayInfo(info: Awaited<ReturnType<typeof startTcpGatewayByEnv>>) {
-  const {host, port, koaServerInfo, tcpGatewayConfig} = info;
-  const serializeableInfo = {
-    host,
-    port,
-    tcpGatewayConfig: serializeTcpGatewayConfig(tcpGatewayConfig),
-    koaServerInfo: {
-      origin: koaServerInfo.origin,
-    },
-  };
-  return serializeableInfo;
+  const {gateway, koaServerInfo} = await startTcpGateway(config);
+  return {config, gateway, koaServerInfo};
 }
